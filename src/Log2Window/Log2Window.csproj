@@ -1,0 +1,290 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{EE81C506-55E4-417E-B1D6-09453F89C7CD}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Log2Window</RootNamespace>
+    <AssemblyName>Log2Window</AssemblyName>
+    <ApplicationIcon>res/windowb.ico</ApplicationIcon>
+    <ManifestCertificateThumbprint>734B2D84C6B094EB368104E29886FB3793CCF867</ManifestCertificateThumbprint>
+ 
+    <GenerateManifests>false</GenerateManifests>
+    <SignManifests>false</SignManifests>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+ 
+    <TargetZone>LocalIntranet</TargetZone>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />    
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions> 
+    <ProductName>Log2Window</ProductName>
+    <PublisherName>Remy Baudet aka Statyk7</PublisherName>
+    <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>0.2.2907.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRules>
+    </CodeAnalysisRules>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CsvHelper, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.2.16.3.0\lib\net40\CsvHelper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ICSharpCode.TextEditor, Version=3.2.1.6466, Culture=neutral, PublicKeyToken=4d61825e8dd49f1a, processorArchitecture=MSIL">
+      <HintPath>..\packages\ICSharpCode.TextEditor.3.2.1.6466\lib\Net20\ICSharpCode.TextEditor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net40-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RichTextBoxLinks, Version=1.0.5459.17954, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RichTextBoxLinks.1.0.0\lib\net40\RichTextBoxLinks.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Messaging" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AboutForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AboutForm.Designer.cs">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ICSharpCodeExtension\Actions\CaretActionsExtension.cs" />
+    <Compile Include="Log\ILoggerView.cs" />
+    <Compile Include="Log\ILogManager.cs" />
+    <Compile Include="Log\ILogMessageNotifiable.cs" />
+    <Compile Include="Log\LoggerItem.cs" />
+    <Compile Include="Log\LogLevel.cs" />
+    <Compile Include="Log\LogLevelInfo.cs" />
+    <Compile Include="Log\LogLevels.cs" />
+    <Compile Include="Log\LogManager.cs">
+    </Compile>
+    <Compile Include="Log\LogMessage.cs" />
+    <Compile Include="Log\LogMessageField.cs" />
+    <Compile Include="Log\LogMessageItem.cs" />
+    <Compile Include="Log\LogUtils.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\TreeViewWithoutDoubleClick.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Utils.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Receiver\CsvFileReceiver.cs" />
+    <Compile Include="Receiver\ReceiverUtils.cs" />
+    <Compile Include="Settings\FieldType.cs" />
+    <Compile Include="Settings\LayoutSettings.cs" />
+    <Compile Include="Settings\SourceFileLocation.cs" />
+    <Compile Include="Win32ApiCodePack\CommonDllNames.cs" />
+    <Compile Include="Win32ApiCodePack\Core.cs" />
+    <Compile Include="Win32ApiCodePack\TabbedThumbnailNativeMethods.cs" />
+    <Compile Include="Win32ApiCodePack\TaskbarManager.cs" />
+    <Compile Include="Win32ApiCodePack\TaskbarNativeMethods.cs" />
+    <Compile Include="Win32ApiCodePack\TaskbarProgressBarState.cs" />
+    <Compile Include="Win32ApiCodePack\TaskbarWindow.cs" />
+    <Compile Include="Win32ApiCodePack\TaskbarWindowManager.cs" />
+    <Compile Include="Win32ApiCodePack\ThumbnailToolbarButton.cs" />
+    <Compile Include="Win32ApiCodePack\ThumbnailToolbarManager.cs" />
+    <Compile Include="Win32ApiCodePack\ThumbnailToolbarProxyWindow.cs" />
+    <EmbeddedResource Include="AboutForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\ReceiversForm.resx">
+      <DependentUpon>ReceiversForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\SettingsForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Receiver\BaseReceiver.cs" />
+    <Compile Include="Receiver\DebugMonitor.cs" />
+    <Compile Include="Receiver\EventLogReceiver.cs" />
+    <Compile Include="Receiver\FileReceiver.cs" />
+    <Compile Include="Receiver\IReceiver.cs" />
+    <Compile Include="Receiver\MsmqReceiver.cs" />
+    <Compile Include="Receiver\ReceiverFactory.cs" />
+    <Compile Include="Receiver\RemotingReceiver.cs" />
+    <Compile Include="Receiver\SLPolicyServerReceiver.cs" />
+    <Compile Include="Receiver\TcpReceiver.cs" />
+    <Compile Include="Receiver\UdpReceiver.cs" />
+    <Compile Include="Receiver\WinDebugReceiver.cs" />
+    <Compile Include="Settings\ReceiversForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings\ReceiversForm.Designer.cs">
+      <DependentUpon>ReceiversForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings\SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\UserSettings.cs" />
+    <Compile Include="UI\AutoWaitCursor.cs" />
+    <Compile Include="UI\ControlExtenders\DockExtender.cs" />
+    <Compile Include="UI\ControlExtenders\Floaty.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\ControlExtenders\Overlay.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\FlickerFreeListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\ToolStripControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\TreeViewLoggerView.cs" />
+    <Compile Include="UI\WindowRestorer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BaseApplicationManifest Include="Properties\app.manifest" />
+    <None Include="res\back16.png" />
+    <None Include="res\cd16.png" />
+    <None Include="res\close16.png" />
+    <None Include="res\configure16.png" />
+    <None Include="res\delete16.png" />
+    <None Include="res\deletefile16.png" />
+    <None Include="res\documentsorcopy16.png" />
+    <None Include="res\find16.png" />
+    <None Include="res\gotoapp16.png" />
+    <None Include="res\infoabout16.png" />
+    <None Include="res\next16.png" />
+    <None Include="res\window16.png" />
+    <None Include="res\windowb.ico" />
+    <None Include="res\zoomin16.png" />
+    <None Include="res\zoomout16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\burn16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\unselect.png" />
+    <None Include="res\backward16.png" />
+    <None Include="res\forward16.png" />
+    <Content Include="res\collapse_all.png" />
+    <Content Include="res\Go16.png" />
+    <None Include="res\movefile16.png" />
+    <Content Include="res\Pause16.png" />
+    <Content Include="res\pin.png" />
+    <Content Include="res\saveas16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Configuration\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
