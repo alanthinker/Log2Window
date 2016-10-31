@@ -313,7 +313,7 @@ namespace Log2Window.Log
             {
                 logListView.Invoke(new Action(delegate ()
                 {
-                    lock (LogManager.Instance._dataSource)
+                    lock (LogManager.Instance.dataLocker)
                     {
                         logListView.VirtualListSize = LogManager.Instance._dataSource.Count;
                         if (LogManager.Instance._dataSource.Count > 0

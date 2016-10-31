@@ -174,7 +174,7 @@ namespace Log2Window
 
         private void LogListView_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
         {
-            lock (LogManager.Instance._dataSource)
+            lock (LogManager.Instance.dataLocker)
             {
                 if (e.ItemIndex < LogManager.Instance._dataSource.Count)
                     e.Item = LogMessageItem.CreateListViewItem(LogManager.Instance._dataSource[e.ItemIndex].Message);
@@ -1062,7 +1062,7 @@ namespace Log2Window
 
         private void ReBindListViewFromAllLogMessageItems()
         {
-            lock (LogManager.Instance._dataSource)
+            lock (LogManager.Instance.dataLocker)
             {
                 LogManager.Instance._dataSource.Clear();
 
@@ -1071,7 +1071,7 @@ namespace Log2Window
                     item.Enabled = item.Parent.IsItemToBeEnabled(item);
                     if (item.Enabled)
                     {
-                        LogManager.Instance._dataSource.Add(item);
+                        LogManager.Instance._dataSource.Enqueue(item);
                     }
                 }
 
@@ -1143,7 +1143,7 @@ namespace Log2Window
 
         private void goToFirstLogBtn_Click(object sender, EventArgs e)
         {
-            lock (LogManager.Instance._dataSource)
+            lock (LogManager.Instance.dataLocker)
             {
                 if (LogManager.Instance._dataSource.Count == 0)
                     return;
@@ -1154,7 +1154,7 @@ namespace Log2Window
 
         private void goToLastLogBtn_Click(object sender, EventArgs e)
         {
-            lock (LogManager.Instance._dataSource)
+            lock (LogManager.Instance.dataLocker)
             {
                 if (LogManager.Instance._dataSource.Count == 0)
                     return;

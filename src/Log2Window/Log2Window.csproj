@@ -12,11 +12,9 @@
     <AssemblyName>Log2Window</AssemblyName>
     <ApplicationIcon>res/windowb.ico</ApplicationIcon>
     <ManifestCertificateThumbprint>734B2D84C6B094EB368104E29886FB3793CCF867</ManifestCertificateThumbprint>
- 
     <GenerateManifests>false</GenerateManifests>
     <SignManifests>false</SignManifests>
     <IsWebBootstrapper>false</IsWebBootstrapper>
- 
     <TargetZone>LocalIntranet</TargetZone>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>
@@ -27,7 +25,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile />    
+    <TargetFrameworkProfile />
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -36,7 +34,7 @@
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions> 
+    <MapFileExtensions>true</MapFileExtensions>
     <ProductName>Log2Window</ProductName>
     <PublisherName>Remy Baudet aka Statyk7</PublisherName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
@@ -104,6 +102,7 @@
     <Compile Include="AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MyList.cs" />
     <Compile Include="ICSharpCodeExtension\Actions\CaretActionsExtension.cs" />
     <Compile Include="Log\ILoggerView.cs" />
     <Compile Include="Log\ILogManager.cs" />

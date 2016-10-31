@@ -9,8 +9,11 @@ namespace Log2Window.Log
     {
         private static LogManager _instance;
 
-        public List<LogMessageItem> _allLogMessageItems = new List<LogMessageItem>();
-        public List<LogMessageItem> _dataSource = new List<LogMessageItem>();
+        //_allLogMessageItems and _dataSource must use this locker.
+        public readonly object dataLocker = new object();
+        public MyList<LogMessageItem> _allLogMessageItems = new MyList<LogMessageItem>();
+        public MyList<LogMessageItem> _dataSource = new MyList<LogMessageItem>();
+
         private LoggerItem _rootLoggerItem;
         private Dictionary<string, LoggerItem> _fullPathLoggers;
         public ListView _logListView;
@@ -57,11 +60,11 @@ namespace Log2Window.Log
 
         public void ClearLogMessages()
         {
-            lock (_dataSource)
+            lock (dataLocker)
             {
                 _allLogMessageItems.Clear();
                 _dataSource.Clear();
-            } 
+            }
         }
 
         public void DeactivateLogger()
@@ -85,24 +88,30 @@ namespace Log2Window.Log
 
             var item = logger.AddLogMessage(logMsg);
 
-            lock (LogManager.Instance._dataSource)
+            lock (LogManager.Instance.dataLocker)
             {
-                _allLogMessageItems.Add(  item);
+                _allLogMessageItems.Enqueue(item);
                 if (item.Enabled)
-                { 
-                    _dataSource.Add(item);
-                } 
-               
+                {
+                    _dataSource.Enqueue(item);
+                }
+
                 var maxCount = Settings.UserSettings.Instance.MessageCycleCount;
                 if (maxCount > 0)
                 {
                     while (_allLogMessageItems.Count > maxCount)
                     {
                         var tobeRemoveItem = _allLogMessageItems[0];
-                        _dataSource.Remove(tobeRemoveItem);
-                        _allLogMessageItems.RemoveAt(0);
+                        _allLogMessageItems.Dequeue();
+                        if (_dataSource.Count > 0)
+                        {
+                            if (_dataSource.Peek().Message.ArrivedId == tobeRemoveItem.Message.ArrivedId)
+                            {
+                                _dataSource.Dequeue();
+                            }
+                        } 
                     }
-                } 
+                }
             }
 
         }

@@ -74,7 +74,7 @@ namespace Log2Window
 
         public static void Export2Excel(ListView listView, string FileName)
         {
-            lock (LogManager.Instance._dataSource)
+            lock (LogManager.Instance.dataLocker)
             {
                 using (StreamWriter textWriter = new StreamWriter(FileName, false))
                 {

@@ -57,7 +57,7 @@ namespace Test
             Console.WriteLine(DateTime.Now);
             if (Char.ToLower(keyChar) == 'b')
             {
-                for (int i = 0; i < 10000; i++)
+                for (int i = 0; i < 1000000; i++)
                 {
                     _log.Info(i);
                 }
