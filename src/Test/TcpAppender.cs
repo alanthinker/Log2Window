@@ -327,7 +327,6 @@ namespace AlanThinker.MyLog4net
             {
                 this.Client = new TcpClient(RemoteAddress.AddressFamily);
                 this.Client.SendTimeout = 5 * 1000;
-                this.Client.NoDelay = true;
             }
             catch (Exception ex)
             {

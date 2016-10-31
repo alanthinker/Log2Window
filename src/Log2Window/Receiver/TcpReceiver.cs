@@ -79,7 +79,6 @@ namespace Log2Window.Receiver
             _socket.Bind(new IPEndPoint(_ipv6 ? IPAddress.IPv6Any : IPAddress.Any, _port));
             _socket.Listen(100);
             _socket.ReceiveBufferSize = _bufferSize;
-            _socket.NoDelay = true;
             var args = new SocketAsyncEventArgs();
             args.Completed += AcceptAsyncCompleted;
 
