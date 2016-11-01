@@ -67,7 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SimpleXmlLayoutSchemaLog4j.cs" />
+    <Compile Include="MyXmlLayoutSchemaLog4j.cs" />
     <Compile Include="MsmqAppender.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

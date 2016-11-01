@@ -163,27 +163,21 @@ namespace Log2Window.Log
                     result = SourceFileLineNr.ToString();
                     break;
                 case LogMessageField.Properties:
-                    result = Properties.ToString();
+                    {
+                        StringBuilder sb = new StringBuilder();
+
+                        foreach (var property in Properties)
+                        {
+                            sb.Append(property.Key + ": ");
+                            sb.AppendLine(property.Value);
+                        }
+                        result = sb.ToString(); 
+                    }
+                    
                     break;
             }
             return result;
-        }
-
-        public string GetMessageDetails()
-        {
-            var sb = new StringBuilder();
-            sb.Append(@"{\rtf1\ansi ");
-            foreach (var fieldType in UserSettings.Instance.MessageDetailConfiguration)
-            {
-                var info = GetInformation(fieldType).Replace(@"\", @"\\").Replace("{", @"\{").Replace("}", @"\}");
-                sb.Append(@"\b " + fieldType.Field + @": \b0 ");
-                if (info.Length > 40)
-                    sb.Append(@" \line ");
-                sb.Append(info + @" \line ");
-            }
-            sb.Append(@"}");
-            return sb.ToString();
-        }
+        } 
 
         internal void GetMessageDetails(RichTextBox logDetailTextBox, RichTextBox tbMessage)
         {
@@ -200,8 +194,8 @@ namespace Log2Window.Log
                 if (fieldType.Field == LogMessageField.Message)
                 {
                     Trace.WriteLine(info);
-                    tbMessage.Text = info;                    
-                }
+                    tbMessage.Text = info;
+                } 
                 else
                 {
                     var oldColor = logDetailTextBox.SelectionColor;

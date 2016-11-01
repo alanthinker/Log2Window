@@ -157,12 +157,7 @@ namespace Log2Window.Log
         internal bool HasSearchedText(string str)
         {
             return (Message.Message.IndexOf(str, StringComparison.InvariantCultureIgnoreCase) >= 0);
-        }
-
-        internal string GetMessageDetails()
-        {
-            return Message.GetMessageDetails();
-        }
+        } 
 
         internal void GetMessageDetails(RichTextBox logDetailTextBox,RichTextBox tbMessage)
         {
