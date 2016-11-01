@@ -64,6 +64,8 @@ namespace Log2Window.Log
             {
                 _allLogMessageItems.Clear();
                 _dataSource.Clear();
+
+                MainForm.Instance.ReBindListViewFromAllLogMessageItems();
             }
         }
 
@@ -91,7 +93,7 @@ namespace Log2Window.Log
             lock (LogManager.Instance.dataLocker)
             {
                 _allLogMessageItems.Enqueue(item);
-                if (item.Enabled)
+                if (item.Enabled && !Settings.UserSettings.Instance.PauseRefreshNewMessages)
                 {
                     _dataSource.Enqueue(item);
                 }
@@ -103,9 +105,12 @@ namespace Log2Window.Log
                     {
                         var tobeRemoveItem = _allLogMessageItems[0];
                         _allLogMessageItems.Dequeue();
-                        if (_dataSource.Count > 0)
+                        if (_dataSource.Count > 0
+                            && !Settings.UserSettings.Instance.PauseRefreshNewMessages
+                            )
                         {
-                            if (_dataSource.Peek().Message.ArrivedId == tobeRemoveItem.Message.ArrivedId)
+                            //remove all messages which ArrivedId <= tobeRemoveItem's ArrivedId.
+                            while (_dataSource.Peek().Message.ArrivedId <= tobeRemoveItem.Message.ArrivedId)
                             {
                                 _dataSource.Dequeue();
                             }

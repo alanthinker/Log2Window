@@ -1060,7 +1060,7 @@ namespace Log2Window
             e.Node.Checked = e.Node.Checked;
         }
 
-        private void ReBindListViewFromAllLogMessageItems()
+        public void ReBindListViewFromAllLogMessageItems()
         {
             lock (LogManager.Instance.dataLocker)
             {
@@ -1088,6 +1088,7 @@ namespace Log2Window
                     logListView.EnsureVisible(lastIndex);
                 }
 
+                this.RefreshTitle();
                 //}
             }
         }
@@ -1176,9 +1177,8 @@ namespace Log2Window
             else
             {
                 this.BackColor = SystemColors.InactiveBorder;
-            }
-
-            this.RefreshTitle();
+                ReBindListViewFromAllLogMessageItems();
+            } 
         }
 
         public void RefreshTitle()
@@ -1193,7 +1193,7 @@ namespace Log2Window
                 sb.Append(" -      ");
             }
 
-            sb.Append(" Count: " + LogManager.Instance._allLogMessageItems.Count);
+            sb.Append(" Count: "+ LogManager.Instance._dataSource.Count + "/" + LogManager.Instance._allLogMessageItems.Count);
 
             this.Text = sb.ToString();
         }
