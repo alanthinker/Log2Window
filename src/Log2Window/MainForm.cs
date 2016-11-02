@@ -585,9 +585,9 @@ namespace Log2Window
             {
                 Trace.WriteLine(ex);
             }
-        } 
+        }
 
-        private void ProcessLogMessageThread( )
+        private void ProcessLogMessageThread()
         {
             while (true)
             {
@@ -618,9 +618,9 @@ namespace Log2Window
                 catch (Exception ex)
                 {
                     Trace.WriteLine(ex);
-                } 
-            } 
-        } 
+                }
+            }
+        }
 
         private void OnTaskbarProgressTimer(object o)
         {
@@ -1008,11 +1008,15 @@ namespace Log2Window
             {
                 logger.Remove();
             }
+
+            ReBindListViewFromAllLogMessageItems(needDeleteMessages: true);
         }
 
         private void deleteAllLoggerTreeMenuItem_Click(object sender, EventArgs e)
         {
             ClearAll();
+
+            ReBindListViewFromAllLogMessageItems(needDeleteMessages: true);
         }
 
         private void loggerTreeView_MouseUp(object sender, MouseEventArgs e)
@@ -1060,10 +1064,22 @@ namespace Log2Window
             e.Node.Checked = e.Node.Checked;
         }
 
-        public void ReBindListViewFromAllLogMessageItems()
+        public void ReBindListViewFromAllLogMessageItems(bool needDeleteMessages = false)
         {
             lock (LogManager.Instance.dataLocker)
             {
+                if (needDeleteMessages)
+                {
+                    MyList<LogMessageItem> tempAllLogMessageItems = new MyList<LogMessageItem>();
+                    foreach (var item in LogManager.Instance._allLogMessageItems)
+                    {
+                        if (!item.Parent._messagesDeleted)
+                            tempAllLogMessageItems.Enqueue(item);
+                    }
+                    LogManager.Instance._allLogMessageItems.Clear();
+                    LogManager.Instance._allLogMessageItems = tempAllLogMessageItems;
+                }
+
                 LogManager.Instance._dataSource.Clear();
 
                 foreach (var item in LogManager.Instance._allLogMessageItems)
@@ -1178,7 +1194,7 @@ namespace Log2Window
             {
                 this.BackColor = SystemColors.InactiveBorder;
                 ReBindListViewFromAllLogMessageItems();
-            } 
+            }
         }
 
         public void RefreshTitle()
@@ -1193,7 +1209,7 @@ namespace Log2Window
                 sb.Append(" -      ");
             }
 
-            sb.Append(" Count: "+ LogManager.Instance._dataSource.Count + "/" + LogManager.Instance._allLogMessageItems.Count);
+            sb.Append(" Count: " + LogManager.Instance._dataSource.Count + "/" + LogManager.Instance._allLogMessageItems.Count);
 
             this.Text = sb.ToString();
         }

@@ -47,6 +47,7 @@ namespace Log2Window.Log
         /// When set the Logger and its Messages are displayed.
         /// </summary>
         private bool _enabled = true;
+        public bool _messagesDeleted = false;
 
         private string _searchedText;
         private bool _hasSearchedText;
@@ -183,6 +184,8 @@ namespace Log2Window.Log
 
         public void ClearLogMessages()
         {
+            _messagesDeleted = true;
+
             foreach (KeyValuePair<string, LoggerItem> kvp in Loggers)
                 kvp.Value.ClearLogMessages();
         }

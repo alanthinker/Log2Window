@@ -9,8 +9,9 @@ namespace Log2Window.Log
     {
         private static LogManager _instance;
 
-        //_allLogMessageItems and _dataSource must use this locker.
+        //_allLogMessageItems and _dataSource must use this locker.        
         public readonly object dataLocker = new object();
+        //_allLogMessageItems may be reassigned, so cannot use as a locker.
         public MyList<LogMessageItem> _allLogMessageItems = new MyList<LogMessageItem>();
         public MyList<LogMessageItem> _dataSource = new MyList<LogMessageItem>();
 
