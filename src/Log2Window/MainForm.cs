@@ -55,6 +55,7 @@ namespace Log2Window
         // Specific event handler on minimized action
         public event EventHandler Minimized;
 
+        List<ToolStripButton> btnLogLevels = new List<ToolStripButton>();
 
         public MainForm()
         {
@@ -62,9 +63,22 @@ namespace Log2Window
 
             InitializeComponent();
 
+            btnTrace.Tag = LogLevel.Trace;
+            btnLogLevels.Add(btnTrace);
+            btnDebug.Tag = LogLevel.Debug;
+            btnLogLevels.Add(btnDebug);
+            btnInfo.Tag = LogLevel.Info;
+            btnLogLevels.Add(btnInfo);
+            btnWarn.Tag = LogLevel.Warn;
+            btnLogLevels.Add(btnWarn);
+            btnError.Tag = LogLevel.Error;
+            btnLogLevels.Add(btnError);
+            btnFatal.Tag = LogLevel.Fatal;
+            btnLogLevels.Add(btnFatal);
+
             appNotifyIcon.Text = AboutForm.AssemblyTitle;
 
-            levelComboBox.SelectedIndex = 0;
+            //levelComboBox.SelectedIndex = 0;
 
             Minimized += OnMinimized;
 
@@ -115,11 +129,7 @@ namespace Log2Window
                     // Taskbar Progress
                     TaskbarManager.Instance.ApplicationId = Text;
                     _taskbarProgressTimer = new Timer(OnTaskbarProgressTimer, null, _taskbarProgressTimerPeriod, _taskbarProgressTimerPeriod);
-
-                    // Pause Btn
-                    _pauseWinbarBtn = new ThumbnailToolbarButton(Icon.FromHandle(((Bitmap)pauseBtn.Image).GetHicon()), pauseBtn.ToolTipText);
-                    _pauseWinbarBtn.Click += pauseBtn_Click;
-
+                                       
                     // Auto Scroll Btn
                     _autoScrollWinbarBtn =
                         new ThumbnailToolbarButton(Icon.FromHandle(((Bitmap)pauseRefreshNewMessagesBtn.Image).GetHicon()), pauseRefreshNewMessagesBtn.ToolTipText);
@@ -311,8 +321,15 @@ namespace Log2Window
             LogLevels.Instance.LogLevelInfos[(int)LogLevel.Warn].Color = UserSettings.Instance.WarnLevelColor;
             LogLevels.Instance.LogLevelInfos[(int)LogLevel.Error].Color = UserSettings.Instance.ErrorLevelColor;
             LogLevels.Instance.LogLevelInfos[(int)LogLevel.Fatal].Color = UserSettings.Instance.FatalLevelColor;
-
-            levelComboBox.SelectedIndex = (int)UserSettings.Instance.LogLevelInfo.Level;
+            
+            SetLogLevelBtnState();
+            // gray like a disabled button. so leave it color as black.
+            //btnTrace.ForeColor = UserSettings.Instance.TraceLevelColor;
+            btnDebug.ForeColor = UserSettings.Instance.DebugLevelColor;
+            btnInfo.ForeColor= UserSettings.Instance.InfoLevelColor;
+            btnWarn.ForeColor= UserSettings.Instance.WarnLevelColor;
+            btnError.ForeColor = UserSettings.Instance.ErrorLevelColor;
+            btnFatal.ForeColor = UserSettings.Instance.FatalLevelColor;
 
             //See if the Columns Changed
             bool columnsChanged = false;
@@ -1107,28 +1124,7 @@ namespace Log2Window
                 this.RefreshTitle();
                 //}
             }
-        }
-
-        private void levelComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (!IsHandleCreated)
-                return;
-
-            using (new AutoWaitCursor())
-            {
-                UserSettings.Instance.LogLevelInfo =
-                    LogUtils.GetLogLevelInfo((LogLevel)levelComboBox.SelectedIndex);
-
-                try
-                {
-                    LogManager.Instance.UpdateLogLevel();
-                }
-                finally
-                {
-                    ReBindListViewFromAllLogMessageItems();
-                }
-            }
-        }
+        } 
 
 
         private void LoggerTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -1139,24 +1135,7 @@ namespace Log2Window
 
         private void loggerTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-        }
-
-
-        private void pauseBtn_Click(object sender, EventArgs e)
-        {
-            _pauseLog = !_pauseLog;
-
-            pauseBtn.Image = _pauseLog ? Resources.Go16 : Resources.Pause16;
-            pauseBtn.Checked = _pauseLog;
-
-            if (_isWin7orLater)
-            {
-                _pauseWinbarBtn.Icon = Icon.FromHandle(((Bitmap)pauseBtn.Image).GetHicon());
-
-                TaskbarManager.Instance.SetOverlayIcon(
-                    _pauseLog ? Icon.FromHandle(Resources.Pause16.GetHicon()) : null, String.Empty);
-            }
-        }
+        }        
 
         private void goToFirstLogBtn_Click(object sender, EventArgs e)
         {
@@ -1339,6 +1318,45 @@ namespace Log2Window
             }
 
             Clipboard.SetText(builder.ToString());
+        }
+
+        private void btnLogLevel_Click(object sender, EventArgs e)
+        {
+            if (!IsHandleCreated)
+                return;
+
+            using (new AutoWaitCursor())
+            {
+                var btn = (ToolStripButton)sender;
+                UserSettings.Instance.LogLevelInfo =
+                    LogUtils.GetLogLevelInfo((LogLevel)btn.Tag);
+
+                SetLogLevelBtnState();
+
+                try
+                {
+                    LogManager.Instance.UpdateLogLevel();
+                }
+                finally
+                {
+                    ReBindListViewFromAllLogMessageItems();
+                }
+            }
+        }
+
+        private void SetLogLevelBtnState()
+        {
+            foreach (var btLogLevel in btnLogLevels)
+            {
+                if ((LogLevel)btLogLevel.Tag >= UserSettings.Instance.LogLevelInfo.Level)
+                {
+                    btLogLevel.Checked = true;
+                }
+                else
+                {
+                    btLogLevel.Checked = false;
+                }
+            }
         }
     }
 }
