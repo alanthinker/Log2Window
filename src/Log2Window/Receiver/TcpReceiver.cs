@@ -149,7 +149,17 @@ Configuration for log4net:
                                     else
                                     {
                                         var dnsEndPoint = socket.RemoteEndPoint as DnsEndPoint;
-                                        logMsg.LoggerName = string.Format("{0}.{1}", dnsEndPoint.Host.Replace('.', '_'), logMsg.LoggerName);
+                                        if (dnsEndPoint != null)
+                                        {
+                                            logMsg.LoggerName = string.Format("{0}.{1}", dnsEndPoint.Host.Replace('.', '_'), logMsg.LoggerName);
+                                        }
+                                        else
+                                        {
+                                            // rmove ':' , because same app may have different port number after it restart.
+                                            var fullAddress = socket.RemoteEndPoint.ToString();
+                                            var address = fullAddress.Substring(0, fullAddress.IndexOf(":"));
+                                            logMsg.LoggerName = string.Format("{0}.{1}", address.Replace('.', '_'), logMsg.LoggerName);
+                                        }    
                                     }
 
                                     if (Notifiable != null)
