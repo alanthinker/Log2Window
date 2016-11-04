@@ -73,7 +73,7 @@ namespace Log2Window.Log
         /// <summary>
         /// The Line of the Source File
         /// </summary>
-        public uint SourceFileLineNr;
+        public uint? SourceFileLineNr;
 
         //Only allowed set ArrivedId in constructor.
         public readonly ulong ArrivedId;

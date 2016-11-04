@@ -708,7 +708,8 @@ namespace Log2Window
                     }
                 }
 
-                OpenSourceFile(logMsgItem.Message.SourceFileName, logMsgItem.Message.SourceFileLineNr);
+                if(logMsgItem.Message.SourceFileLineNr.HasValue)
+                    OpenSourceFile(logMsgItem.Message.SourceFileName, logMsgItem.Message.SourceFileLineNr.Value);
             }
         }
 
@@ -1200,18 +1201,26 @@ namespace Log2Window
         private void saveBtn_Click(object sender, EventArgs e)
         {
             SaveFileDialog dlg = new SaveFileDialog();
-            dlg.Filter = "csv files (*.csv)|*.csv";
+            dlg.Filter = "log files (*.log)|*.log";
             dlg.FileName = "logs";
-            dlg.Title = "Export to Excel";
+            dlg.Title = "Export to log4j xml file";
             if (dlg.ShowDialog(this) == DialogResult.Cancel)
                 return;
 
-            utils.Export2Excel(logListView, dlg.FileName);
-
-
-
+            utils.Export2Log4jFile( dlg.FileName); 
         }
 
+        private void saveToExcelBtn_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.Filter = "csv files (*.csv)|*.csv";
+            dlg.FileName = "csv";
+            dlg.Title = "Export to csv file";
+            if (dlg.ShowDialog(this) == DialogResult.Cancel)
+                return;
+
+            utils.Export2Excel(dlg.FileName);
+        }
 
         private void btnOpenFileInVS_Click(object sender, EventArgs e)
         {
@@ -1319,6 +1328,7 @@ namespace Log2Window
                     btLogLevel.Checked = false;
                 }
             }
-        }
+        } 
+       
     }
 }
