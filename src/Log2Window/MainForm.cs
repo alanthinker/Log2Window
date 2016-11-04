@@ -1214,7 +1214,7 @@ namespace Log2Window
         {
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.Filter = "csv files (*.csv)|*.csv";
-            dlg.FileName = "csv";
+            dlg.FileName = "logs";
             dlg.Title = "Export to csv file";
             if (dlg.ShowDialog(this) == DialogResult.Cancel)
                 return;
