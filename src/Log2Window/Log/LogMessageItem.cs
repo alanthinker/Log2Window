@@ -37,7 +37,7 @@ namespace Log2Window.Log
         ///// </summary>
         //public LogMessageItem Previous;
 
-       // public long ArrivedId;
+        // public long ArrivedId;
 
         ///// <summary>
         ///// The associated List View Item.
@@ -53,16 +53,16 @@ namespace Log2Window.Log
         /// Indicates if this Log Message Item is enable.
         /// When disabled the List View Item is not in the Log List View.
         /// </summary>
-        public bool Enabled = true; 
+        public bool Enabled = true;
 
         public LogMessageItem(LoggerItem parent, LogMessage logMsg)
         {
             Parent = parent;
-            Message = logMsg; 
+            Message = logMsg;
         }
 
         public static ListViewItem CreateListViewItem(LogMessage logMsg)
-        { 
+        {
             // Create List View Item
             var items = new ListViewItem.ListViewSubItem[UserSettings.Instance.ColumnConfiguration.Length];
             string toolTip = string.Empty;
@@ -90,8 +90,14 @@ namespace Log2Window.Log
                         items[i].Text = logMsg.Level.Name;
                         break;
                     case LogMessageField.Message:
-                        string msg = logMsg.Message.Replace("\r\n", " ");
-                        msg = msg.Replace("\n", " ");
+                        StringBuilder sbMsg = new StringBuilder(logMsg.Message);
+                        if (!string.IsNullOrEmpty(logMsg.ExceptionString))
+                        {
+                            sbMsg.Append(" " + logMsg.ExceptionString);
+                        }
+                        sbMsg.Replace("\r\n", " ");
+                        sbMsg.Replace("\n", " ");
+                        var msg = sbMsg.ToString();
                         items[i].Text = msg;
                         toolTip = msg;
                         break;
@@ -139,7 +145,7 @@ namespace Log2Window.Log
 
             var Item = new ListViewItem(items, 0) { ToolTipText = toolTip, ForeColor = logMsg.Level.Color };//, Tag = this };
             return Item;
-        } 
+        }
 
         internal bool IsLevelInRange()
         {
@@ -157,9 +163,9 @@ namespace Log2Window.Log
         internal bool HasSearchedText(string str)
         {
             return (Message.Message.IndexOf(str, StringComparison.InvariantCultureIgnoreCase) >= 0);
-        } 
+        }
 
-        internal void GetMessageDetails(RichTextBox logDetailTextBox,RichTextBox tbMessage)
+        internal void GetMessageDetails(RichTextBox logDetailTextBox, RichTextBox tbMessage)
         {
             Message.GetMessageDetails(logDetailTextBox, tbMessage);
         }

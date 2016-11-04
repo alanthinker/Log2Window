@@ -124,8 +124,7 @@ namespace Log2Window.Receiver
                             break;
 
                         case "log4j:throwable":
-                            var exValue = reader.ReadString();
-                            logMsg.Message += Environment.NewLine + exValue;
+                            var exValue = reader.ReadString(); 
                             logMsg.ExceptionString = exValue;
                             break;
 
@@ -154,8 +153,7 @@ namespace Log2Window.Receiver
                                 string value = reader.GetAttribute("value");
                                 if (name != null && name.ToLower().Equals("exceptions"))
                                 {
-                                    logMsg.ExceptionString = value;
-                                    logMsg.Message += Environment.NewLine + value;
+                                    logMsg.ExceptionString = value; 
                                 }
                                 else
                                 {

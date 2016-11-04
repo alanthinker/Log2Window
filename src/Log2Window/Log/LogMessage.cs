@@ -195,6 +195,11 @@ namespace Log2Window.Log
                 {
                     Trace.WriteLine(info);
                     tbMessage.Text = info;
+
+                    if (!string.IsNullOrEmpty(this.ExceptionString))
+                    {
+                        tbMessage.Text += "\n\n" + this.ExceptionString;
+                    }
                 } 
                 else
                 {
