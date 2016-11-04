@@ -76,7 +76,7 @@ Configuration for log4net:
         <ShowProperties value='false' />
       </layout>
     </appender>
-".Replace("'","\"").Replace("\n","\r\n");
+".Replace("'","\"").Replace("\n", Environment.NewLine);
             }
         }
 

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Log2Window.Properties;
-using log4net.Config;
 using Microsoft.WindowsAPICodePack.Taskbar;
 
 using ControlExtenders;
@@ -19,10 +18,6 @@ using Log2Window.UI;
 
 using Timer = System.Threading.Timer;
 using System.Threading;
-
-// Configure log4net using the .config file
-[assembly: XmlConfigurator(Watch = true)]
-
 
 namespace Log2Window
 {
@@ -129,7 +124,7 @@ namespace Log2Window
                     // Taskbar Progress
                     TaskbarManager.Instance.ApplicationId = Text;
                     _taskbarProgressTimer = new Timer(OnTaskbarProgressTimer, null, _taskbarProgressTimerPeriod, _taskbarProgressTimerPeriod);
-                                       
+
                     // Auto Scroll Btn
                     _autoScrollWinbarBtn =
                         new ThumbnailToolbarButton(Icon.FromHandle(((Bitmap)pauseRefreshNewMessagesBtn.Image).GetHicon()), pauseRefreshNewMessagesBtn.ToolTipText);
@@ -321,13 +316,13 @@ namespace Log2Window
             LogLevels.Instance.LogLevelInfos[(int)LogLevel.Warn].Color = UserSettings.Instance.WarnLevelColor;
             LogLevels.Instance.LogLevelInfos[(int)LogLevel.Error].Color = UserSettings.Instance.ErrorLevelColor;
             LogLevels.Instance.LogLevelInfos[(int)LogLevel.Fatal].Color = UserSettings.Instance.FatalLevelColor;
-            
+
             SetLogLevelBtnState();
             // gray like a disabled button. so leave it color as black.
             //btnTrace.ForeColor = UserSettings.Instance.TraceLevelColor;
             btnDebug.ForeColor = UserSettings.Instance.DebugLevelColor;
-            btnInfo.ForeColor= UserSettings.Instance.InfoLevelColor;
-            btnWarn.ForeColor= UserSettings.Instance.WarnLevelColor;
+            btnInfo.ForeColor = UserSettings.Instance.InfoLevelColor;
+            btnWarn.ForeColor = UserSettings.Instance.WarnLevelColor;
             btnError.ForeColor = UserSettings.Instance.ErrorLevelColor;
             btnFatal.ForeColor = UserSettings.Instance.FatalLevelColor;
 
@@ -1124,7 +1119,7 @@ namespace Log2Window
                 this.RefreshTitle();
                 //}
             }
-        } 
+        }
 
 
         private void LoggerTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -1135,7 +1130,7 @@ namespace Log2Window
 
         private void loggerTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-        }        
+        }
 
         private void goToFirstLogBtn_Click(object sender, EventArgs e)
         {
@@ -1261,43 +1256,10 @@ namespace Log2Window
                     return;
                 }
 
-                var fileReceivers = new List<IReceiver>();
-                foreach (var receiver in UserSettings.Instance.Receivers)
-                {
-                    if (receiver is CsvFileReceiver)
-                        fileReceivers.Add(receiver);
-                }
-
-                var form = new ReceiversForm(fileReceivers, true);
-                if (form.ShowDialog(this) != DialogResult.OK)
-                    return;
-
-                foreach (IReceiver receiver in form.AddedReceivers)
-                {
-                    UserSettings.Instance.Receivers.Add(receiver);
-                    InitializeReceiver(receiver);
-                }
-
-                UserSettings.Instance.Save();
-
-                var fileReceiver = form.SelectedReceiver as CsvFileReceiver;
-                if (fileReceiver == null)
-                    return;
-
-                fileReceiver.ShowFromBeginning = true;
-                fileReceiver.FileToWatch = openFileDialog1.FileName;
-                fileReceiver.Attach(this);
-
-                /*
-            var fileReceiver = new CsvFileReceiver();
-
-            fileReceiver.FileToWatch = openFileDialog1.FileName;
-            fileReceiver.ReadHeaderFromFile = true;
-            fileReceiver.ShowFromBeginning = true;
-    
-            fileReceiver.Initialize();
-            fileReceiver.Attach(this);
-            */
+                FileReceiver fr = new FileReceiver();
+                fr.FileToWatch = openFileDialog1.FileName;
+                fr.ShowFromBeginning = true;
+                InitializeReceiver(fr); 
             }
         }
 

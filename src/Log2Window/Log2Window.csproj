@@ -78,10 +78,6 @@
       <HintPath>..\packages\ICSharpCode.TextEditor.3.2.1.6466\lib\Net20\ICSharpCode.TextEditor.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.5\lib\net40-full\log4net.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="RichTextBoxLinks, Version=1.0.5459.17954, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RichTextBoxLinks.1.0.0\lib\net40\RichTextBoxLinks.dll</HintPath>
       <Private>True</Private>

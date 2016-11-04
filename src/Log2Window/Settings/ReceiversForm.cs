@@ -13,13 +13,13 @@ namespace Log2Window.Settings
         public List<IReceiver> RemovedReceivers { get; protected set; }
         public IReceiver SelectedReceiver { get; protected set; }
 
-        public ReceiversForm(IEnumerable<IReceiver> receivers, bool quickFileOpen = false)
+        public ReceiversForm(IEnumerable<IReceiver> receivers)
         {
             AddedReceivers = new List<IReceiver>();
             RemovedReceivers = new List<IReceiver>();
 
             InitializeComponent();
-            removeReceiverBtn.Visible = !quickFileOpen;
+            removeReceiverBtn.Visible = true;
 
             Font = UserSettings.Instance.DefaultFont ?? Font;
 
@@ -27,15 +27,8 @@ namespace Log2Window.Settings
             Dictionary<string, ReceiverFactory.ReceiverInfo> receiverTypes = ReceiverFactory.Instance.ReceiverTypes;
             foreach (KeyValuePair<string, ReceiverFactory.ReceiverInfo> kvp in receiverTypes)
             {
-                ToolStripItem item = null;
-
-                if (quickFileOpen)
-                {
-                    if (kvp.Value.Type == typeof(CsvFileReceiver))
-                        item = addReceiverCombo.DropDownItems.Add(kvp.Value.Name);
-                }
-                else
-                    item = addReceiverCombo.DropDownItems.Add(kvp.Value.Name);
+                ToolStripItem item = null; 
+                item = addReceiverCombo.DropDownItems.Add(kvp.Value.Name);
 
                 if (item != null) item.Tag = kvp.Value;
             }

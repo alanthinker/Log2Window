@@ -14,13 +14,13 @@ namespace Log2Window.Receiver
     /// Ideally the log events should use the log4j XML Schema layout.
     /// </summary>
     [Serializable]
-    [DisplayName("Log File (Flat or Log4j XML Formatted)")]
+    [DisplayName("Log File (Log4j XML Formatted)")]
     public class FileReceiver : BaseReceiver
     {
         public enum FileFormatEnums
         {
             Log4jXml,
-            Flat,
+            //Flat,
         }
 
 
@@ -58,14 +58,6 @@ namespace Log2Window.Receiver
         }
 
         [Category("Configuration")]
-        [DisplayName("File Format (Flat or Log4j XML)")]
-        public FileFormatEnums FileFormat
-        {
-            get { return _fileFormat; }
-            set { _fileFormat = value; }
-        }
-        
-        [Category("Configuration")]
         [DisplayName("Show from Beginning")]
         [Description("Show file contents from the beginning (not just newly appended lines)")]
         [DefaultValue(false)]
@@ -75,7 +67,7 @@ namespace Log2Window.Receiver
             set
             {
                 _showFromBeginning = value;
- 
+
                 if (value && _lastFileLength == 0)
                 {
                     ReadFile();
@@ -105,14 +97,16 @@ namespace Log2Window.Receiver
         {
             get
             {
-                return
-                    "Configuration for log4net:" + Environment.NewLine +
-                    "<appender name=\"FileAppender\" type=\"log4net.Appender.FileAppender\">" + Environment.NewLine +
-                    "    <file value=\"log-file.txt\" />" + Environment.NewLine +
-                    "    <appendToFile value=\"true\" />" + Environment.NewLine +
-                    "    <lockingModel type=\"log4net.Appender.FileAppender+MinimalLock\" />" + Environment.NewLine +
-                    "    <layout type=\"log4net.Layout.XmlLayoutSchemaLog4j\" />" + Environment.NewLine +
-                    "</appender>";
+                return @"Configuration for nlog:
+<target name='log4jfile' xsi:type='File' fileName='${basedir}/Logs/log4jfile.log' layout='${log4jxmlevent}' />    
+
+Configuration for log4net:
+<appender name='FileAppender' type='log4net.Appender.FileAppender'>
+    <file value='log4jfile.log' />
+    <appendToFile value='true' />
+    <lockingModel type='log4net.Appender.FileAppender+MinimalLock' />
+    <layout type='log4net.Layout.XmlLayoutSchemaLog4j' />
+</appender>".Replace("'", "\"").Replace("\n", Environment.NewLine); 
             }
         }
 
@@ -151,11 +145,11 @@ namespace Log2Window.Receiver
 
             _lastFileLength = 0;
         }
-        
+
         public override void Attach(ILogMessageNotifiable notifiable)
         {
             base.Attach(notifiable);
-            
+
             if (_showFromBeginning)
                 ReadFile();
         }
@@ -194,40 +188,28 @@ namespace Log2Window.Receiver
             if ((_fileReader == null) || (_fileReader.BaseStream.Length == _lastFileLength))
                 return;
 
-            // Seek to the last file length
-            _fileReader.BaseStream.Seek(_lastFileLength, SeekOrigin.Begin);
+            if (!ShowFromBeginning)
+            {
+                // Seek to the last file length
+                _fileReader.BaseStream.Seek(_lastFileLength, SeekOrigin.Begin);
+            } 
 
             // Get last added lines
             string line;
             var sb = new StringBuilder();
             List<LogMessage> logMsgs = new List<LogMessage>();
-            
+
             while ((line = _fileReader.ReadLine()) != null)
-            {
-                if (_fileFormat == FileFormatEnums.Flat)
-                {
-                    LogMessage logMsg = new LogMessage();
-                    logMsg.RootLoggerName = _loggerName;
-                    logMsg.LoggerName = _fullLoggerName;
-                    logMsg.ThreadName = "NA";
-                    logMsg.Message = line;
-                    logMsg.TimeStamp = DateTime.Now;
-                    logMsg.Level = LogLevels.Instance[LogLevel.Info];
+            { 
+                sb.AppendLine(line);
 
+                // This condition allows us to process events that spread over multiple lines
+                if (line.Contains("</log4j:event>"))
+                {
+                    LogMessage logMsg = ReceiverUtils.ParseLog4JXmlLogEvent(sb.ToString(), _fullLoggerName);
                     logMsgs.Add(logMsg);
-                }
-                else
-                {
-                    sb.AppendLine(line);
-
-                    // This condition allows us to process events that spread over multiple lines
-                    if (line.Contains("</log4j:event>"))
-                    {
-                        LogMessage logMsg = ReceiverUtils.ParseLog4JXmlLogEvent(sb.ToString(), _fullLoggerName);
-                        logMsgs.Add(logMsg);
-                        sb = new StringBuilder();
-                    }
-                }
+                    sb = new StringBuilder();
+                } 
             }
 
             // Notify the UI with the set of messages
