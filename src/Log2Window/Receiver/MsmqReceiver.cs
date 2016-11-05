@@ -162,8 +162,9 @@
 
 //                    ((MessageQueue)source).BeginReceive();
 //                }
-//                catch (MessageQueueException)
+//                catch (MessageQueueException ex)
 //                {
+//                    Utils.log.Error(ex.Message, ex);
 //                    // Handle sources of MessageQueueException.
 //                }
 //            };

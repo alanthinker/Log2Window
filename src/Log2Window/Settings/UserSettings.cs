@@ -177,16 +177,18 @@ namespace Log2Window.Settings
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Utils.log.Error(ex.Message, ex);
                 // The settings file might be corrupted or from too different version, delete it...
                 try
                 {
                     File.Delete(settingsFilePath);
                 }
-                catch
-                {
+                catch(Exception ex2)
+                { 
                     ok = false;
+                    Utils.log.Error(ex2.Message, ex2);
                 }
             }
 

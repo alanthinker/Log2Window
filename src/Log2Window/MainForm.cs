@@ -110,7 +110,7 @@ namespace Log2Window
             _windowRestorer = new WindowRestorer(this, UserSettings.Instance.Layout.WindowPosition,
                                                        UserSettings.Instance.Layout.WindowState);
 
-           
+
 
             ApplySettings(true);
 
@@ -630,8 +630,9 @@ namespace Log2Window
             {
                 Quit();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Utils.log.Error("quitBtn_Click " + ex.Message);
                 Environment.Exit(0);
             }
         }
@@ -931,8 +932,9 @@ namespace Log2Window
             {
                 Quit();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Utils.log.Error("exitTrayMenuItem_Click " + ex.Message);
                 Environment.Exit(0);
             }
         }

@@ -230,6 +230,7 @@
 //            }
 //            catch (Exception ex)
 //            {
+//                Utils.log.Error(ex.Message, ex);
 //                MessageBox.Show(string.Format("Could not Parse the Header: {0}\n\rError: {1}", line, ex),
 //                                "Error Parsing CSV Header");
 //            }

@@ -63,8 +63,9 @@ namespace Log2Window.Receiver
                 using (var reader = new XmlTextReader(logEvent, XmlNodeType.Element, XmlContext))
                     return ParseLog4JXmlLogEvent(reader, defaultLogger);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
+                Utils.log.Error("ParseLog4JXmlLogEvent: " + ex.Message, ex);
                 return new LogMessage
                 {
                     // Create a simple log message with some default values
@@ -74,7 +75,7 @@ namespace Log2Window.Receiver
                     Message = logEvent,
                     TimeStamp = DateTime.Now,
                     Level = LogLevels.Instance[LogLevel.Info],
-                    ExceptionString = e.Message
+                    ExceptionString = ex.Message
                 };
             }
         }
@@ -124,7 +125,7 @@ namespace Log2Window.Receiver
                             break;
 
                         case "log4j:throwable":
-                            var exValue = reader.ReadString(); 
+                            var exValue = reader.ReadString();
                             logMsg.ExceptionString = exValue;
                             break;
 
@@ -153,7 +154,7 @@ namespace Log2Window.Receiver
                                 string value = reader.GetAttribute("value");
                                 if (name != null && name.ToLower().Equals("exceptions"))
                                 {
-                                    logMsg.ExceptionString = value; 
+                                    logMsg.ExceptionString = value;
                                 }
                                 else
                                 {

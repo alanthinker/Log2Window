@@ -143,7 +143,7 @@ namespace Log2Window.Receiver
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    Utils.log.Error(ex.Message, ex);
                     return;
                 }
             }

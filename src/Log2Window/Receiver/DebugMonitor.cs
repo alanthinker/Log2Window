@@ -292,7 +292,7 @@
             OnOutputDebugString(pid, text);
 #if !DEBUG
 			} catch (Exception ex) {
-				Console.WriteLine("An 'OnOutputDebugString' handler failed to execute: " + ex.ToString());
+                Utils.log.Error("An 'OnOutputDebugString' handler failed to execute: ", ex); 
 			}
 #endif
         }

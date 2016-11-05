@@ -78,7 +78,7 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\\TestLog
     <ShowProperties value='false' />
     </layout>
 </appender>
-".Replace("'","\"").Replace("\n", Environment.NewLine);
+".Replace("'", "\"").Replace("\n", Environment.NewLine);
             }
         }
 
@@ -133,8 +133,8 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\\TestLog
                             StringBuilder sb = new StringBuilder();
 
                             int temp;
-                            while (_socket != null 
-                                &&(temp = sr.Read()) != -1)
+                            while (_socket != null
+                                && (temp = sr.Read()) != -1)
                             {
                                 sb.Append((char)temp);
                                 if (IsEndWith(sb, log4jEndTag))
@@ -162,25 +162,26 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\\TestLog
                                             var fullAddress = socket.RemoteEndPoint.ToString();
                                             var address = fullAddress.Substring(0, fullAddress.IndexOf(":"));
                                             logMsg.LoggerName = string.Format("{0}.{1}", address.Replace('.', '_'), logMsg.LoggerName);
-                                        }    
+                                        }
                                     }
 
                                     if (Notifiable != null)
                                         Notifiable.Notify(logMsg);
 
                                     sb = new StringBuilder();
-                                } 
+                                }
 
                             }
                         }
                     }
             }
-            catch (IOException)
-            {
+            catch (IOException ex)
+            { 
+                Utils.log.Error("ProcessReceivedData " + ex.Message);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
+                Utils.log.Error(ex.Message, ex);
             }
         }
 
