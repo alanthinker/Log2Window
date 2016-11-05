@@ -22,7 +22,7 @@ namespace Log2Window.Receiver
 
         [Category("Configuration")]
         [DisplayName("Event Log Name")]
-        [Description("The name of the log on the specified computer.")]
+        [Description("The name of the log on the specified computer. Such as 'Application', 'System', 'Security'")]
         public string LogName
         {
             get { return _logName; }
@@ -40,7 +40,7 @@ namespace Log2Window.Receiver
 
         [Category("Configuration")]
         [DisplayName("Event Log Source")]
-        [Description("The source of event log entries.")]
+        [Description("The source of event log entries. Such as 'Windows Error Reporting'")]
         public string Source
         {
             get { return _source; }
@@ -79,12 +79,22 @@ namespace Log2Window.Receiver
 
             _eventLog = new EventLog(LogName, MachineName, Source);
             _eventLog.EntryWritten += EventLogOnEntryWritten;
-            _eventLog.EnableRaisingEvents = true;
+            _eventLog.EnableRaisingEvents = true; 
 
             _baseLoggerName = AppendHostNameToLogger && !String.IsNullOrEmpty(MachineName) && (MachineName != ".")
                                     ? String.Format("[Host: {0}].{1}", MachineName, LogName)
-                                    : LogName;
+                                    : LogName; 
+        }
 
+        public override void Attach(ILogMessageNotifiable notifiable)
+        {
+            base.Attach(notifiable);
+
+            foreach (EventLogEntry entry in _eventLog.Entries)
+            {
+                if(entry.Source==Source)
+                    ParseEventLogEntry(entry);
+            }
         }
 
         public override void Terminate()
@@ -99,21 +109,27 @@ namespace Log2Window.Receiver
 
         private void EventLogOnEntryWritten(object sender, EntryWrittenEventArgs entryWrittenEventArgs)
         {
+            var entry = entryWrittenEventArgs.Entry;
+            ParseEventLogEntry(entry);
+        }
+
+        private void ParseEventLogEntry(EventLogEntry entry)
+        {
             LogMessage logMsg = new LogMessage();
             logMsg.RootLoggerName = _baseLoggerName;
-            logMsg.LoggerName = String.IsNullOrEmpty(entryWrittenEventArgs.Entry.Source)
+            logMsg.LoggerName = String.IsNullOrEmpty(entry.Source)
                                     ? _baseLoggerName
-                                    : String.Format("{0}.{1}", _baseLoggerName, entryWrittenEventArgs.Entry.Source);
+                                    : String.Format("{0}.{1}", _baseLoggerName, entry.Source);
 
-            logMsg.Message = entryWrittenEventArgs.Entry.Message;
-            logMsg.TimeStamp = entryWrittenEventArgs.Entry.TimeGenerated;
-            logMsg.Level = LogUtils.GetLogLevelInfo(GetLogLevel(entryWrittenEventArgs.Entry.EntryType));
-            logMsg.ThreadName = entryWrittenEventArgs.Entry.InstanceId.ToString();
+            logMsg.Message = entry.Message;
+            logMsg.TimeStamp = entry.TimeGenerated;
+            logMsg.Level = LogUtils.GetLogLevelInfo(GetLogLevel(entry.EntryType));
+            logMsg.ThreadName = entry.InstanceId.ToString();
 
-            if (!String.IsNullOrEmpty(entryWrittenEventArgs.Entry.Category))
-                logMsg.Properties.Add("Category", entryWrittenEventArgs.Entry.Category);
-            if (!String.IsNullOrEmpty(entryWrittenEventArgs.Entry.UserName))
-                logMsg.Properties.Add("User Name", entryWrittenEventArgs.Entry.UserName);
+            if (!String.IsNullOrEmpty(entry.Category))
+                logMsg.Properties.Add("Category", entry.Category);
+            if (!String.IsNullOrEmpty(entry.UserName))
+                logMsg.Properties.Add("User Name", entry.UserName);
 
             Notifiable.Notify(logMsg);
         }
