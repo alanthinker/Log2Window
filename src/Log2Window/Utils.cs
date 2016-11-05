@@ -79,7 +79,7 @@ namespace Log2Window
         {
             lock (LogManager.Instance.dataLocker)
             {
-                using (StreamWriter textWriter = new StreamWriter(FileName, false))
+                using (StreamWriter textWriter = new StreamWriter(FileName, false, Encoding.UTF8))
                 {
                     var csvWriter = new CsvWriter(textWriter);
                     csvWriter.Configuration.Encoding = Encoding.UTF8;
@@ -165,7 +165,7 @@ namespace Log2Window
                 writer.WriteEndElement();
             }
 
-            writer.WriteEndElement(); 
+            writer.WriteEndElement();
         }
 
         public static DateTime GetPeTime(string fileName)
