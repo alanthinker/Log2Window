@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Log2Window")]
-[assembly: AssemblyDescription(@"Log2Window is a log message viewer for log4net, nlog, log4j and log4cxx, which has strongly extreme stability and very good performance. It can process millions of log messages less than a second.")]
+[assembly: AssemblyDescription(@"Log2Window is a log message viewer for log4net, nlog, eventLog, log4j and log4cxx, which has strongly extreme stability and very good performance. It can process millions of log messages less than a second.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("AlanThinker")]
 [assembly: AssemblyProduct("Log2Window")]
@@ -28,5 +28,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("2.1.*")]
+[assembly: AssemblyVersion("2.1.0.*")]
  
