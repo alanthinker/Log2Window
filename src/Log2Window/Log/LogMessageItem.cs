@@ -10,7 +10,7 @@ namespace Log2Window.Log
     {
         private static readonly object idLocker = new object();
 
-        private static ulong id = 0;
+        private static ulong id = 1;
         public static ulong GetNextId()
         {
             lock (idLocker)

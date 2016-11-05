@@ -42,6 +42,8 @@ namespace Log2Window.Log
             set { _rootLoggerItem = value; }
         }
 
+        public bool PauseRefreshNewMessages { get; set; }
+
         public void Initialize(ILoggerView loggerView, ListView logListView)
         {
             _logListView = logListView;
@@ -94,7 +96,7 @@ namespace Log2Window.Log
             lock (LogManager.Instance.dataLocker)
             {
                 _allLogMessageItems.Enqueue(item);
-                if (item.Enabled && !Settings.UserSettings.Instance.PauseRefreshNewMessages)
+                if (item.Enabled && !LogManager.Instance.PauseRefreshNewMessages)
                 {
                     _dataSource.Enqueue(item);
                 }
@@ -107,9 +109,9 @@ namespace Log2Window.Log
                         var tobeRemoveItem = _allLogMessageItems[0];
                         _allLogMessageItems.Dequeue();
                         if (_dataSource.Count > 0
-                            && !Settings.UserSettings.Instance.PauseRefreshNewMessages
+                            && !LogManager.Instance.PauseRefreshNewMessages
                             )
-                        {
+                        { 
                             //remove all messages which ArrivedId <= tobeRemoveItem's ArrivedId.
                             while (_dataSource.Peek().Message.ArrivedId <= tobeRemoveItem.Message.ArrivedId)
                             {

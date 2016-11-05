@@ -309,7 +309,7 @@ namespace Log2Window.Log
 
         public static void TryEnsureVisibleLastItem(ListView logListView)
         {
-            if (UserSettings.Instance.PauseRefreshNewMessages)
+            if (LogManager.Instance.PauseRefreshNewMessages)
                 return;
 
             if (DateTime.Now - lastEnsureVisibleTime > EnsureVisiblePeroid)

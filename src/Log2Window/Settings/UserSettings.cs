@@ -298,17 +298,7 @@ namespace Log2Window.Settings
         {
             get { return _notifyNewLogWhenHidden; }
             set { _notifyNewLogWhenHidden = value; }
-        }
-
-        [Category("Notification")]
-        [Description("Pause refresh new messages. (Messages still be processed in background.)")]
-        [DisplayName("Pause refresh new messages")]
-        public bool PauseRefreshNewMessages
-        {
-            get { return _PauseRefreshNewMessages; }
-            set { _PauseRefreshNewMessages = value; }
         } 
-         
 
         [Category("Logging")]
         [Description("When greater than 0, the log messages are limited to that number.")]

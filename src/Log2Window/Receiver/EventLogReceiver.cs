@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-
+using System.Linq;
 using Log2Window.Log;
-
+using System.Collections.Generic;
 
 namespace Log2Window.Receiver
 {
@@ -66,7 +66,7 @@ namespace Log2Window.Receiver
             get { return _showFromBeginning; }
             set
             {
-                _showFromBeginning = value; 
+                _showFromBeginning = value;
             }
         }
 
@@ -112,14 +112,19 @@ namespace Log2Window.Receiver
             {
                 try
                 {
-                    eventLog.EntryWritten += EventLogOnEntryWritten;
+                    //sender is not EventLog type, use lamda expresstion to get outer eventLog variable.
+                    eventLog.EntryWritten += delegate (object sender, EntryWrittenEventArgs entryWrittenEventArgs)
+                    {
+                        var entry = entryWrittenEventArgs.Entry;
+                        ParseEventLogEntry(eventLog, entry);
+                    };
+
                     eventLog.EnableRaisingEvents = true;
                 }
                 catch (Exception ex)
                 {
                     Trace.WriteLine(ex);
-                }
-
+                } 
             }
 
             //_baseLoggerName = AppendHostNameToLogger && !String.IsNullOrEmpty(MachineName) && (MachineName != ".")
@@ -129,26 +134,44 @@ namespace Log2Window.Receiver
 
         public override void Attach(ILogMessageNotifiable notifiable)
         {
+            base.Attach(notifiable);
+
+
+            List<Tuple<EventLog, EventLogEntry>> data = new List<Tuple<EventLog, EventLogEntry>>();
+
+
             if (ShowFromBeginning)
             {
                 foreach (var eventLog in _eventLogs)
                 {
-                    foreach (EventLogEntry entry in eventLog.Entries)
+                    try
                     {
-                        if (!string.IsNullOrEmpty(this.Source))
+                        foreach (EventLogEntry entry in eventLog.Entries)
                         {
-                            if (entry.Source != this.Source)
+                            if (!string.IsNullOrEmpty(this.Source))
                             {
-                                continue;
+                                if (entry.Source != this.Source)
+                                {
+                                    continue;
+                                }
                             }
+                            data.Add(Tuple.Create(eventLog, entry));
                         }
-                        ParseEventLogEntry(eventLog, entry);
                     }
+                    catch (Exception ex)
+                    {
+                        Trace.TraceError(ex.ToString());
+                    }
+                  
                 }
-            } 
+            }
 
-            base.Attach(notifiable);
+            data = data.OrderBy(x => x.Item2.TimeGenerated).ToList();
 
+            foreach (var item in data)
+            {
+                ParseEventLogEntry(item.Item1, item.Item2);
+            }
         }
 
         public override void Terminate()
@@ -161,15 +184,7 @@ namespace Log2Window.Receiver
             _eventLogs = null;
         }
 
-        #endregion
-
-
-        private void EventLogOnEntryWritten(object sender, EntryWrittenEventArgs entryWrittenEventArgs)
-        {
-            var eventLog = sender as EventLog;
-            var entry = entryWrittenEventArgs.Entry;
-            ParseEventLogEntry(eventLog, entry);
-        }
+        #endregion  
 
         private void ParseEventLogEntry(EventLog eventLog, EventLogEntry entry)
         {

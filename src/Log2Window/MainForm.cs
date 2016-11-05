@@ -300,7 +300,7 @@ namespace Log2Window
 
             TopMost = UserSettings.Instance.AlwaysOnTop;
             pinOnTopBtn.Checked = UserSettings.Instance.AlwaysOnTop;
-            pauseRefreshNewMessagesBtn.Checked = UserSettings.Instance.PauseRefreshNewMessages;
+            pauseRefreshNewMessagesBtn.Checked = LogManager.Instance.PauseRefreshNewMessages;
 
             logListView.Font = UserSettings.Instance.LogListFont;
             logDetailTextBox.Font = UserSettings.Instance.LogDetailFont;
@@ -1122,7 +1122,7 @@ namespace Log2Window
 
                 logListView.VirtualListSize = LogManager.Instance._dataSource.Count;
 
-                //if (UserSettings.Instance.PauseRefreshNewMessages)
+                //if (LogManager.Instance.PauseRefreshNewMessages)
                 //{ 
 
                 if (LogManager.Instance._dataSource.Count > 0)
@@ -1173,9 +1173,9 @@ namespace Log2Window
 
         private void pauseRefreshNewMessagesBtn_Click(object sender, EventArgs e)
         {
-            UserSettings.Instance.PauseRefreshNewMessages = !UserSettings.Instance.PauseRefreshNewMessages;
+            LogManager.Instance.PauseRefreshNewMessages = !LogManager.Instance.PauseRefreshNewMessages;
 
-            pauseRefreshNewMessagesBtn.Checked = UserSettings.Instance.PauseRefreshNewMessages;
+            pauseRefreshNewMessagesBtn.Checked = LogManager.Instance.PauseRefreshNewMessages;
 
             if (pauseRefreshNewMessagesBtn.Checked)
             {
@@ -1289,6 +1289,25 @@ namespace Log2Window
             }
         }
 
+        bool eventLogOpened = false;
+
+        private void quickLoadEventLogBtn_Click(object sender, EventArgs e)
+        {
+            if (eventLogOpened)
+            {
+                MessageBox.Show("EventLog already opened","Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                this.Cursor = Cursors.WaitCursor;
+                EventLogReceiver rec = new EventLogReceiver();
+                rec.ShowFromBeginning = true;
+                InitializeReceiver(rec);
+                this.Cursor = Cursors.Default;
+                eventLogOpened = true;
+            } 
+        }
+
         private void logListView_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.C)
@@ -1346,6 +1365,6 @@ namespace Log2Window
                 }
             }
         } 
-       
+      
     }
 }
