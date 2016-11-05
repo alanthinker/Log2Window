@@ -134,17 +134,6 @@
     <Compile Include="Settings\FieldType.cs" />
     <Compile Include="Settings\LayoutSettings.cs" />
     <Compile Include="Settings\SourceFileLocation.cs" />
-    <Compile Include="Win32ApiCodePack\CommonDllNames.cs" />
-    <Compile Include="Win32ApiCodePack\Core.cs" />
-    <Compile Include="Win32ApiCodePack\TabbedThumbnailNativeMethods.cs" />
-    <Compile Include="Win32ApiCodePack\TaskbarManager.cs" />
-    <Compile Include="Win32ApiCodePack\TaskbarNativeMethods.cs" />
-    <Compile Include="Win32ApiCodePack\TaskbarProgressBarState.cs" />
-    <Compile Include="Win32ApiCodePack\TaskbarWindow.cs" />
-    <Compile Include="Win32ApiCodePack\TaskbarWindowManager.cs" />
-    <Compile Include="Win32ApiCodePack\ThumbnailToolbarButton.cs" />
-    <Compile Include="Win32ApiCodePack\ThumbnailToolbarManager.cs" />
-    <Compile Include="Win32ApiCodePack\ThumbnailToolbarProxyWindow.cs" />
     <EmbeddedResource Include="AboutForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>AboutForm.cs</DependentUpon>

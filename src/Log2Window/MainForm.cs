@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Log2Window.Properties;
-using Microsoft.WindowsAPICodePack.Taskbar;
 
 using ControlExtenders;
 
@@ -37,9 +36,6 @@ namespace Log2Window
         private Timer _taskbarProgressTimer;
         private const int _taskbarProgressTimerPeriod = 2000;
         private bool _addedLogMessage;
-        private readonly ThumbnailToolbarButton _pauseWinbarBtn;
-        private readonly ThumbnailToolbarButton _autoScrollWinbarBtn;
-        private readonly ThumbnailToolbarButton _clearAllWinbarBtn;
 
         private readonly Queue<LogMessage> _eventQueue;
         private Thread _logMsgThread;
@@ -114,36 +110,7 @@ namespace Log2Window
             _windowRestorer = new WindowRestorer(this, UserSettings.Instance.Layout.WindowPosition,
                                                        UserSettings.Instance.Layout.WindowState);
 
-            // Windows 7 CodePack (Taskbar icons and progress)
-            _isWin7orLater = TaskbarManager.IsPlatformSupported;
-
-            if (_isWin7orLater)
-            {
-                try
-                {
-                    // Taskbar Progress
-                    TaskbarManager.Instance.ApplicationId = Text;
-                    _taskbarProgressTimer = new Timer(OnTaskbarProgressTimer, null, _taskbarProgressTimerPeriod, _taskbarProgressTimerPeriod);
-
-                    // Auto Scroll Btn
-                    _autoScrollWinbarBtn =
-                        new ThumbnailToolbarButton(Icon.FromHandle(((Bitmap)pauseRefreshNewMessagesBtn.Image).GetHicon()), pauseRefreshNewMessagesBtn.ToolTipText);
-                    _autoScrollWinbarBtn.Click += pauseRefreshNewMessagesBtn_Click;
-
-                    // Clear All Btn
-                    _clearAllWinbarBtn =
-                        new ThumbnailToolbarButton(Icon.FromHandle(((Bitmap)clearLoggersBtn.Image).GetHicon()), clearLoggersBtn.ToolTipText);
-                    _clearAllWinbarBtn.Click += clearAll_Click;
-
-                    // Add Btns
-                    TaskbarManager.Instance.ThumbnailToolbars.AddButtons(Handle, _pauseWinbarBtn, _autoScrollWinbarBtn, _clearAllWinbarBtn);
-                }
-                catch (Exception)
-                {
-                    // Not running on Win 7?
-                    _isWin7orLater = false;
-                }
-            }
+           
 
             ApplySettings(true);
 
@@ -273,7 +240,7 @@ namespace Log2Window
             }
             catch (Exception ex)
             {
-                Utils.log.Error(ex.Message, ex); 
+                Utils.log.Error(ex.Message, ex);
             }
         }
 
@@ -393,7 +360,7 @@ namespace Log2Window
                 {
                     Utils.log.Error(ex2.Message, ex2);
                 }
-                
+
                 ShowErrorBox("Failed to Initialize Receiver: " + ex.Message);
             }
         }
@@ -616,7 +583,7 @@ namespace Log2Window
 
         private void ProcessLogMessageThread()
         {
-            while (true)
+            while (_logMsgThread != null)
             {
                 try
                 {
@@ -639,25 +606,22 @@ namespace Log2Window
                         Thread.Sleep(100);
                     }
 
-                    LoggerItem.TryEnsureVisibleLastItem(logListView);
-
+                    if (_logMsgThread != null)
+                    {
+                        LoggerItem.TryEnsureVisibleLastItem(logListView);
+                    }
+                }
+                catch (ThreadAbortException ex)
+                {
+                    Utils.log.Error("ProcessLogMessageThread " + ex.Message);
+                    Thread.ResetAbort();
+                    break;
                 }
                 catch (Exception ex)
                 {
                     Utils.log.Error(ex.Message, ex);
                 }
             }
-        }
-
-        private void OnTaskbarProgressTimer(object o)
-        {
-            if (_isWin7orLater && UserSettings.Instance.NotifyNewLogWhenHidden)
-            {
-                TaskbarManager.Instance.SetProgressState(_addedLogMessage
-                                                                ? TaskbarProgressBarState.Indeterminate
-                                                                : TaskbarProgressBarState.NoProgress);
-            }
-            _addedLogMessage = false;
         }
 
         private void quitBtn_Click(object sender, EventArgs e)
@@ -723,7 +687,7 @@ namespace Log2Window
                     }
                 }
 
-                if(logMsgItem.Message.SourceFileLineNr.HasValue)
+                if (logMsgItem.Message.SourceFileLineNr.HasValue)
                     OpenSourceFile(logMsgItem.Message.SourceFileName, logMsgItem.Message.SourceFileLineNr.Value);
             }
         }
@@ -1223,7 +1187,7 @@ namespace Log2Window
             if (dlg.ShowDialog(this) == DialogResult.Cancel)
                 return;
 
-            Utils.Export2Log4jFile( dlg.FileName); 
+            Utils.Export2Log4jFile(dlg.FileName);
         }
 
         private void saveToExcelBtn_Click(object sender, EventArgs e)
@@ -1285,7 +1249,7 @@ namespace Log2Window
                 FileReceiver fr = new FileReceiver();
                 fr.FileToWatch = openFileDialog1.FileName;
                 fr.ShowFromBeginning = true;
-                InitializeReceiver(fr); 
+                InitializeReceiver(fr);
             }
         }
 
@@ -1293,7 +1257,7 @@ namespace Log2Window
 
         private void quickLoadEventLogBtn_Click(object sender, EventArgs e)
         {
-            if (eventLogReceiver!=null)
+            if (eventLogReceiver != null)
             {
                 try
                 {
@@ -1303,7 +1267,7 @@ namespace Log2Window
                 catch (Exception ex)
                 {
                     Utils.log.Error(ex.Message, ex);
-                } 
+                }
             }
             else
             {
@@ -1311,8 +1275,8 @@ namespace Log2Window
                 eventLogReceiver = new EventLogReceiver();
                 eventLogReceiver.ShowFromBeginning = true;
                 InitializeReceiver(eventLogReceiver);
-                this.Cursor = Cursors.Default; 
-            } 
+                this.Cursor = Cursors.Default;
+            }
         }
 
         private void logListView_KeyDown(object sender, KeyEventArgs e)
@@ -1371,7 +1335,7 @@ namespace Log2Window
                     btLogLevel.Checked = false;
                 }
             }
-        } 
-      
+        }
+
     }
 }
