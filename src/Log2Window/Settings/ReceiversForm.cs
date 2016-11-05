@@ -11,15 +11,18 @@ namespace Log2Window.Settings
     {
         public List<IReceiver> AddedReceivers { get; protected set; }
         public List<IReceiver> RemovedReceivers { get; protected set; }
+        public List<IReceiver> ModifiedReceivers { get; protected set; }
         public IReceiver SelectedReceiver { get; protected set; }
 
         public ReceiversForm(IEnumerable<IReceiver> receivers)
         {
             AddedReceivers = new List<IReceiver>();
             RemovedReceivers = new List<IReceiver>();
+            ModifiedReceivers = new List<IReceiver>();
 
             InitializeComponent();
             removeReceiverBtn.Visible = true;
+            this.receiverPropertyGrid.PropertyValueChanged += ReceiverPropertyGrid_PropertyValueChanged;
 
             Font = UserSettings.Instance.DefaultFont ?? Font;
 
@@ -36,6 +39,15 @@ namespace Log2Window.Settings
             // Populate Existing Receivers
             foreach (IReceiver receiver in receivers)
                 AddReceiver(receiver);
+        }
+
+        private void ReceiverPropertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+        {
+            if (!this.AddedReceivers.Contains(this.SelectedReceiver)
+                && !this.ModifiedReceivers.Contains(this.SelectedReceiver))
+            {
+                this.ModifiedReceivers.Add(this.SelectedReceiver);
+            }
         }
 
         private void AddReceiver(IReceiver receiver)
@@ -77,6 +89,8 @@ namespace Log2Window.Settings
 
             if (AddedReceivers.Find(r => r == receiver) != null)
                 AddedReceivers.Remove(receiver);
+            else if (ModifiedReceivers.Find(r => r == receiver) != null)
+                ModifiedReceivers.Remove(receiver);
             else
                 RemovedReceivers.Add(receiver);
         }
@@ -86,8 +100,7 @@ namespace Log2Window.Settings
             IReceiver receiver = GetSelectedReceiver();
 
             removeReceiverBtn.Enabled = (receiver != null);
-            receiverPropertyGrid.SelectedObject = receiver;
-
+            receiverPropertyGrid.SelectedObject = receiver; 
             if (receiver != null)
             {
                 sampleClientConfigTextBox.Text = receiver.SampleClientConfig;

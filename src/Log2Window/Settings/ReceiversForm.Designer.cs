@@ -51,7 +51,7 @@
             this.receiversListView.Location = new System.Drawing.Point(0, 0);
             this.receiversListView.MultiSelect = false;
             this.receiversListView.Name = "receiversListView";
-            this.receiversListView.Size = new System.Drawing.Size(211, 376);
+            this.receiversListView.Size = new System.Drawing.Size(211, 431);
             this.receiversListView.TabIndex = 0;
             this.receiversListView.UseCompatibleStateImageBehavior = false;
             this.receiversListView.View = System.Windows.Forms.View.List;
@@ -59,16 +59,16 @@
             // 
             // toolStripContainer1
             // 
-            this.toolStripContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
+            this.toolStripContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             // 
             // toolStripContainer1.ContentPanel
             // 
             this.toolStripContainer1.ContentPanel.Controls.Add(this.receiversListView);
-            this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(211, 376);
+            this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(211, 431);
             this.toolStripContainer1.Location = new System.Drawing.Point(12, 12);
             this.toolStripContainer1.Name = "toolStripContainer1";
-            this.toolStripContainer1.Size = new System.Drawing.Size(211, 401);
+            this.toolStripContainer1.Size = new System.Drawing.Size(211, 456);
             this.toolStripContainer1.TabIndex = 1;
             this.toolStripContainer1.Text = "toolStripContainer1";
             // 
@@ -112,7 +112,7 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(229, 223);
+            this.label2.Location = new System.Drawing.Point(229, 278);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(139, 13);
             this.label2.TabIndex = 7;
@@ -120,9 +120,9 @@
             // 
             // sampleClientConfigTextBox
             // 
-            this.sampleClientConfigTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.sampleClientConfigTextBox.Location = new System.Drawing.Point(229, 239);
+            this.sampleClientConfigTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.sampleClientConfigTextBox.Location = new System.Drawing.Point(229, 294);
             this.sampleClientConfigTextBox.Multiline = true;
             this.sampleClientConfigTextBox.Name = "sampleClientConfigTextBox";
             this.sampleClientConfigTextBox.ReadOnly = true;
@@ -132,12 +132,12 @@
             // 
             // receiverPropertyGrid
             // 
-            this.receiverPropertyGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.receiverPropertyGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.receiverPropertyGrid.Location = new System.Drawing.Point(229, 12);
             this.receiverPropertyGrid.Name = "receiverPropertyGrid";
-            this.receiverPropertyGrid.Size = new System.Drawing.Size(481, 195);
+            this.receiverPropertyGrid.Size = new System.Drawing.Size(481, 250);
             this.receiverPropertyGrid.TabIndex = 5;
             this.receiverPropertyGrid.ToolbarVisible = false;
             // 
@@ -145,7 +145,7 @@
             // 
             this.okBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.okBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.okBtn.Location = new System.Drawing.Point(554, 419);
+            this.okBtn.Location = new System.Drawing.Point(554, 474);
             this.okBtn.Name = "okBtn";
             this.okBtn.Size = new System.Drawing.Size(75, 23);
             this.okBtn.TabIndex = 8;
@@ -156,7 +156,7 @@
             // 
             this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancelBtn.Location = new System.Drawing.Point(635, 419);
+            this.cancelBtn.Location = new System.Drawing.Point(635, 474);
             this.cancelBtn.Name = "cancelBtn";
             this.cancelBtn.Size = new System.Drawing.Size(75, 23);
             this.cancelBtn.TabIndex = 9;
@@ -169,7 +169,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.CancelButton = this.cancelBtn;
-            this.ClientSize = new System.Drawing.Size(722, 454);
+            this.ClientSize = new System.Drawing.Size(722, 509);
             this.Controls.Add(this.cancelBtn);
             this.Controls.Add(this.okBtn);
             this.Controls.Add(this.label2);

@@ -384,12 +384,16 @@ namespace Log2Window
             }
             catch (Exception ex)
             {
+                Trace.WriteLine(ex);
                 try
                 {
                     receiver.Terminate();
                 }
-                catch { }
-
+                catch (Exception ex2)
+                {
+                    Trace.WriteLine(ex2);
+                }
+                
                 ShowErrorBox("Failed to Initialize Receiver: " + ex.Message);
             }
         }
@@ -403,6 +407,7 @@ namespace Log2Window
             }
             catch (Exception ex)
             {
+                Trace.WriteLine(ex);
                 ShowErrorBox("Failed to Terminate Receiver: " + ex.Message);
             }
         }
@@ -479,6 +484,16 @@ namespace Log2Window
             {
                 UserSettings.Instance.Receivers.Add(receiver);
                 InitializeReceiver(receiver);
+            }
+
+            foreach (IReceiver receiver in form.ModifiedReceivers)
+            {
+                receiver.Terminate();
+                UserSettings.Instance.Receivers.Remove(receiver);
+
+                var newReceiver = (receiver as ICloneable).Clone() as IReceiver;
+                UserSettings.Instance.Receivers.Add(newReceiver);
+                InitializeReceiver(newReceiver);
             }
 
             UserSettings.Instance.Save();
@@ -755,6 +770,7 @@ namespace Log2Window
             }
             catch (Exception ex)
             {
+                Trace.WriteLine(ex);
                 MessageBox.Show(string.Format("Message: {0}, Stack Trace: {1}", ex.Message, ex.StackTrace), "Error opening source file");
             }
         }
@@ -1233,6 +1249,7 @@ namespace Log2Window
             }
             catch (Exception ex)
             {
+                Trace.WriteLine(ex);
                 MessageBox.Show(ex.Message, "Error opening file in Visual Studio");
             }
         }

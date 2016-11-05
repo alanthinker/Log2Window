@@ -131,7 +131,8 @@ Configuration for log4net:
                             StringBuilder sb = new StringBuilder();
 
                             int temp;
-                            while ((temp = sr.Read()) != -1)
+                            while (_socket != null 
+                                &&(temp = sr.Read()) != -1)
                             {
                                 sb.Append((char)temp);
                                 if (IsEndWith(sb, log4jEndTag))

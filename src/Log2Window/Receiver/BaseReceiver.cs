@@ -7,7 +7,7 @@ using Log2Window.Log;
 namespace Log2Window.Receiver
 {
     [Serializable]
-    public abstract class BaseReceiver : MarshalByRefObject, IReceiver
+    public abstract class BaseReceiver : MarshalByRefObject, IReceiver, ICloneable
     {
         [NonSerialized]
         protected ILogMessageNotifiable Notifiable;
@@ -36,8 +36,13 @@ namespace Log2Window.Receiver
         }
 
         public virtual void Detach()
-        {
+        { 
             Notifiable = null;
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
 
         #endregion

@@ -12,17 +12,18 @@ namespace Log2Window.Receiver
     public class EventLogReceiver : BaseReceiver
     {
         [NonSerialized]
-        private EventLog _eventLog;
+        private EventLog[] _eventLogs;
 
         private string _logName;
         private string _machineName = ".";
         private string _source;
         private bool _appendHostNameToLogger = true;
+        private bool _showFromBeginning = false;
 
 
         [Category("Configuration")]
         [DisplayName("Event Log Name")]
-        [Description("The name of the log on the specified computer. Such as 'Application', 'System', 'Security'")]
+        [Description("The name of the log on the specified computer. Such as 'Application', 'System', 'Security'. Leave empty to show all logs.(Need administrator.)")]
         public string LogName
         {
             get { return _logName; }
@@ -40,7 +41,7 @@ namespace Log2Window.Receiver
 
         [Category("Configuration")]
         [DisplayName("Event Log Source")]
-        [Description("The source of event log entries. Such as 'Windows Error Reporting'")]
+        [Description("The source of event log entries. Such as 'Windows Error Reporting'. Leave empty to show all source in the log.")]
         public string Source
         {
             get { return _source; }
@@ -56,8 +57,21 @@ namespace Log2Window.Receiver
             set { _appendHostNameToLogger = value; }
         }
 
-        [NonSerialized]
-        private string _baseLoggerName;
+        [Category("Configuration")]
+        [DisplayName("Show from Beginning")]
+        [Description("Show all log messages from the beginning (not just newly added log messages.)")]
+        [DefaultValue(false)]
+        public bool ShowFromBeginning
+        {
+            get { return _showFromBeginning; }
+            set
+            {
+                _showFromBeginning = value; 
+            }
+        }
+
+        //[NonSerialized]
+        //private string _baseLoggerName;
 
 
         #region Overrides of BaseReceiver
@@ -77,31 +91,74 @@ namespace Log2Window.Receiver
             if (String.IsNullOrEmpty(MachineName))
                 MachineName = ".";
 
-            _eventLog = new EventLog(LogName, MachineName, Source);
-            _eventLog.EntryWritten += EventLogOnEntryWritten;
-            _eventLog.EnableRaisingEvents = true; 
+            if (String.IsNullOrEmpty(LogName))
+            {
+                _eventLogs = EventLog.GetEventLogs();
+            }
+            else
+            {
+                _eventLogs = new EventLog[1];
+                if (string.IsNullOrEmpty(Source))
+                {
+                    _eventLogs[0] = new EventLog(LogName, MachineName);
+                }
+                else
+                {
+                    _eventLogs[0] = new EventLog(LogName, MachineName, Source);
+                }
+            }
 
-            _baseLoggerName = AppendHostNameToLogger && !String.IsNullOrEmpty(MachineName) && (MachineName != ".")
-                                    ? String.Format("[Host: {0}].{1}", MachineName, LogName)
-                                    : LogName; 
+            foreach (var eventLog in _eventLogs)
+            {
+                try
+                {
+                    eventLog.EntryWritten += EventLogOnEntryWritten;
+                    eventLog.EnableRaisingEvents = true;
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                }
+
+            }
+
+            //_baseLoggerName = AppendHostNameToLogger && !String.IsNullOrEmpty(MachineName) && (MachineName != ".")
+            //                        ? String.Format("[Host: {0}].{1}", MachineName, LogName)
+            //                        : LogName; 
         }
 
         public override void Attach(ILogMessageNotifiable notifiable)
         {
+            if (ShowFromBeginning)
+            {
+                foreach (var eventLog in _eventLogs)
+                {
+                    foreach (EventLogEntry entry in eventLog.Entries)
+                    {
+                        if (!string.IsNullOrEmpty(this.Source))
+                        {
+                            if (entry.Source != this.Source)
+                            {
+                                continue;
+                            }
+                        }
+                        ParseEventLogEntry(eventLog, entry);
+                    }
+                }
+            } 
+
             base.Attach(notifiable);
 
-            foreach (EventLogEntry entry in _eventLog.Entries)
-            {
-                if(entry.Source==Source)
-                    ParseEventLogEntry(entry);
-            }
         }
 
         public override void Terminate()
         {
-            if (_eventLog != null)
-                _eventLog.Dispose();
-            _eventLog = null;
+            foreach (var eventLog in _eventLogs)
+            {
+                eventLog.Dispose();
+            }
+
+            _eventLogs = null;
         }
 
         #endregion
@@ -109,17 +166,23 @@ namespace Log2Window.Receiver
 
         private void EventLogOnEntryWritten(object sender, EntryWrittenEventArgs entryWrittenEventArgs)
         {
+            var eventLog = sender as EventLog;
             var entry = entryWrittenEventArgs.Entry;
-            ParseEventLogEntry(entry);
+            ParseEventLogEntry(eventLog, entry);
         }
 
-        private void ParseEventLogEntry(EventLogEntry entry)
+        private void ParseEventLogEntry(EventLog eventLog, EventLogEntry entry)
         {
             LogMessage logMsg = new LogMessage();
-            logMsg.RootLoggerName = _baseLoggerName;
+            var baseName = "EventLog." + eventLog.Log;
+            if (AppendHostNameToLogger)
+            {
+                baseName = "EventLog_" + (this.MachineName == "." ? "local" : this.MachineName) + "." + eventLog.Log;
+            }
+            logMsg.RootLoggerName = baseName;
             logMsg.LoggerName = String.IsNullOrEmpty(entry.Source)
-                                    ? _baseLoggerName
-                                    : String.Format("{0}.{1}", _baseLoggerName, entry.Source);
+                                    ? baseName
+                                    : String.Format("{0}.{1}", baseName, entry.Source);
 
             logMsg.Message = entry.Message;
             logMsg.TimeStamp = entry.TimeGenerated;

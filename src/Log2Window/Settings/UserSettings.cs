@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 using Log2Window.Log;
 using Log2Window.Receiver;
-
+using System.Diagnostics;
 
 namespace Log2Window.Settings
 {
@@ -335,6 +335,7 @@ namespace Log2Window.Settings
                 }
                 catch (FormatException ex)
                 {
+                    Trace.WriteLine(ex);
                     MessageBox.Show(Form.ActiveForm, ex.Message, Form.ActiveForm.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     _timeStampFormatString = "G"; // Back to default
                 }
@@ -562,6 +563,7 @@ namespace Log2Window.Settings
                 }
                 catch(Exception ex)
                 {
+                    Trace.WriteLine(ex);
                     MessageBox.Show(ex.Message, "Error Configuring Columns");
                 }
             }
