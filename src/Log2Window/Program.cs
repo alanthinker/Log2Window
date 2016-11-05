@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
 
 
@@ -14,6 +15,7 @@ namespace Log2Window
         [STAThread]
         static void Main()
         {
+            log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo("Config/log4net.config"));
             Application.ThreadException += Application_ThreadException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
@@ -25,14 +27,14 @@ namespace Log2Window
 
         private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
-            Trace.WriteLine(e.Exception.ToString());
+            Utils.log.Error("Application_ThreadException", e.Exception);
 
             //MessageBox.Show(e.Exception.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            Trace.WriteLine(e.ExceptionObject.ToString());
+            Utils.log.Error("CurrentDomain_UnhandledException", e.ExceptionObject as Exception);
             //MessageBox.Show(e.ExceptionObject.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }

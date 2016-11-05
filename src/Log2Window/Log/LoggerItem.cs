@@ -124,7 +124,7 @@ namespace Log2Window.Log
                 _enabled = value;
                 LoggerView.Enabled = value;
 
-                //Trace.WriteLine(this.Name + " " + value);
+                //Utils.log.Debug(this.Name + " " + value);
 
                 // Now enable all child loggers if the settings are set to 
                 // recursivly enable/disable chid loggers.
@@ -328,12 +328,12 @@ namespace Log2Window.Log
                             if (thisArrivedId != lastEnsureVisibleArrivedId)
                             {
                                 var speed = (double)(thisArrivedId - lastEnsureVisibleArrivedId) / Math.Max(0.01, (DateTime.Now - lastEnsureVisibleTime).Seconds);
-                                //Trace.WriteLine("speed:" + speed);
+                                //Utils.log.Debug("speed:" + speed);
                                 //收到的消息速度越快, 下次间隔就越大, 可以改进性能. 
                                 //  如果1秒收到1000个消息, 那1秒后再收.
                                 //  如果1秒收到100个消息, 那0.1秒后再收.
                                 EnsureVisiblePeroid = TimeSpan.FromSeconds(Math.Max(0.1, Math.Min(1, speed / 1000)));
-                                Trace.WriteLine("EnsureVisiblePeroid:" + EnsureVisiblePeroid + " speed:" + speed + " index:" + index);
+                                Utils.log.Debug("EnsureVisiblePeroid:" + EnsureVisiblePeroid + " speed:" + speed + " index:" + index);
                                 LoggerItem.lastEnsureVisibleTime = DateTime.Now;
                                 lastEnsureVisibleArrivedId = thisArrivedId;
 

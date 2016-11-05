@@ -112,7 +112,7 @@ Configuration for log4net:
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex);
+                Utils.log.Error(ex.Message, ex);
             }
         }
 

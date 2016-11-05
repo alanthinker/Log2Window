@@ -24,7 +24,7 @@ namespace Log2Window
             Text = String.Format("About {0}", AssemblyTitle);
             labelProductName.Text = AssemblyProduct;
             labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
-            this.labelCompileTime.Text = "CompileTime " + utils.GetPeTime(Assembly.GetExecutingAssembly().Location).ToString("yyyy-MM-dd HH:mm:ss");
+            this.labelCompileTime.Text = "CompileTime " + Utils.GetPeTime(Assembly.GetExecutingAssembly().Location).ToString("yyyy-MM-dd HH:mm:ss");
          
             List<string> lines = new List<string>();
             lines.Add(AssemblyDescription);

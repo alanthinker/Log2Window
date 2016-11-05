@@ -11,8 +11,9 @@ using System.Xml;
 
 namespace Log2Window
 {
-    public static class utils
+    public static class Utils
     {
+        public static readonly log4net.ILog log = log4net.LogManager.GetLogger("Log2Window");
         static readonly DateTime s1970 = new DateTime(1970, 1, 1);
 
         private static void WriteARow(CsvWriter csvWriter, LogMessage logMsg)

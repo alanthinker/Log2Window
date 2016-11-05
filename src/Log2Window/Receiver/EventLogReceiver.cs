@@ -124,7 +124,7 @@ namespace Log2Window.Receiver
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine(ex);
+                    Utils.log.Error(ex.Message, ex);
                     System.Threading.ThreadPool.QueueUserWorkItem(delegate (object ob)
                        {
                            MessageBox.Show(ex.Message, "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -165,7 +165,7 @@ namespace Log2Window.Receiver
                     }
                     catch (Exception ex)
                     {
-                        Trace.TraceError(ex.ToString());
+                        Utils.log.Error(ex.Message, ex);
                     }
 
                 }

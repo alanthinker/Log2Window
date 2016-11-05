@@ -159,7 +159,7 @@ namespace Log2Window
             // For example:
             //  System.Threading.Timer timer = new System.Threading.Timer(new TimerCallback(delegate (object ob)
             //  {
-            //      System.Diagnostics.Trace.WriteLine("ManagedThreadId=" + Thread.CurrentThread.ManagedThreadId);
+            //      System.Diagnostics.Utils.log.Debug("ManagedThreadId=" + Thread.CurrentThread.ManagedThreadId);
             //      Thread.Sleep(5000);
             //  }), null, 1000, 1000);
 
@@ -184,7 +184,7 @@ namespace Log2Window
                 if (e.ItemIndex < LogManager.Instance._dataSource.Count)
                     e.Item = LogMessageItem.CreateListViewItem(LogManager.Instance._dataSource[e.ItemIndex].Message);
                 else
-                    Trace.WriteLine("LogListView_RetrieveVirtualItem: e.ItemIndex=" + e.ItemIndex + " _dataSource.Count=" + LogManager.Instance._dataSource.Count);
+                    Utils.log.Debug("LogListView_RetrieveVirtualItem: e.ItemIndex=" + e.ItemIndex + " _dataSource.Count=" + LogManager.Instance._dataSource.Count);
             }
         }
         private const int WM_SIZE = 0x0005;
@@ -273,7 +273,7 @@ namespace Log2Window
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex);
+                Utils.log.Error(ex.Message, ex); 
             }
         }
 
@@ -384,14 +384,14 @@ namespace Log2Window
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex);
+                Utils.log.Error(ex.Message, ex);
                 try
                 {
                     receiver.Terminate();
                 }
                 catch (Exception ex2)
                 {
-                    Trace.WriteLine(ex2);
+                    Utils.log.Error(ex2.Message, ex2);
                 }
                 
                 ShowErrorBox("Failed to Initialize Receiver: " + ex.Message);
@@ -407,7 +407,7 @@ namespace Log2Window
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex);
+                Utils.log.Error(ex.Message, ex);
                 ShowErrorBox("Failed to Terminate Receiver: " + ex.Message);
             }
         }
@@ -610,7 +610,7 @@ namespace Log2Window
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex);
+                Utils.log.Error(ex.Message, ex);
             }
         }
 
@@ -644,7 +644,7 @@ namespace Log2Window
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine(ex);
+                    Utils.log.Error(ex.Message, ex);
                 }
             }
         }
@@ -770,7 +770,7 @@ namespace Log2Window
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex);
+                Utils.log.Error(ex.Message, ex);
                 MessageBox.Show(string.Format("Message: {0}, Stack Trace: {1}", ex.Message, ex.StackTrace), "Error opening source file");
             }
         }
@@ -1063,7 +1063,7 @@ namespace Log2Window
 
         private void LoggerTreeView_BeforeCheck(object sender, TreeViewCancelEventArgs e)
         {
-            //Trace.WriteLine("LoggerTreeView_BeforeCheck " + e.Action + " " + this.Name);
+            //Utils.log.Debug("LoggerTreeView_BeforeCheck " + e.Action + " " + this.Name);
             //if (e.Action != TreeViewAction.ByMouse && e.Action != TreeViewAction.ByKeyboard)
             //    return;
         }
@@ -1074,7 +1074,7 @@ namespace Log2Window
             if (e.Action != TreeViewAction.ByMouse && e.Action != TreeViewAction.ByKeyboard)
                 return;
 
-            //Trace.WriteLine("loggerTreeView_AfterCheck " + e.Action + " " + this.Name);
+            //Utils.log.Debug("loggerTreeView_AfterCheck " + e.Action + " " + this.Name);
 
             using (new AutoWaitCursor())
             {
@@ -1141,7 +1141,7 @@ namespace Log2Window
 
         private void LoggerTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            //Trace.WriteLine("LoggerTreeView_NodeMouseClick "+ e.Node.Checked);
+            //Utils.log.Debug("LoggerTreeView_NodeMouseClick "+ e.Node.Checked);
 
         }
 
@@ -1223,7 +1223,7 @@ namespace Log2Window
             if (dlg.ShowDialog(this) == DialogResult.Cancel)
                 return;
 
-            utils.Export2Log4jFile( dlg.FileName); 
+            Utils.Export2Log4jFile( dlg.FileName); 
         }
 
         private void saveToExcelBtn_Click(object sender, EventArgs e)
@@ -1235,7 +1235,7 @@ namespace Log2Window
             if (dlg.ShowDialog(this) == DialogResult.Cancel)
                 return;
 
-            utils.Export2Excel(dlg.FileName);
+            Utils.Export2Excel(dlg.FileName);
         }
 
         private void btnOpenFileInVS_Click(object sender, EventArgs e)
@@ -1249,7 +1249,7 @@ namespace Log2Window
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex);
+                Utils.log.Error(ex.Message, ex);
                 MessageBox.Show(ex.Message, "Error opening file in Visual Studio");
             }
         }
@@ -1302,7 +1302,7 @@ namespace Log2Window
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine(ex);
+                    Utils.log.Error(ex.Message, ex);
                 } 
             }
             else

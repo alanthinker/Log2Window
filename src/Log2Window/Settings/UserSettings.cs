@@ -198,7 +198,7 @@ namespace Log2Window.Settings
             string userDir = AppDomain.CurrentDomain.BaseDirectory; //Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             
             DirectoryInfo di = new DirectoryInfo(userDir);
-            di = di.CreateSubdirectory("Log2Window");
+            di = di.CreateSubdirectory("Config");
 
             return di.FullName + Path.DirectorySeparatorChar + SettingsFileName;
         }
@@ -325,7 +325,7 @@ namespace Log2Window.Settings
                 }
                 catch (FormatException ex)
                 {
-                    Trace.WriteLine(ex);
+                    Utils.log.Error(ex.Message, ex);
                     MessageBox.Show(Form.ActiveForm, ex.Message, Form.ActiveForm.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     _timeStampFormatString = "G"; // Back to default
                 }
@@ -553,7 +553,7 @@ namespace Log2Window.Settings
                 }
                 catch(Exception ex)
                 {
-                    Trace.WriteLine(ex);
+                    Utils.log.Error(ex.Message, ex);
                     MessageBox.Show(ex.Message, "Error Configuring Columns");
                 }
             }
