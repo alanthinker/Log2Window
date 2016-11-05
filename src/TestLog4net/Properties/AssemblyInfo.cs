@@ -1,15 +1,16 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Log2Window")]
-[assembly: AssemblyDescription(@"Log2Window is a log message viewer for log4net, nlog, eventLog, log4j and log4cxx, which has strongly extreme stability and very good performance. It can process millions of log messages less than a second.")]
+[assembly: AssemblyTitle("Test")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("AlanThinker")]
-[assembly: AssemblyProduct("Log2Window")]
-[assembly: AssemblyCopyright("AlanThinker 2016")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Test")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -19,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2881D007-28BD-4907-B4F4-09B627CE8FE4")]
+[assembly: Guid("7bf73781-a136-488c-8984-a3b60d361846")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -28,5 +29,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("2.1.0.*")]
- 
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]

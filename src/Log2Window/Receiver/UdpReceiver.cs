@@ -72,7 +72,7 @@ namespace Log2Window.Receiver
                 return
                     "Notice! " + Environment.NewLine +
                     "Udp may lose log messages, and can't ensure the sequence of the log messages." + Environment.NewLine +
-                    "So strongly recommend using AlanThinker.MyLog4net.TcpAppdender.cs in the appliction directory." + Environment.NewLine + Environment.NewLine +
+                    "So strongly recommend using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\\TestLog4net project." + Environment.NewLine + Environment.NewLine +
                     "Configuration for log4net:" + Environment.NewLine +
                     "<appender name=\"UdpAppender\" type=\"log4net.Appender.UdpAppender\">" + Environment.NewLine +
                     "    <remoteAddress value=\"localhost\" />" + Environment.NewLine +

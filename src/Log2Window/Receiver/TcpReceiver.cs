@@ -64,18 +64,20 @@ namespace Log2Window.Receiver
 <target name='TcpOutlet' xsi:type='NLogViewer' address='tcp://localhost:4505'/>
 
 Configuration for log4net:
-    <appender name='tcpAppender' type='AlanThinker.MyLog4net.TcpAppender'>
-      <remoteAddress value='127.0.0.1' />
-      <remotePort value='4505' />
-      <encoding value='utf-8'></encoding>
-      <layout type='AlanThinker.MyLog4net.MyXmlLayoutSchemaLog4j' >
-        <!--Set these switch to false to impove performance.-->
-        <LocationInfo value='false' />
-        <Show_Hostname_Appdomain_Identity_UserName value='false' />
-        <ShowNDC value='false' />
-        <ShowProperties value='false' />
-      </layout>
-    </appender>
+Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\\TestLog4net project. 
+
+<appender name='tcpAppender' type='AlanThinker.MyLog4net.TcpAppender'>
+    <remoteAddress value='127.0.0.1' />
+    <remotePort value='4505' />
+    <encoding value='utf-8'></encoding>
+    <layout type='AlanThinker.MyLog4net.MyXmlLayoutSchemaLog4j' >
+    <!--Set these switch to false to impove performance.-->
+    <LocationInfo value='false' />
+    <Show_Hostname_Appdomain_Identity_UserName value='false' />
+    <ShowNDC value='false' />
+    <ShowProperties value='false' />
+    </layout>
+</appender>
 ".Replace("'","\"").Replace("\n", Environment.NewLine);
             }
         }

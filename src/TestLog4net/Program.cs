@@ -1,15 +1,30 @@
-﻿using System;
-using NLog;
-using TestNLog.Company.Product.BusinessLogic;
-using TestNLog.Company.Product.ServiceTester;
-namespace TestNLog
+using System;
+
+using log4net;
+
+
+// Configure log4net using the .config file
+[assembly: log4net.Config.XmlConfigurator(Watch = true)]
+
+
+namespace Test
 {
-  class Program
-  {
-    static readonly Logger _log = LogManager.GetCurrentClassLogger();
+    using Company.Product.BusinessLogic;
+    using Company.Product.ServiceTester;
+    using System.Diagnostics;
+    using System.IO;
+
+    class Program
+    {
+        // Create a logger for use in this class.
+        static readonly ILog _log =
+            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
 
         static void Main(string[] args)
         {
+            log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo("Config/log4net.config"));
+
             ////if (!EventLog.SourceExists("log4net"))
             ////{
             ////    //An event log source should not be created and immediately used.
@@ -45,7 +60,7 @@ namespace TestNLog
             Console.WriteLine(DateTime.Now);
             if (Char.ToLower(keyChar) == 'b')
             {
-                for (int i = 0; i < 10000; i++)
+                for (int i = 0; i < 1000000; i++)
                 {
                     _log.Info(i);
                 }
@@ -105,61 +120,66 @@ namespace TestNLog
         {
             throw new Exception("TestEx");
         }
-
     }
+}
 
-  namespace Company.Product.BusinessLogic
-  {
+
+namespace Company.Product.BusinessLogic
+{
 
     public class DummyManager
     {
-      public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        public static readonly ILog _log =
+            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 
-      public DummyManager()
-      {
-        if (Log.IsInfoEnabled)
-          Log.Info("Dummy Manager ctor");
-      }
+        public DummyManager()
+        {
+            if (_log.IsInfoEnabled)
+                _log.Info("Dummy Manager ctor");
+        }
 
-      public void DoIt()
-      {
-        if (Log.IsDebugEnabled)
-          Log.Debug("DM: Do It, Do It Now!!");
+        public void DoIt()
+        {
+            if (_log.IsDebugEnabled)
+                _log.Debug("DM: Do It, Do It Now!!");
 
-        Log.Warn("This is a Warning from DM...");
-        Log.Error("This is an Error from DM...");
-        Log.Fatal("This is a Fatal from DM...");
+            _log.Warn("This is a Warning from DM...");
+            _log.Error("This is an Error from DM...");
+            _log.Fatal("This is a Fatal from DM...");
 
-        Log.ErrorException("This is an error from DM with an exception.", new Exception("The message exception here."));
-      }
+            _log.Error("This is an error from DM with an exception.", new Exception("The message exception here."));
+        }
     }
-  }
+}
 
-  namespace Company.Product.ServiceTester
-  {
+namespace Company.Product.ServiceTester
+{
 
     public class DummyTester
     {
-      public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        public static readonly ILog _log =
+            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-      public DummyTester()
-      {
-        if (Log.IsInfoEnabled)
-          Log.Info("Dummy Tester ctor");
-      }
 
-      public void DoIt()
-      {
-        if (Log.IsDebugEnabled)
-          Log.Debug("DT: Do It, Do It Now!!");
+        public DummyTester()
+        {
+            if (_log.IsInfoEnabled)
+                _log.Info("Dummy Tester ctor");
+        }
 
-        Log.Warn("This is a Warning from DT...");
-        Log.Error("This is an Error from DT...");
-        Log.Fatal("This is a Fatal from DT...");
+        public void DoIt()
+        {
+            if (_log.IsDebugEnabled)
+                _log.Debug("DT: Do It, Do It Now!!");
 
-        Log.ErrorException("This is an error from DT with an exception.", new Exception("The message exception here."));
-      }
+            _log.Warn("This is a Warning from DT...");
+            _log.Error("This is an Error from DT...");
+            _log.Fatal("This is a Fatal from DT...");
+
+            _log.Error("This is an error from DT with an exception.", new Exception("The message exception here."));
+        }
     }
-  }
 }
+
+
