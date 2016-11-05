@@ -60,6 +60,7 @@ namespace Log2Window
             this.settingsBtn = new System.Windows.Forms.ToolStripButton();
             this.receiversBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
+            this.quickLoadEventLogBtn = new System.Windows.Forms.ToolStripButton();
             this.quickLoadBtn = new System.Windows.Forms.ToolStripButton();
             this.saveBtn = new System.Windows.Forms.ToolStripButton();
             this.saveToExcelBtn = new System.Windows.Forms.ToolStripButton();
@@ -83,6 +84,7 @@ namespace Log2Window
             this.collapseAllBtn = new System.Windows.Forms.ToolStripButton();
             this.dactivateSourcesBtn = new System.Windows.Forms.ToolStripButton();
             this.keepHighlightBtn = new System.Windows.Forms.ToolStripButton();
+            this.loggerTreeView = new Log2Window.UI.TreeViewWithoutDoubleClick();
             this.loggerSplitter = new System.Windows.Forms.Splitter();
             this.appNotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.trayContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -121,7 +123,6 @@ namespace Log2Window
             this.toolStripSeparator16 = new System.Windows.Forms.ToolStripSeparator();
             this.deleteAllLoggerTreeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.quickLoadEventLogBtn = new System.Windows.Forms.ToolStripButton();
             this.logListView = new Log2Window.UI.FlickerFreeListView();
             this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -131,7 +132,6 @@ namespace Log2Window
             this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader8 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.loggerTreeView = new Log2Window.UI.TreeViewWithoutDoubleClick();
             this.mainToolStrip.SuspendLayout();
             this.loggerPanel.SuspendLayout();
             this.loggerInnerPanel.SuspendLayout();
@@ -398,7 +398,7 @@ namespace Log2Window
             // 
             // receiversBtn
             // 
-            this.receiversBtn.Image = global::Log2Window.Properties.Resources.configure16;
+            this.receiversBtn.Image = global::Log2Window.Properties.Resources.receive;
             this.receiversBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.receiversBtn.Name = "receiversBtn";
             this.receiversBtn.Size = new System.Drawing.Size(85, 22);
@@ -409,6 +409,15 @@ namespace Log2Window
             // 
             this.toolStripSeparator14.Name = "toolStripSeparator14";
             this.toolStripSeparator14.Size = new System.Drawing.Size(6, 25);
+            // 
+            // quickLoadEventLogBtn
+            // 
+            this.quickLoadEventLogBtn.Image = global::Log2Window.Properties.Resources.eventLog;
+            this.quickLoadEventLogBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.quickLoadEventLogBtn.Name = "quickLoadEventLogBtn";
+            this.quickLoadEventLogBtn.Size = new System.Drawing.Size(108, 22);
+            this.quickLoadEventLogBtn.Text = "Open EventLog";
+            this.quickLoadEventLogBtn.Click += new System.EventHandler(this.quickLoadEventLogBtn_Click);
             // 
             // quickLoadBtn
             // 
@@ -430,7 +439,7 @@ namespace Log2Window
             // 
             // saveToExcelBtn
             // 
-            this.saveToExcelBtn.Image = global::Log2Window.Properties.Resources.saveas16;
+            this.saveToExcelBtn.Image = global::Log2Window.Properties.Resources.Excel;
             this.saveToExcelBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.saveToExcelBtn.Name = "saveToExcelBtn";
             this.saveToExcelBtn.Size = new System.Drawing.Size(106, 22);
@@ -589,6 +598,23 @@ namespace Log2Window
             // 
             this.keepHighlightBtn.Name = "keepHighlightBtn";
             this.keepHighlightBtn.Size = new System.Drawing.Size(23, 4);
+            // 
+            // loggerTreeView
+            // 
+            this.loggerTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.loggerTreeView.CheckBoxes = true;
+            this.loggerTreeView.Indent = 19;
+            this.loggerTreeView.Location = new System.Drawing.Point(0, 25);
+            this.loggerTreeView.Name = "loggerTreeView";
+            this.loggerTreeView.PathSeparator = ".";
+            this.loggerTreeView.ShowRootLines = false;
+            this.loggerTreeView.Size = new System.Drawing.Size(237, 526);
+            this.loggerTreeView.TabIndex = 1;
+            this.loggerTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterCheck);
+            this.loggerTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterSelect);
+            this.loggerTreeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.loggerTreeView_MouseUp);
             // 
             // loggerSplitter
             // 
@@ -930,15 +956,6 @@ namespace Log2Window
             this.openFileDialog1.Filter = "All files|*.*";
             this.openFileDialog1.Title = "Open Log File";
             // 
-            // quickLoadEventLogBtn
-            // 
-            this.quickLoadEventLogBtn.Image = global::Log2Window.Properties.Resources.documentsorcopy16;
-            this.quickLoadEventLogBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.quickLoadEventLogBtn.Name = "quickLoadEventLogBtn";
-            this.quickLoadEventLogBtn.Size = new System.Drawing.Size(108, 22);
-            this.quickLoadEventLogBtn.Text = "Open EventLog";
-            this.quickLoadEventLogBtn.Click += new System.EventHandler(this.quickLoadEventLogBtn_Click);
-            // 
             // logListView
             // 
             this.logListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -1003,23 +1020,6 @@ namespace Log2Window
             // 
             this.columnHeader5.Text = "Message";
             this.columnHeader5.Width = 540;
-            // 
-            // loggerTreeView
-            // 
-            this.loggerTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.loggerTreeView.CheckBoxes = true;
-            this.loggerTreeView.Indent = 19;
-            this.loggerTreeView.Location = new System.Drawing.Point(0, 25);
-            this.loggerTreeView.Name = "loggerTreeView";
-            this.loggerTreeView.PathSeparator = ".";
-            this.loggerTreeView.ShowRootLines = false;
-            this.loggerTreeView.Size = new System.Drawing.Size(237, 526);
-            this.loggerTreeView.TabIndex = 1;
-            this.loggerTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterCheck);
-            this.loggerTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterSelect);
-            this.loggerTreeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.loggerTreeView_MouseUp);
             // 
             // MainForm
             // 

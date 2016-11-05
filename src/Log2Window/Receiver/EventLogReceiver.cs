@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Log2Window.Log;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace Log2Window.Receiver
 {
@@ -124,7 +125,11 @@ namespace Log2Window.Receiver
                 catch (Exception ex)
                 {
                     Trace.WriteLine(ex);
-                } 
+                    System.Threading.ThreadPool.QueueUserWorkItem(delegate (object ob)
+                       {
+                           MessageBox.Show(ex.Message, "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                       });
+                }
             }
 
             //_baseLoggerName = AppendHostNameToLogger && !String.IsNullOrEmpty(MachineName) && (MachineName != ".")
@@ -162,7 +167,7 @@ namespace Log2Window.Receiver
                     {
                         Trace.TraceError(ex.ToString());
                     }
-                  
+
                 }
             }
 

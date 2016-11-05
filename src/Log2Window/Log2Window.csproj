@@ -265,10 +265,13 @@
     <None Include="res\backward16.png" />
     <None Include="res\forward16.png" />
     <Content Include="res\collapse_all.png" />
+    <Content Include="res\eventLog.png" />
+    <Content Include="res\Excel.ico" />
     <Content Include="res\Go16.png" />
     <None Include="res\movefile16.png" />
     <Content Include="res\Pause16.png" />
     <Content Include="res\pin.png" />
+    <Content Include="res\receive.png" />
     <Content Include="res\saveas16.png" />
   </ItemGroup>
   <ItemGroup>
