@@ -1289,22 +1289,29 @@ namespace Log2Window
             }
         }
 
-        bool eventLogOpened = false;
+        EventLogReceiver eventLogReceiver;
 
         private void quickLoadEventLogBtn_Click(object sender, EventArgs e)
         {
-            if (eventLogOpened)
+            if (eventLogReceiver!=null)
             {
-                MessageBox.Show("EventLog already opened","Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                try
+                {
+                    eventLogReceiver.Terminate();
+                    eventLogReceiver = null;
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                } 
             }
             else
             {
                 this.Cursor = Cursors.WaitCursor;
-                EventLogReceiver rec = new EventLogReceiver();
-                rec.ShowFromBeginning = true;
-                InitializeReceiver(rec);
-                this.Cursor = Cursors.Default;
-                eventLogOpened = true;
+                eventLogReceiver = new EventLogReceiver();
+                eventLogReceiver.ShowFromBeginning = true;
+                InitializeReceiver(eventLogReceiver);
+                this.Cursor = Cursors.Default; 
             } 
         }
 
