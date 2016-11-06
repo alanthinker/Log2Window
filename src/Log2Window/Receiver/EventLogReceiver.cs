@@ -19,7 +19,7 @@ namespace Log2Window.Receiver
         private string _machineName = ".";
         private string _source;
         private bool _appendHostNameToLogger = true;
-        private bool _showFromBeginning = false;
+        private bool _showFromBeginning = true;
 
 
         [Category("Configuration")]
@@ -61,7 +61,7 @@ namespace Log2Window.Receiver
         [Category("Configuration")]
         [DisplayName("Show from Beginning")]
         [Description("Show all log messages from the beginning (not just newly added log messages.)")]
-        [DefaultValue(false)]
+        [DefaultValue(true)]
         public bool ShowFromBeginning
         {
             get { return _showFromBeginning; }
@@ -221,7 +221,8 @@ namespace Log2Window.Receiver
             if (!String.IsNullOrEmpty(entry.UserName))
                 logMsg.Properties.Add("User Name", entry.UserName);
 
-            Notifiable.Notify(logMsg);
+            if (Notifiable != null)
+                Notifiable.Notify(logMsg);
         }
 
         private static LogLevel GetLogLevel(EventLogEntryType entryType)

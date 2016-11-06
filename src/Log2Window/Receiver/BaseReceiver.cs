@@ -32,6 +32,7 @@ namespace Log2Window.Receiver
 
         [Category("Configuration")]
         [DisplayName("Encoding")]
+        [DefaultValue("utf-8")]
         public virtual string TextEncoding
         {
             get { return m_TextEncoding; }

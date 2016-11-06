@@ -75,7 +75,7 @@ namespace Log2Window.Settings
         private bool _hideTaskbarIcon = false;
         private bool _notifyNewLogWhenHidden = false;
         private bool _alwaysOnTop = false;
-        private uint _transparency = 100; 
+        private int _transparency = 100; 
         private FieldType[] _columnConfiguration;
         private FieldType[] _messageDetailConfiguration;
 
@@ -83,7 +83,7 @@ namespace Log2Window.Settings
         private FieldType[] _csvColumnHeaderFields;
         private SourceFileLocation[] _sourceLocationMapConfiguration;
         private bool _PauseRefreshNewMessages = false; 
-        private int _messageCycleCount = 0;
+        private int _messageCycleCount = 1000000;
         private string _timeStampFormatString = "yyyy-MM-dd HH:mm:ss.ffff";
 
         private Font _defaultFont = null;
@@ -229,6 +229,7 @@ namespace Log2Window.Settings
         [Category("Appearance")]
         [Description("Hides the taskbar icon, only the tray icon will remain visible.")]
         [DisplayName("Hide Taskbar Icon")]
+        [DefaultValue(false)]
         public bool HideTaskbarIcon
         {
             get { return _hideTaskbarIcon; }
@@ -238,6 +239,7 @@ namespace Log2Window.Settings
         [Category("Appearance")]
         [Description("The Log2Window window will remain on top of all other windows.")]
         [DisplayName("Always On Top")]
+        [DefaultValue(false)]
         public bool AlwaysOnTop
         {
             get { return _alwaysOnTop; }
@@ -246,7 +248,8 @@ namespace Log2Window.Settings
 
         [Category("Appearance")]
         [Description("Select a transparency factor for the main window.")]
-        public uint Transparency
+        [DefaultValue(100)]
+        public int Transparency
         {
             get { return _transparency; }
             set { _transparency = Math.Max(10, Math.Min(100, value)); }
@@ -296,6 +299,7 @@ namespace Log2Window.Settings
         [Category("Notification")]
         [Description("A balloon tip will be displayed when a new log message arrives and the window is hidden.")]
         [DisplayName("Notify New Log When Hidden")]
+        [DefaultValue(false)]
         public bool NotifyNewLogWhenHidden
         {
             get { return _notifyNewLogWhenHidden; }
@@ -303,8 +307,9 @@ namespace Log2Window.Settings
         } 
 
         [Category("Logging")]
-        [Description("When greater than 0, the log messages are limited to that number.")]
+        [Description("When greater than 0, the log messages are limited to that number. Like a queue First-In-First-Out.")]
         [DisplayName("Message Cycle Count")]
+        [DefaultValue(1000000)]
         public int MessageCycleCount
         {
             get { return _messageCycleCount; }
@@ -314,6 +319,7 @@ namespace Log2Window.Settings
         [Category("Logging")]
         [Description("Defines the format to be used to display the log message timestamps (cf. DateTime.ToString(format) in the .NET Framework.")]
         [DisplayName("TimeStamp Format String")]
+        [DefaultValue("yyyy-MM-dd HH:mm:ss.ffff")]
         public string TimeStampFormatString
         {
             get { return _timeStampFormatString; }
@@ -337,6 +343,7 @@ namespace Log2Window.Settings
         [Category("Logging")]
         [Description("When a logger is enabled or disabled, do the same for all child loggers.")]
         [DisplayName("Recursively Enable Loggers")]
+        [DefaultValue(true)]
         public bool RecursivlyEnableLoggers
         {
             get { return _recursivlyEnableLoggers; }
@@ -358,6 +365,7 @@ namespace Log2Window.Settings
         [Category("Message Details")]
         [Description("Show or hide the message properties in the message details panel.")]
         [DisplayName("Show Properties")]
+        [DefaultValue(false)]
         public bool ShowMsgDetailsProperties
         {
             get { return _msgDetailsProperties; }
@@ -367,6 +375,7 @@ namespace Log2Window.Settings
         [Category("Message Details")]
         [Description("Show or hide the exception in the message details panel.")]
         [DisplayName("Show Exception")]
+        [DefaultValue(true)]
         public bool ShowMsgDetailsException
         {
             get { return _msgDetailsException; }
@@ -445,7 +454,7 @@ namespace Log2Window.Settings
         }
 
         [Category("Log Level Colors")]
-        [DisplayName("3 - Info Level Color")]
+        [DisplayName("3 - Info Level Color")] 
         public Color InfoLevelColor
         {
             get { return _infoLevelColor; }

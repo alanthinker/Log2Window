@@ -37,7 +37,7 @@ namespace Log2Window.Receiver
 
         private string _fileToWatch = String.Empty;
         private FileFormatEnums _fileFormat;
-        private bool _showFromBeginning;
+        private bool _showFromBeginning = true;
         private string _loggerName;
 
 
@@ -55,12 +55,12 @@ namespace Log2Window.Receiver
 
                 Restart();
             }
-        } 
+        }
 
         [Category("Configuration")]
         [DisplayName("Show from Beginning")]
         [Description("Show file contents from the beginning (not just newly appended lines)")]
-        [DefaultValue(false)]
+        [DefaultValue(true)]
         public bool ShowFromBeginning
         {
             get { return _showFromBeginning; }
@@ -68,7 +68,7 @@ namespace Log2Window.Receiver
             {
                 _showFromBeginning = value;
 
-                if (value && _lastFileLength == 0)
+                if (value && _lastFileLength == 0 && Notifiable != null)
                 {
                     ReadFile();
                 }
@@ -233,7 +233,8 @@ Or
             }
 
             // Notify the UI with the set of messages
-            Notifiable.Notify(logMsgs.ToArray());
+            if (Notifiable != null)
+                Notifiable.Notify(logMsgs.ToArray());
 
             // Update the last file length
             _lastFileLength = _fileReader.BaseStream.Position;

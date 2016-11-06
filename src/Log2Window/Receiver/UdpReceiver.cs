@@ -55,6 +55,7 @@ namespace Log2Window.Receiver
 
         [Category("Configuration")]
         [DisplayName("Receive Buffer Size")]
+        [DefaultValue(10000)]
         public int BufferSize
         {
             get { return _bufferSize; }
@@ -143,7 +144,8 @@ Configuration for log4net:
                     LogMessage logMsg = ReceiverUtils.ParseLog4JXmlLogEvent(loggingEvent, "UdpLogger");
                     logMsg.RootLoggerName = _remoteEndPoint.Address.ToString().Replace(".", "-");
                     logMsg.LoggerName = string.Format("{0}_{1}", _remoteEndPoint.Address.ToString().Replace(".", "-"), logMsg.LoggerName);
-                    Notifiable.Notify(logMsg);
+                    if (Notifiable != null)
+                        Notifiable.Notify(logMsg);
                 }
                 catch (Exception ex)
                 {
