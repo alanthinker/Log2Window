@@ -39,8 +39,9 @@ namespace Log2Window.Receiver
             {
                 try
                 {
-                    Encoding.GetEncoding(value);
-                    m_TextEncoding = value;
+                    var tempEncoding= Encoding.GetEncoding(value);
+                    this.m_TextEncoding = value;
+                    this.encodingObject = tempEncoding;
                 }
                 catch (Exception ex)
                 {
@@ -49,15 +50,11 @@ namespace Log2Window.Receiver
             }
         }
 
-        private Encoding encodingObject;
+        private Encoding encodingObject=Encoding.UTF8;
         protected Encoding EncodingObject
         {
             get
-            {
-                if (encodingObject == null)
-                {
-                    encodingObject = System.Text.Encoding.GetEncoding(m_TextEncoding);
-                }
+            { 
                 return encodingObject;
             }
         } 
