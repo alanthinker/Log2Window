@@ -66,12 +66,7 @@ namespace Log2Window.Receiver
             get { return _showFromBeginning; }
             set
             {
-                _showFromBeginning = value;
-
-                if (value && _lastFileLength == 0 && Notifiable != null)
-                {
-                    ReadFile();
-                }
+                _showFromBeginning = value; 
             }
         }
 
