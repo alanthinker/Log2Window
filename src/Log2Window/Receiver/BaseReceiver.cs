@@ -2,7 +2,8 @@ using System;
 using System.ComponentModel;
 
 using Log2Window.Log;
-
+using System.Text;
+using System.Windows.Forms;
 
 namespace Log2Window.Receiver
 {
@@ -26,6 +27,41 @@ namespace Log2Window.Receiver
             get { return _displayName; }
             protected set { _displayName = value; }
         }
+
+        string m_TextEncoding = "utf-8";
+
+        [Category("Configuration")]
+        [DisplayName("Encoding")]
+        public virtual string TextEncoding
+        {
+            get { return m_TextEncoding; }
+            set
+            {
+                try
+                {
+                    Encoding.GetEncoding(value);
+                    m_TextEncoding = value;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                } 
+            }
+        }
+
+        private Encoding encodingObject;
+        protected Encoding EncodingObject
+        {
+            get
+            {
+                if (encodingObject == null)
+                {
+                    encodingObject = System.Text.Encoding.GetEncoding(m_TextEncoding);
+                }
+                return encodingObject;
+            }
+        } 
+
 
         public abstract void Initialize();
         public abstract void Terminate();

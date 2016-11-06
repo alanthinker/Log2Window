@@ -61,7 +61,7 @@ namespace Log2Window.Receiver
             {
                 return
                     @"Configuration for NLog:
-<target name='TcpOutlet' xsi:type='NLogViewer' address='tcp://localhost:4505'/>
+<target name='TcpOutlet' xsi:type='NLogViewer' encoding='utf-8' address='tcp://localhost:4505'/>
 
 Configuration for log4net:
 Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\\TestLog4net project. 
@@ -127,7 +127,7 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\\TestLog
                 using (var ns = new NetworkStream(socket, FileAccess.Read, false))
                     while (_socket != null)
                     {
-                        using (StreamReader sr = new StreamReader(ns))
+                        using (StreamReader sr = new StreamReader(ns, this.EncodingObject))
                         {
                             //NetworkStream may contain multiple log4j:event, if the tcp send message very frequently.
                             StringBuilder sb = new StringBuilder();
@@ -176,7 +176,7 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\\TestLog
                     }
             }
             catch (IOException ex)
-            { 
+            {
                 Utils.log.Error("ProcessReceivedData " + ex.Message);
             }
             catch (Exception ex)

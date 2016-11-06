@@ -78,6 +78,13 @@ namespace Log2Window.Receiver
         #region Overrides of BaseReceiver
 
         [Browsable(false)]
+        public override string TextEncoding
+        {
+            get;
+            set;
+        }
+
+        [Browsable(false)]
         public override string SampleClientConfig
         {
             get

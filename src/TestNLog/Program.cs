@@ -66,7 +66,13 @@ namespace TestNLog
                     _log.Error("TestEx", ex);
                 }
             }
-
+            else if (Char.ToLower(keyChar) == 'c')
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    _log.Info("测试中文");
+                }
+            }
             else
             {
                 if (_log.IsErrorEnabled)

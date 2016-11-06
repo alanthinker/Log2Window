@@ -70,15 +70,19 @@ namespace Log2Window.Receiver
             get
             {
                 return
-                    "Notice! " + Environment.NewLine +
-                    "Udp may lose log messages, and can't ensure the sequence of the log messages." + Environment.NewLine +
-                    "So strongly recommend using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\\TestLog4net project." + Environment.NewLine + Environment.NewLine +
-                    "Configuration for log4net:" + Environment.NewLine +
-                    "<appender name=\"UdpAppender\" type=\"log4net.Appender.UdpAppender\">" + Environment.NewLine +
-                    "    <remoteAddress value=\"localhost\" />" + Environment.NewLine +
-                    "    <remotePort value=\"7071\" />" + Environment.NewLine +
-                    "    <layout type=\"log4net.Layout.XmlLayoutSchemaLog4j\" />" + Environment.NewLine +
-                    "</appender>";
+                    @"Notice! 
+Udp may lose log messages, and can't ensure the sequence of the log messages.
+So strongly recommend using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\TestLog4net project.
+
+Configuration for log4net:
+ 
+<appender name='UdpAppender' type='log4net.Appender.UdpAppender'>
+	<remoteAddress value='127.0.0.1' />
+	<remotePort value='7071' />
+	<encoding value='utf-8'></encoding>
+	<layout type='AlanThinker.MyLog4net.MyXmlLayoutSchemaLog4j' /> 
+</appender>
+".Replace("'", "\"").Replace("\n", Environment.NewLine);
             }
         }
 
@@ -128,7 +132,7 @@ namespace Log2Window.Receiver
                 try
                 {
                     byte[] buffer = _udpClient.Receive(ref _remoteEndPoint);
-                    string loggingEvent = Encoding.UTF8.GetString(buffer);
+                    string loggingEvent = this.EncodingObject.GetString(buffer);
 
                     //Console.WriteLine(loggingEvent);
                     //  Console.WriteLine("Count: " + count++);

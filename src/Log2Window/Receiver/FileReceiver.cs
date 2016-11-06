@@ -55,7 +55,7 @@ namespace Log2Window.Receiver
 
                 Restart();
             }
-        }
+        } 
 
         [Category("Configuration")]
         [DisplayName("Show from Beginning")]
@@ -98,15 +98,22 @@ namespace Log2Window.Receiver
             get
             {
                 return @"Configuration for nlog:
-<target name='log4jfile' xsi:type='File' fileName='${basedir}/Logs/log4jfile.log' layout='${log4jxmlevent}' />    
+<target name='log4jfile' xsi:type='File' encoding='utf-8' fileName='${basedir}/log/log4jfile.log' layout='${log4jxmlevent}' />      
 
 Configuration for log4net:
 <appender name='FileAppender' type='log4net.Appender.FileAppender'>
     <file value='log4jfile.log' />
+    <encoding value='utf-8'></encoding>
     <appendToFile value='true' />
     <lockingModel type='log4net.Appender.FileAppender+MinimalLock' />
     <layout type='log4net.Layout.XmlLayoutSchemaLog4j' />
-</appender>".Replace("'", "\"").Replace("\n", Environment.NewLine); 
+</appender>
+
+Or
+
+
+
+".Replace("'", "\"").Replace("\n", Environment.NewLine);
             }
         }
 
@@ -116,7 +123,7 @@ Configuration for log4net:
                 return;
 
             _fileReader =
-                new StreamReader(new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                new StreamReader(new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), this.EncodingObject);
 
             _lastFileLength = _showFromBeginning ? 0 : _fileReader.BaseStream.Length;
 
@@ -177,10 +184,23 @@ Configuration for log4net:
 
         private void OnFileChanged(object sender, FileSystemEventArgs e)
         {
-            if (e.ChangeType != WatcherChangeTypes.Changed)
-                return;
+            try
+            {
+                //Only allowed one thread to read the file.
+                //OnFileChanged event may raise in multiple thread when the file changed very frenquently. 
+                lock (_fileReader)
+                {
+                    if (e.ChangeType != WatcherChangeTypes.Changed)
+                        return;
 
-            ReadFile();
+                    ReadFile();
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.log.Error(ex.Message, ex);
+            }
+
         }
 
         private void ReadFile()
@@ -192,7 +212,7 @@ Configuration for log4net:
             {
                 // Seek to the last file length
                 _fileReader.BaseStream.Seek(_lastFileLength, SeekOrigin.Begin);
-            } 
+            }
 
             // Get last added lines
             string line;
@@ -200,7 +220,7 @@ Configuration for log4net:
             List<LogMessage> logMsgs = new List<LogMessage>();
 
             while ((line = _fileReader.ReadLine()) != null)
-            { 
+            {
                 sb.AppendLine(line);
 
                 // This condition allows us to process events that spread over multiple lines
@@ -209,7 +229,7 @@ Configuration for log4net:
                     LogMessage logMsg = ReceiverUtils.ParseLog4JXmlLogEvent(sb.ToString(), _fullLoggerName);
                     logMsgs.Add(logMsg);
                     sb = new StringBuilder();
-                } 
+                }
             }
 
             // Notify the UI with the set of messages
