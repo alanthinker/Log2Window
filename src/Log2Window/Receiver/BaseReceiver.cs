@@ -64,15 +64,17 @@ namespace Log2Window.Receiver
         public abstract void Initialize();
         public abstract void Terminate();
 
-        public virtual void Attach(ILogMessageNotifiable notifiable)
+        public void Attach(ILogMessageNotifiable notifiable)
         {
             Notifiable = notifiable;
         }
 
-        public virtual void Detach()
+        public virtual void Stop()
         { 
             Notifiable = null;
         }
+
+        public abstract void Start(); 
 
         public object Clone()
         {

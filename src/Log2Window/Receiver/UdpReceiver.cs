@@ -99,8 +99,13 @@ Configuration for log4net:
             if (!String.IsNullOrEmpty(_address))
                 _udpClient.JoinMulticastGroup(IPAddress.Parse(_address));
 
+           
+        }
+
+        public override void Start()
+        {
             // We need a working thread
-            _worker = new Thread(Start);
+            _worker = new Thread(StartUdp);
             _worker.IsBackground = true;
             _worker.Start();
         }
@@ -126,7 +131,7 @@ Configuration for log4net:
         {
         }
 
-        private void Start()
+        private void StartUdp()
         {
             while ((_udpClient != null) && (_remoteEndPoint != null))
             {

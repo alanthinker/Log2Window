@@ -93,7 +93,11 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\\TestLog
             _socket.ExclusiveAddressUse = true;
             _socket.Bind(new IPEndPoint(_ipv6 ? IPAddress.IPv6Any : IPAddress.Any, _port));
             _socket.Listen(100);
-            _socket.ReceiveBufferSize = _bufferSize;
+            _socket.ReceiveBufferSize = _bufferSize;           
+        }
+
+        public override void Start()
+        {
             var args = new SocketAsyncEventArgs();
             args.Completed += AcceptAsyncCompleted;
 

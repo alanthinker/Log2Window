@@ -220,7 +220,7 @@ namespace Log2Window.Settings
         {
             foreach (IReceiver receiver in _receivers)
             {
-                receiver.Detach();
+                receiver.Stop();
                 receiver.Terminate();
             }
             _receivers.Clear();

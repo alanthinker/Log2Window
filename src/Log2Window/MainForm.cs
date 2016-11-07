@@ -344,8 +344,9 @@ namespace Log2Window
         {
             try
             {
-                receiver.Initialize();
                 receiver.Attach(this);
+                receiver.Initialize();
+                receiver.Start();
 
                 //LogManager.Instance.SetRootLoggerName(String.Format("Root [{0}]", receiver));
             }
@@ -369,7 +370,7 @@ namespace Log2Window
         {
             try
             {
-                receiver.Detach();
+                receiver.Stop();
                 receiver.Terminate();
             }
             catch (Exception ex)

@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 
 using Log2Window.Log;
-
+using System.Threading;
 
 namespace Log2Window.Receiver
 {
@@ -52,8 +52,6 @@ namespace Log2Window.Receiver
                     return;
 
                 _fileToWatch = value;
-
-                Restart();
             }
         }
 
@@ -66,7 +64,7 @@ namespace Log2Window.Receiver
             get { return _showFromBeginning; }
             set
             {
-                _showFromBeginning = value; 
+                _showFromBeginning = value;
             }
         }
 
@@ -96,18 +94,13 @@ namespace Log2Window.Receiver
 <target name='log4jfile' xsi:type='File' encoding='utf-8' fileName='${basedir}/log/log4jfile.log' layout='${log4jxmlevent}' />      
 
 Configuration for log4net:
-<appender name='FileAppender' type='log4net.Appender.FileAppender'>
-    <file value='log4jfile.log' />
+<appender name='fileLog4j' type='log4net.Appender.FileAppender'>
+    <file value='log/log4jfile.log' />
     <encoding value='utf-8'></encoding>
     <appendToFile value='true' />
     <lockingModel type='log4net.Appender.FileAppender+MinimalLock' />
     <layout type='log4net.Layout.XmlLayoutSchemaLog4j' />
-</appender>
-
-Or
-
-
-
+</appender> 
 ".Replace("'", "\"").Replace("\n", Environment.NewLine);
             }
         }
@@ -126,10 +119,21 @@ Or
             _filename = Path.GetFileName(_fileToWatch);
             _fileWatcher = new FileSystemWatcher(path, _filename);
             _fileWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size;
+            ComputeFullLoggerName();
+        }
+
+        ManualResetEvent _waitReadExistingLogs = new ManualResetEvent(false);
+        public override void Start()
+        {
             _fileWatcher.Changed += OnFileChanged;
             _fileWatcher.EnableRaisingEvents = true;
 
-            ComputeFullLoggerName();
+            if (_showFromBeginning)
+            { 
+                ReadFile();
+            }
+
+            _waitReadExistingLogs.Set();
         }
 
         public override void Terminate()
@@ -146,24 +150,9 @@ Or
             _fileReader = null;
 
             _lastFileLength = 0;
-        }
+        } 
 
-        public override void Attach(ILogMessageNotifiable notifiable)
-        {
-            base.Attach(notifiable);
-
-            if (_showFromBeginning)
-                ReadFile();
-        }
-
-        #endregion
-
-
-        private void Restart()
-        {
-            Terminate();
-            Initialize();
-        }
+        #endregion 
 
         private void ComputeFullLoggerName()
         {
@@ -181,15 +170,11 @@ Or
         {
             try
             {
-                //Only allowed one thread to read the file.
-                //OnFileChanged event may raise in multiple thread when the file changed very frenquently. 
-                lock (_fileReader)
-                {
-                    if (e.ChangeType != WatcherChangeTypes.Changed)
-                        return;
+                if (e.ChangeType != WatcherChangeTypes.Changed)
+                    return;
 
-                    ReadFile();
-                }
+                _waitReadExistingLogs.WaitOne();
+                ReadFile();
             }
             catch (Exception ex)
             {
@@ -200,39 +185,44 @@ Or
 
         private void ReadFile()
         {
-            if ((_fileReader == null) || (_fileReader.BaseStream.Length == _lastFileLength))
-                return;
-
-            if (!ShowFromBeginning)
+            //Only allowed one thread to read the file.
+            //OnFileChanged event may raise in multiple thread when the file changed very frenquently. 
+            lock (_fileReader)
             {
-                // Seek to the last file length
-                _fileReader.BaseStream.Seek(_lastFileLength, SeekOrigin.Begin);
-            }
+                if ((_fileReader == null) || (_fileReader.BaseStream.Length == _lastFileLength))
+                    return;
 
-            // Get last added lines
-            string line;
-            var sb = new StringBuilder();
-            List<LogMessage> logMsgs = new List<LogMessage>();
-
-            while ((line = _fileReader.ReadLine()) != null)
-            {
-                sb.AppendLine(line);
-
-                // This condition allows us to process events that spread over multiple lines
-                if (line.Contains("</log4j:event>"))
+                if (!ShowFromBeginning)
                 {
-                    LogMessage logMsg = ReceiverUtils.ParseLog4JXmlLogEvent(sb.ToString(), _fullLoggerName);
-                    logMsgs.Add(logMsg);
-                    sb = new StringBuilder();
+                    // Seek to the last file length
+                    _fileReader.BaseStream.Seek(_lastFileLength, SeekOrigin.Begin);
                 }
+
+                // Get last added lines
+                string line;
+                var sb = new StringBuilder();
+                List<LogMessage> logMsgs = new List<LogMessage>();
+
+                while ((line = _fileReader.ReadLine()) != null)
+                {
+                    sb.AppendLine(line);
+
+                    // This condition allows us to process events that spread over multiple lines
+                    if (line.Contains("</log4j:event>"))
+                    {
+                        LogMessage logMsg = ReceiverUtils.ParseLog4JXmlLogEvent(sb.ToString(), _fullLoggerName);
+                        logMsgs.Add(logMsg);
+                        sb = new StringBuilder();
+                    }
+                }
+
+                // Notify the UI with the set of messages
+                if (Notifiable != null)
+                    Notifiable.Notify(logMsgs.ToArray());
+
+                // Update the last file length
+                _lastFileLength = _fileReader.BaseStream.Position;
             }
-
-            // Notify the UI with the set of messages
-            if (Notifiable != null)
-                Notifiable.Notify(logMsgs.ToArray());
-
-            // Update the last file length
-            _lastFileLength = _fileReader.BaseStream.Position;
         }
     }
 }

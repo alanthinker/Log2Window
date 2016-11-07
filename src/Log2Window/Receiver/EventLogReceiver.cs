@@ -5,6 +5,7 @@ using System.Linq;
 using Log2Window.Log;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace Log2Window.Receiver
 {
@@ -97,8 +98,11 @@ namespace Log2Window.Receiver
         public override void Initialize()
         {
             if (String.IsNullOrEmpty(MachineName))
-                MachineName = ".";
-
+                MachineName = "."; 
+        } 
+        
+        public override void Start()
+        {
             if (String.IsNullOrEmpty(LogName))
             {
                 _eventLogs = EventLog.GetEventLogs();
@@ -116,6 +120,13 @@ namespace Log2Window.Receiver
                 }
             }
 
+            StartListen();
+
+            ReadExistingEvengLogs();
+        }
+
+        private void StartListen()
+        {
             foreach (var eventLog in _eventLogs)
             {
                 try
@@ -123,6 +134,9 @@ namespace Log2Window.Receiver
                     //sender is not EventLog type, use lamda expresstion to get outer eventLog variable.
                     eventLog.EntryWritten += delegate (object sender, EntryWrittenEventArgs entryWrittenEventArgs)
                     {
+                        // If have not finished reading existing EvengLogs, wait until it finished.  
+                        _waitReadExistingEvengLogs.WaitOne();
+
                         var entry = entryWrittenEventArgs.Entry;
                         ParseEventLogEntry(eventLog, entry);
                     };
@@ -133,25 +147,17 @@ namespace Log2Window.Receiver
                 {
                     Utils.log.Error(ex.Message, ex);
                     System.Threading.ThreadPool.QueueUserWorkItem(delegate (object ob)
-                       {
-                           MessageBox.Show(ex.Message, "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                       });
+                    {
+                        MessageBox.Show(ex.Message, "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    });
                 }
             }
-
-            //_baseLoggerName = AppendHostNameToLogger && !String.IsNullOrEmpty(MachineName) && (MachineName != ".")
-            //                        ? String.Format("[Host: {0}].{1}", MachineName, LogName)
-            //                        : LogName; 
         }
 
-        public override void Attach(ILogMessageNotifiable notifiable)
+        ManualResetEvent _waitReadExistingEvengLogs = new ManualResetEvent(false);
+        private void ReadExistingEvengLogs()
         {
-            base.Attach(notifiable);
-
-
             List<Tuple<EventLog, EventLogEntry>> data = new List<Tuple<EventLog, EventLogEntry>>();
-
-
             if (ShowFromBeginning)
             {
                 foreach (var eventLog in _eventLogs)
@@ -176,14 +182,16 @@ namespace Log2Window.Receiver
                     }
 
                 }
-            }
 
-            data = data.OrderBy(x => x.Item2.TimeGenerated).ToList();
+                data = data.OrderBy(x => x.Item2.TimeGenerated).ThenBy(x => x.Item2.Index).ToList();
 
-            foreach (var item in data)
-            {
-                ParseEventLogEntry(item.Item1, item.Item2);
-            }
+                foreach (var item in data)
+                {
+                    ParseEventLogEntry(item.Item1, item.Item2);
+                }
+            } 
+            
+            _waitReadExistingEvengLogs.Set();
         }
 
         public override void Terminate()

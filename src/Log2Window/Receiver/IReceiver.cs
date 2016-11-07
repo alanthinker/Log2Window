@@ -9,9 +9,11 @@ namespace Log2Window.Receiver
         string DisplayName { get; }
 
         void Initialize();
+        void Start();
         void Terminate();
 
         void Attach(ILogMessageNotifiable notifiable);
-        void Detach();
+        void Stop();
+        
     }
 }
