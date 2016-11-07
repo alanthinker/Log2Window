@@ -254,18 +254,29 @@ namespace AlanThinker.MyLog4net
                         InitializeClientConnection();
                         var args = new SocketAsyncEventArgs();
                         args.RemoteEndPoint = this.RemoteEndPoint;
-                        args.Completed += Args_Completed; 
+                        args.Completed += Args_Completed;
+                        connectManualResetEvent.Reset();
                         if (!Client.ConnectAsync(args)) // ConnectAsync will not raise exception. So it's better than connect here.
                         {
                             Args_Completed(Client, args);
                         }
 
-                        return false;
+                        if (!this.Client.Connected)
+                        {
+                            connectManualResetEvent.WaitOne(1000);
+                        }
                     }
 
-                    Byte[] buffer = m_encoding.GetBytes(logRenderStrng.ToCharArray());
-                    this.Client.Send(buffer);
-                    return true;
+                    if (this.Client.Connected)
+                    {
+                        Byte[] buffer = m_encoding.GetBytes(logRenderStrng.ToCharArray());
+                        this.Client.Send(buffer);
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
             catch (Exception ex)
@@ -281,9 +292,14 @@ namespace AlanThinker.MyLog4net
             }
         }
 
+        ManualResetEvent connectManualResetEvent = new ManualResetEvent(false);
+
         private void Args_Completed(object sender, SocketAsyncEventArgs e)
         {
-
+            if (e.SocketError == SocketError.Success)
+            {
+                connectManualResetEvent.Set();
+            }
         }
 
         protected override void Append(LoggingEvent loggingEvent)
