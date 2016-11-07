@@ -96,7 +96,7 @@ namespace AlanThinker.MyLog4net
         #region Protected Instance Properties
 
 
-        protected TcpClient Client
+        protected Socket Client
         {
             get { return this.m_client; }
             set { this.m_client = value; }
@@ -216,6 +216,8 @@ namespace AlanThinker.MyLog4net
                                 {
                                     senderLocalQueue.TryDequeue(out value);
                                 }
+
+                                Thread.Sleep(1000);
                             }
                         }
                         else
@@ -240,20 +242,29 @@ namespace AlanThinker.MyLog4net
             }
         }
 
+        private readonly object sendLocker = new object();
         private bool SendInner(string logRenderStrng)
         {
             try
             {
-                lock (this.Client)
+                lock (sendLocker)
                 {
                     if (!this.Client.Connected)
                     {
                         InitializeClientConnection();
-                        this.Client.Connect(this.RemoteEndPoint);
+                        var args = new SocketAsyncEventArgs();
+                        args.RemoteEndPoint = this.RemoteEndPoint;
+                        args.Completed += Args_Completed; 
+                        if (!Client.ConnectAsync(args)) // ConnectAsync will not raise exception. So it's better than connect here.
+                        {
+                            Args_Completed(Client, args);
+                        }
+
+                        return false;
                     }
 
                     Byte[] buffer = m_encoding.GetBytes(logRenderStrng.ToCharArray());
-                    this.Client.Client.Send(buffer);
+                    this.Client.Send(buffer);
                     return true;
                 }
             }
@@ -268,6 +279,11 @@ namespace AlanThinker.MyLog4net
                     ErrorCode.WriteFailure);
                 return false;
             }
+        }
+
+        private void Args_Completed(object sender, SocketAsyncEventArgs e)
+        {
+
         }
 
         protected override void Append(LoggingEvent loggingEvent)
@@ -325,7 +341,12 @@ namespace AlanThinker.MyLog4net
         {
             try
             {
-                this.Client = new TcpClient(RemoteAddress.AddressFamily);
+                if (this.Client != null)
+                {
+                    this.Client.Dispose();
+                } 
+
+                this.Client = new Socket(RemoteAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 this.Client.SendTimeout = 5 * 1000;
             }
             catch (Exception ex)
@@ -361,7 +382,7 @@ namespace AlanThinker.MyLog4net
         private IPEndPoint m_remoteEndPoint;
 
 
-        private TcpClient m_client;
+        private Socket m_client;
 
         /// <summary>
         /// The encoding to use for the packet.
