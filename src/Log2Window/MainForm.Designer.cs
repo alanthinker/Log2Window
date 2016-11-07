@@ -731,6 +731,7 @@ namespace Log2Window
             // tbMessage
             // 
             this.tbMessage.BackColor = System.Drawing.SystemColors.Window;
+            this.tbMessage.DetectUrls = false;
             this.tbMessage.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tbMessage.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbMessage.Location = new System.Drawing.Point(300, 25);
@@ -744,6 +745,7 @@ namespace Log2Window
             // logDetailTextBox
             // 
             this.logDetailTextBox.BackColor = System.Drawing.SystemColors.Window;
+            this.logDetailTextBox.DetectUrls = false;
             this.logDetailTextBox.Dock = System.Windows.Forms.DockStyle.Left;
             this.logDetailTextBox.Location = new System.Drawing.Point(0, 25);
             this.logDetailTextBox.Name = "logDetailTextBox";
