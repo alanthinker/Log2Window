@@ -181,6 +181,7 @@ namespace Log2Window.Log
 
         internal void GetMessageDetails(RichTextBox logDetailTextBox, RichTextBox tbMessage)
         {
+            logDetailTextBox.Clear();
             foreach (var fieldType in UserSettings.Instance.MessageDetailConfiguration)
             {
                 //var info = GetInformation(fieldType).Replace(@"\", @"\\").Replace("{", @"\{").Replace("}", @"\}");

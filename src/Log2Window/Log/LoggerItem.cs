@@ -336,9 +336,10 @@ namespace Log2Window.Log
                                 Utils.log.Debug("EnsureVisiblePeroid:" + EnsureVisiblePeroid + " speed:" + speed + " index:" + index);
                                 LoggerItem.lastEnsureVisibleTime = DateTime.Now;
                                 lastEnsureVisibleArrivedId = thisArrivedId;
-
-                                //logListView.SelectedIndices.Add(lastEnsureVisibleIndex);
+                                
                                 logListView.EnsureVisible(index);
+                                logListView.SelectedIndices.Clear();
+                                //logListView.SelectedIndices.Add(index);
 
                                 MainForm.Instance.RefreshTitle();
                                

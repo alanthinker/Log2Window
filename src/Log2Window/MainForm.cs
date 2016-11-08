@@ -387,13 +387,13 @@ namespace Log2Window
 
         private void ClearLogMessages()
         {
-            SetLogMessageDetail(null);
+            ClearLogMessageDetail();
             LogManager.Instance.ClearLogMessages();
         }
 
         private void ClearLoggers()
         {
-            SetLogMessageDetail(null);
+            ClearLogMessageDetail();
             LogManager.Instance.ClearAll();
         }
 
@@ -649,20 +649,21 @@ namespace Log2Window
 
         }
 
+        private void ClearLogMessageDetail()
+        {
+            logDetailTextBox.Text = string.Empty;
+            tbMessage.Text = "";
+            PopulateExceptions(null);
+            OpenSourceFile(null, 0);
+        }
+
         private void SetLogMessageDetail(LogMessageItem logMsgItem)
         {
             // Store the text to avoid editing without settings the control
             // as readonly... kind of ugly trick...
 
-            if (logMsgItem == null)
-            {
-                logDetailTextBox.Text = string.Empty;
-                tbMessage.Text = "";
-                PopulateExceptions(null);
-                OpenSourceFile(null, 0);
-            }
-            else
-            {
+            if (logMsgItem != null)
+            { 
                 //StringBuilder sb = new StringBuilder();
 
                 //sb.Append(logMsgItem.GetMessageDetails());
@@ -1098,6 +1099,8 @@ namespace Log2Window
                     var thisArrivedId = LogManager.Instance._dataSource[lastIndex].Message.ArrivedId;
                     LoggerItem.lastEnsureVisibleArrivedId = thisArrivedId;
                     logListView.EnsureVisible(lastIndex);
+                    logListView.SelectedIndices.Clear();
+                    logListView.SelectedIndices.Add(lastIndex);
                 }
 
                 this.RefreshTitle();
@@ -1124,6 +1127,8 @@ namespace Log2Window
                     return;
 
                 logListView.EnsureVisible(0);
+                logListView.SelectedIndices.Clear();
+                logListView.SelectedIndices.Add(0);
             }
         }
 
@@ -1134,7 +1139,10 @@ namespace Log2Window
                 if (LogManager.Instance._dataSource.Count == 0)
                     return;
 
+                logListView.VirtualListSize = LogManager.Instance._dataSource.Count;
                 logListView.EnsureVisible(LogManager.Instance._dataSource.Count - 1);
+                logListView.SelectedIndices.Clear();
+                logListView.SelectedIndices.Add(LogManager.Instance._dataSource.Count - 1);
             }
         }
 
