@@ -301,6 +301,7 @@ namespace AlanThinker.MyLog4net
                 
             }
 
+            // In spite of Success or not. Stop waiting.
             connectManualResetEvent.Set();
         }
 
