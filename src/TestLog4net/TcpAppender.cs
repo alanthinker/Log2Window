@@ -298,8 +298,10 @@ namespace AlanThinker.MyLog4net
         {
             if (e.SocketError == SocketError.Success)
             {
-                connectManualResetEvent.Set();
+                
             }
+
+            connectManualResetEvent.Set();
         }
 
         protected override void Append(LoggingEvent loggingEvent)

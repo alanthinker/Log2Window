@@ -24,7 +24,7 @@ namespace Log2Window.Receiver
         private bool _ipv6;
         private int _port = 7071;
         private string _address = String.Empty;
-        private int _bufferSize = 10000;
+        private int _bufferSize = 1310720;
 
 
         [Category("Configuration")]
@@ -55,11 +55,12 @@ namespace Log2Window.Receiver
 
         [Category("Configuration")]
         [DisplayName("Receive Buffer Size")]
-        [DefaultValue(10000)]
+        [DefaultValue(1310720)]
         public int BufferSize
         {
             get { return _bufferSize; }
-            set { _bufferSize = value; }
+            // UDP is not a reliable protocol. So increase the BufferSize to reduce the risk of lost packet.
+            set { _bufferSize = Math.Max(1310720, value); }
         }
 
 
@@ -72,11 +73,13 @@ namespace Log2Window.Receiver
             {
                 return
                     @"Notice! 
-Udp may lose log messages, and can't ensure the sequence of the log messages.
-So strongly recommend using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\TestLog4net project.
+UDP is not a reliable protocol.
+So recommend using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\TestLog4net project.
 
-Configuration for log4net:
- 
+Configuration for NLog:
+<target name='udp' xsi:type='NLogViewer' encoding='utf-8' address='udp4://localhost:7071' />
+
+Configuration for log4net: 
 <appender name='UdpAppender' type='log4net.Appender.UdpAppender'>
 	<remoteAddress value='127.0.0.1' />
 	<remotePort value='7071' />
@@ -97,9 +100,7 @@ Configuration for log4net:
             _udpClient = _ipv6 ? new UdpClient(_port, AddressFamily.InterNetworkV6) : new UdpClient(_port);
             _udpClient.Client.ReceiveBufferSize = _bufferSize;
             if (!String.IsNullOrEmpty(_address))
-                _udpClient.JoinMulticastGroup(IPAddress.Parse(_address));
-
-           
+                _udpClient.JoinMulticastGroup(IPAddress.Parse(_address)); 
         }
 
         public override void Start()
@@ -151,6 +152,12 @@ Configuration for log4net:
                     logMsg.LoggerName = string.Format("{0}_{1}", _remoteEndPoint.Address.ToString().Replace(".", "-"), logMsg.LoggerName);
                     if (Notifiable != null)
                         Notifiable.Notify(logMsg);
+                }
+                catch (ThreadAbortException ex)
+                {
+                    Utils.log.Error("StartUdp " + ex.Message);
+                    Thread.ResetAbort();
+                    break;
                 }
                 catch (Exception ex)
                 {

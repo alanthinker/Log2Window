@@ -40,14 +40,14 @@ namespace Log2Window.Receiver
             set { _ipv6 = value; }
         }
 
-        private int _bufferSize = 10000;
+        private int _bufferSize = 65536;
         [Category("Configuration")]
         [DisplayName("Receive Buffer Size")]
-        [DefaultValue(10000)]
+        [DefaultValue(65536)]
         public int BufferSize
         {
             get { return _bufferSize; }
-            set { _bufferSize = value; }
+            set { _bufferSize = Math.Max(65536, value); }
         }
 
         #endregion
@@ -64,7 +64,7 @@ namespace Log2Window.Receiver
 <target name='TcpOutlet' xsi:type='NLogViewer' encoding='utf-8' address='tcp://localhost:4505'/>
 
 Configuration for log4net:
-Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\\TestLog4net project. 
+Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\TestLog4net project. 
 
 <appender name='tcpAppender' type='AlanThinker.MyLog4net.TcpAppender'>
     <remoteAddress value='127.0.0.1' />
@@ -93,7 +93,7 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\\TestLog
             _socket.ExclusiveAddressUse = true;
             _socket.Bind(new IPEndPoint(_ipv6 ? IPAddress.IPv6Any : IPAddress.Any, _port));
             _socket.Listen(100);
-            _socket.ReceiveBufferSize = _bufferSize;           
+            _socket.ReceiveBufferSize = _bufferSize;
         }
 
         public override void Start()
