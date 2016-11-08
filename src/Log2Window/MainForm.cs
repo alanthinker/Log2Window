@@ -663,7 +663,7 @@ namespace Log2Window
             // as readonly... kind of ugly trick...
 
             if (logMsgItem != null)
-            { 
+            {
                 //StringBuilder sb = new StringBuilder();
 
                 //sb.Append(logMsgItem.GetMessageDetails());
@@ -1280,14 +1280,12 @@ namespace Log2Window
                     Utils.log.Error(ex.Message, ex);
                 }
             }
-            else
-            {
-                this.Cursor = Cursors.WaitCursor;
-                eventLogReceiver = new EventLogReceiver();
-                eventLogReceiver.ShowFromBeginning = true;
-                InitializeReceiver(eventLogReceiver);
-                this.Cursor = Cursors.Default;
-            }
+
+            this.Cursor = Cursors.WaitCursor;
+            eventLogReceiver = new EventLogReceiver();
+            eventLogReceiver.ShowFromBeginning = true;
+            InitializeReceiver(eventLogReceiver);
+            this.Cursor = Cursors.Default;
         }
 
         private void logListView_KeyDown(object sender, KeyEventArgs e)

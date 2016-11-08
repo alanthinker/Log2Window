@@ -609,7 +609,6 @@ namespace Log2Window
             this.loggerTreeView.Location = new System.Drawing.Point(0, 25);
             this.loggerTreeView.Name = "loggerTreeView";
             this.loggerTreeView.PathSeparator = ".";
-            this.loggerTreeView.ShowRootLines = false;
             this.loggerTreeView.Size = new System.Drawing.Size(237, 526);
             this.loggerTreeView.TabIndex = 1;
             this.loggerTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterCheck);
