@@ -11,6 +11,8 @@ namespace Test
 {
     using Company.Product.BusinessLogic;
     using Company.Product.ServiceTester;
+    using log4net.Appender;
+    using log4net.Repository.Hierarchy;
     using System.Diagnostics;
     using System.IO;
 
@@ -22,7 +24,7 @@ namespace Test
 
 
         static void Main(string[] args)
-        {
+        { 
             log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo("Config/log4net.config"));
 
             ////if (!EventLog.SourceExists("log4net"))
@@ -43,6 +45,28 @@ namespace Test
 
                 DoWinDebug();
                 key = Console.ReadKey();
+            }
+        }
+
+        public static void FlushBuffers(ILog log)
+        {
+            var logger = log.Logger as Logger;
+            if (logger != null)
+            {
+                foreach (IAppender appender in logger.Appenders)
+                {
+                    try
+                    {
+                        var buffered = appender as BufferingAppenderSkeleton;
+                        if (buffered != null)
+                        {
+                            buffered.Flush();
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
             }
         }
 

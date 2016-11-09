@@ -17,6 +17,9 @@ namespace Log2Window.Receiver
     [DisplayName("Log File (Log4j XML Formatted)")]
     public class FileReceiver : BaseReceiver
     {
+        [NonSerialized]
+        private readonly object locker = new object();
+
         public enum FileFormatEnums
         {
             Log4jXml,
@@ -26,8 +29,7 @@ namespace Log2Window.Receiver
 
         [NonSerialized]
         private FileSystemWatcher _fileWatcher;
-        [NonSerialized]
-        private StreamReader _fileReader;
+
         [NonSerialized]
         private long _lastFileLength;
         [NonSerialized]
@@ -97,8 +99,7 @@ Configuration for log4net:
 <appender name='fileLog4j' type='log4net.Appender.FileAppender'>
     <file value='log/log4jfile.log' />
     <encoding value='utf-8'></encoding>
-    <appendToFile value='true' />
-    <lockingModel type='log4net.Appender.FileAppender+MinimalLock' />
+    <appendToFile value='true' /> 
     <layout type='log4net.Layout.XmlLayoutSchemaLog4j' />
 </appender> 
 ".Replace("'", "\"").Replace("\n", Environment.NewLine);
@@ -110,10 +111,7 @@ Configuration for log4net:
             if (String.IsNullOrEmpty(_fileToWatch))
                 return;
 
-            _fileReader =
-                new StreamReader(new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), this.EncodingObject);
 
-            _lastFileLength = _showFromBeginning ? 0 : _fileReader.BaseStream.Length;
 
             string path = Path.GetDirectoryName(_fileToWatch);
             _filename = Path.GetFileName(_fileToWatch);
@@ -126,14 +124,58 @@ Configuration for log4net:
         public override void Start()
         {
             _fileWatcher.Changed += OnFileChanged;
+            _fileWatcher.Deleted += _fileWatcher_Deleted;
+            _fileWatcher.Created += _fileWatcher_Created;
             _fileWatcher.EnableRaisingEvents = true;
+            _fileWatcher.NotifyFilter =
+               (NotifyFilters)(383);
 
             if (_showFromBeginning)
-            { 
-                ReadFile();
+            {
+                ReadFile(true);
+            }
+            else
+            {
+                using (var stream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var fileReader = new StreamReader(stream, this.EncodingObject))
+                { 
+                    _lastFileLength = _showFromBeginning ? 0 : fileReader.BaseStream.Length;
+                }
             }
 
             _waitReadExistingLogs.Set();
+
+            //If log4net use deault lock ExclusiveLock 
+            // (has best performance and can make sure only one thread wirte file.)
+            // File change event will not occur properly. So read file every second.
+            ThreadPool.QueueUserWorkItem(delegate (object ob)
+            {
+                while (_fileWatcher != null)
+                {
+                    try
+                    {
+                        ReadFile();
+                    }
+                    catch (Exception ex)
+                    {
+                        Utils.log.Error(ex.Message, ex);
+                    }
+                    finally
+                    {
+                        Thread.Sleep(1000);
+                    }
+                }
+            });
+        }
+
+        private void _fileWatcher_Deleted(object sender, FileSystemEventArgs e)
+        {
+
+        }
+
+        private void _fileWatcher_Created(object sender, FileSystemEventArgs e)
+        {
+
         }
 
         public override void Terminate()
@@ -145,14 +187,10 @@ Configuration for log4net:
                 _fileWatcher = null;
             }
 
-            if (_fileReader != null)
-                _fileReader.Close();
-            _fileReader = null;
-
             _lastFileLength = 0;
-        } 
+        }
 
-        #endregion 
+        #endregion
 
         private void ComputeFullLoggerName()
         {
@@ -166,6 +204,7 @@ Configuration for log4net:
                               : String.Format("Log File [{0}]", _loggerName);
         }
 
+        static char[] log4jEndTag = "</log4j:event>".ToCharArray();
         private void OnFileChanged(object sender, FileSystemEventArgs e)
         {
             try
@@ -183,46 +222,68 @@ Configuration for log4net:
 
         }
 
-        private void ReadFile()
+        //if log4net set ImmediateFlush=false, log message may only write only a part.
+        //So need stock this part.
+        [NonSerialized]
+        StringBuilder sb = new StringBuilder();
+
+        private void ReadFile(bool fromBeginning = false)
         {
             //Only allowed one thread to read the file.
             //OnFileChanged event may raise in multiple thread when the file changed very frenquently. 
-            lock (_fileReader)
+            lock (locker)
             {
-                if ((_fileReader == null) || (_fileReader.BaseStream.Length == _lastFileLength))
-                    return;
-
-                if (!ShowFromBeginning)
+                using (var stream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var fileReader = new StreamReader(stream, this.EncodingObject))
                 {
-                    // Seek to the last file length
-                    _fileReader.BaseStream.Seek(_lastFileLength, SeekOrigin.Begin);
-                }
+                    if ((fileReader == null) || (fileReader.BaseStream.Length == _lastFileLength))
+                        return;
 
-                // Get last added lines
-                string line;
-                var sb = new StringBuilder();
-                List<LogMessage> logMsgs = new List<LogMessage>();
-
-                while ((line = _fileReader.ReadLine()) != null)
-                {
-                    sb.AppendLine(line);
-
-                    // This condition allows us to process events that spread over multiple lines
-                    if (line.Contains("</log4j:event>"))
+                    if (!fromBeginning)
                     {
-                        LogMessage logMsg = ReceiverUtils.ParseLog4JXmlLogEvent(sb.ToString(), _fullLoggerName);
-                        logMsgs.Add(logMsg);
-                        sb = new StringBuilder();
+                        // Seek to the last file length
+                        fileReader.BaseStream.Seek(_lastFileLength, SeekOrigin.Begin);
                     }
+
+                    // Get last added lines
+                    int temp;
+
+                    while ((temp = fileReader.Read()) != -1)
+                    {
+                        // < ImmediateFlush value = "false" /> 有错, 尝试tcpreceiver的方法.
+                        sb.Append((char)temp);
+
+                        // This condition allows us to process events that spread over multiple lines
+                        if (IsEndWith(sb, log4jEndTag))
+                        {
+                            LogMessage logMsg = ReceiverUtils.ParseLog4JXmlLogEvent(sb.ToString(), _fullLoggerName);
+                            // Notify the UI with the set of messages
+                            if (Notifiable != null)
+                                Notifiable.Notify(logMsg);
+                            sb = new StringBuilder();
+                        }
+                    }
+
+                    // Update the last file length
+                    _lastFileLength = fileReader.BaseStream.Position;
                 }
-
-                // Notify the UI with the set of messages
-                if (Notifiable != null)
-                    Notifiable.Notify(logMsgs.ToArray());
-
-                // Update the last file length
-                _lastFileLength = _fileReader.BaseStream.Position;
             }
+        }
+
+        private bool IsEndWith(StringBuilder sb, char[] str)
+        {
+            if (sb.Length < str.Length)
+                return false;
+
+            for (int i = str.Length - 1, j = sb.Length - 1; i >= 0; i--, j--)
+            {
+                if (str[i] != sb[j])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
