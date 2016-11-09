@@ -155,7 +155,7 @@ OR
                 ReadFile();
             }
             else
-            {
+            { 
                 using (var stream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
                 using (var fileReader = new StreamReader(stream, this.EncodingObject))
                 {
@@ -195,6 +195,8 @@ OR
 
         private void _fileWatcher_Created(object sender, FileSystemEventArgs e)
         {
+            // lock to wait previous reading finished. 
+            // even old file has been moved, opened stream can still read its data.
             lock (locker)
             {
                 //log4net RollingFileAppender move old file and crate a new file.
@@ -259,6 +261,7 @@ OR
             lock (locker)
             {
                 // (FileShare.ReadWrite | FileShare.Delete) to allow log4net RollingFileAppender move original file to log.1, log.2 ... file.
+                // And even after file is deleted (deleted, moved, renamed), the stream object can still read the file. Because file will only be really deleted after the stream closed.
                 using (var stream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
                 using (var fileReader = new StreamReader(stream, this.EncodingObject))
                 {
