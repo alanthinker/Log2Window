@@ -18,7 +18,7 @@ namespace Log2Window.Receiver
     public class FileReceiver : BaseReceiver
     {
         [NonSerialized]
-        private readonly object locker = new object();
+        private object locker;
 
         public enum FileFormatEnums
         {
@@ -97,11 +97,27 @@ namespace Log2Window.Receiver
 
 Configuration for log4net:
 <appender name='fileLog4j' type='log4net.Appender.FileAppender'>
-    <file value='log/log4jfile.log' />
+    <file value='log/fileLog4j.log' />
     <encoding value='utf-8'></encoding>
     <appendToFile value='true' /> 
     <layout type='log4net.Layout.XmlLayoutSchemaLog4j' />
 </appender> 
+
+OR
+
+<appender name='rollingFileLog4j' type='log4net.Appender.RollingFileAppender,log4net' >
+    <File value='log/rollingFileLog4j.log' />
+    <Encoding value='utf-8' /> 
+    <AppendToFile value='true' />
+    <RollingStyle value='Composite' />
+    <DatePattern value='.yyyy.MM.dd.'log'' />
+    <MaximumFileSize value='20MB' />
+    <maxSizeRollBackups value='10' />
+    <!--file number increase after the file's size exceeds the MaximumFileSize.-->
+    <CountDirection value='1' />
+    <StaticLogFileName value='true' />
+    <layout type='AlanThinker.MyLog4net.MyXmlLayoutSchemaLog4j' />
+</appender>
 ".Replace("'", "\"").Replace("\n", Environment.NewLine);
             }
         }
@@ -111,7 +127,10 @@ Configuration for log4net:
             if (String.IsNullOrEmpty(_fileToWatch))
                 return;
 
-
+            //NonSerialized field must be initilized here.
+            locker = new object();
+            _waitReadExistingLogs = new ManualResetEvent(false);
+            sb = new StringBuilder();
 
             string path = Path.GetDirectoryName(_fileToWatch);
             _filename = Path.GetFileName(_fileToWatch);
@@ -120,7 +139,8 @@ Configuration for log4net:
             ComputeFullLoggerName();
         }
 
-        ManualResetEvent _waitReadExistingLogs = new ManualResetEvent(false);
+        [NonSerialized]
+        ManualResetEvent _waitReadExistingLogs;
         public override void Start()
         {
             _fileWatcher.Changed += OnFileChanged;
@@ -132,14 +152,14 @@ Configuration for log4net:
 
             if (_showFromBeginning)
             {
-                ReadFile(true);
+                ReadFile();
             }
             else
             {
-                using (var stream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var stream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
                 using (var fileReader = new StreamReader(stream, this.EncodingObject))
-                { 
-                    _lastFileLength = _showFromBeginning ? 0 : fileReader.BaseStream.Length;
+                {
+                    _lastFileLength = fileReader.BaseStream.Length;
                 }
             }
 
@@ -175,7 +195,11 @@ Configuration for log4net:
 
         private void _fileWatcher_Created(object sender, FileSystemEventArgs e)
         {
-
+            lock (locker)
+            {
+                //log4net RollingFileAppender move old file and crate a new file.
+                _lastFileLength = 0;
+            }
         }
 
         public override void Terminate()
@@ -227,23 +251,22 @@ Configuration for log4net:
         [NonSerialized]
         StringBuilder sb = new StringBuilder();
 
-        private void ReadFile(bool fromBeginning = false)
+        private void ReadFile()
         {
             //Only allowed one thread to read the file.
             //OnFileChanged event may raise in multiple thread when the file changed very frenquently. 
+            // _lastFileLength may be change to 0 after log4net RollingFileAppender move original file to log.1, log.2 ... file.
             lock (locker)
             {
-                using (var stream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                // (FileShare.ReadWrite | FileShare.Delete) to allow log4net RollingFileAppender move original file to log.1, log.2 ... file.
+                using (var stream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
                 using (var fileReader = new StreamReader(stream, this.EncodingObject))
                 {
                     if ((fileReader == null) || (fileReader.BaseStream.Length == _lastFileLength))
                         return;
 
-                    if (!fromBeginning)
-                    {
-                        // Seek to the last file length
-                        fileReader.BaseStream.Seek(_lastFileLength, SeekOrigin.Begin);
-                    }
+                    // Seek to the last file length
+                    fileReader.BaseStream.Seek(_lastFileLength, SeekOrigin.Begin);
 
                     // Get last added lines
                     int temp;

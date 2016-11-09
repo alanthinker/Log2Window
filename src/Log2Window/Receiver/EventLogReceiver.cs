@@ -97,6 +97,8 @@ namespace Log2Window.Receiver
 
         public override void Initialize()
         {
+            //NonSerialized field must be initilized here.
+            _waitReadExistingEvengLogs = new ManualResetEvent(false);
             if (String.IsNullOrEmpty(MachineName))
                 MachineName = "."; 
         } 
@@ -154,7 +156,8 @@ namespace Log2Window.Receiver
             }
         }
 
-        ManualResetEvent _waitReadExistingEvengLogs = new ManualResetEvent(false);
+        [NonSerialized]
+        ManualResetEvent _waitReadExistingEvengLogs;
         private void ReadExistingEvengLogs()
         {
             List<Tuple<EventLog, EventLogEntry>> data = new List<Tuple<EventLog, EventLogEntry>>();
