@@ -17,6 +17,8 @@ using Log2Window.UI;
 
 using Timer = System.Threading.Timer;
 using System.Threading;
+using System.Security.Permissions;
+using System.Reflection;
 
 namespace Log2Window
 {
@@ -47,6 +49,7 @@ namespace Log2Window
         public event EventHandler Minimized;
 
         List<ToolStripButton> btnLogLevels = new List<ToolStripButton>();
+
 
         public MainForm()
         {
@@ -1264,29 +1267,7 @@ namespace Log2Window
             }
         }
 
-        EventLogReceiver eventLogReceiver;
-
-        private void quickLoadEventLogBtn_Click(object sender, EventArgs e)
-        {
-            if (eventLogReceiver != null)
-            {
-                try
-                {
-                    eventLogReceiver.Terminate();
-                    eventLogReceiver = null;
-                }
-                catch (Exception ex)
-                {
-                    Utils.log.Error(ex.Message, ex);
-                }
-            }
-
-            this.Cursor = Cursors.WaitCursor;
-            eventLogReceiver = new EventLogReceiver();
-            eventLogReceiver.ShowFromBeginning = true;
-            InitializeReceiver(eventLogReceiver);
-            this.Cursor = Cursors.Default;
-        }
+        EventLogReceiver eventLogReceiver; 
 
         private void logListView_KeyDown(object sender, KeyEventArgs e)
         {
@@ -1346,5 +1327,143 @@ namespace Log2Window
             }
         }
 
+
+        private void DdbEventLog_DropDownOpening(object sender, System.EventArgs e)
+        {
+            if (miLoadEventLog.DropDownItems.Count == 0)
+            {
+                var eventLogs = EventLog.GetEventLogs();
+
+                {
+                    ToolStripMenuItem menuItemAll = new ToolStripMenuItem("--All--");
+                    miLoadEventLog.DropDownItems.Add(menuItemAll);
+                    foreach (var item in eventLogs)
+                    {
+                        ToolStripMenuItem menuItem = new ToolStripMenuItem(item.Log);
+                        miLoadEventLog.DropDownItems.Add(menuItem);
+                    }
+                    foreach (ToolStripMenuItem item in miLoadEventLog.DropDownItems)
+                    {
+                        item.Click += miLoadEventLogSubutem_Click;
+                    }
+                }
+
+                {
+                    ToolStripMenuItem menuItemAll = new ToolStripMenuItem("--All--");
+                    miClearEventLog.DropDownItems.Add(menuItemAll);
+                    foreach (var item in eventLogs)
+                    {
+                        ToolStripMenuItem menuItem = new ToolStripMenuItem(item.Log);
+                        miClearEventLog.DropDownItems.Add(menuItem);
+                    }
+                    foreach (ToolStripMenuItem item in miClearEventLog.DropDownItems)
+                    {
+                        item.Click += miClearEventLogSubutem_Click;
+                    }
+                }
+
+            }
+        }
+
+
+
+        private void miLoadEventLogSubutem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
+
+            if (eventLogReceiver != null)
+            {
+                try
+                {
+                    eventLogReceiver.Terminate();
+                    eventLogReceiver = null;
+                }
+                catch (Exception ex)
+                {
+                    Utils.log.Error(ex.Message, ex);
+                }
+
+                if (menuItem.Text != "--All--")
+                    MessageBox.Show("Only listen selected eventlog now.", "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            if (menuItem.Text == "--All--")
+            { 
+                this.Cursor = Cursors.WaitCursor;
+                eventLogReceiver = new EventLogReceiver();
+                eventLogReceiver.ShowFromBeginning = true;
+                InitializeReceiver(eventLogReceiver);
+                this.Cursor = Cursors.Default;
+            }
+            else
+            { 
+                this.Cursor = Cursors.WaitCursor;
+                eventLogReceiver = new EventLogReceiver();
+                eventLogReceiver.LogName = menuItem.Text;
+                eventLogReceiver.ShowFromBeginning = true;
+                InitializeReceiver(eventLogReceiver);
+                this.Cursor = Cursors.Default;
+            }
+        } 
+
+        private void miClearEventLogSubutem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
+
+            //Request administrator rule to do it.
+            var psi = new ProcessStartInfo();
+            psi.FileName = Assembly.GetExecutingAssembly().Location;
+            psi.Arguments = "ClearEventLog " + menuItem.Text;
+            psi.Verb = "runas";
+
+            var process = new Process();
+            process.StartInfo = psi;
+            process.Start();
+            process.WaitForExit(); 
+        }
+
+        public static void ClearEventLog(string log)
+        {
+            var eventLogs = EventLog.GetEventLogs();
+            if (log == "--All--")
+            {
+                foreach (var item in eventLogs)
+                {
+                    try
+                    {
+                        item.Clear();
+                    }
+                    catch (Exception ex)
+                    {
+                        Utils.log.Error(ex.Message, ex);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var item in eventLogs)
+                {
+                    if (item.Log == log)
+                    {
+                        item.Clear();
+                    }
+                }
+            }
+        }
+
+        private void lblSearch_Click(object sender, EventArgs e)
+        {
+            using (new AutoWaitCursor())
+            {
+                try
+                {
+                    LogManager.Instance.SearchText(searchTextBox.Text);
+                }
+                finally
+                {
+                    ReBindListViewFromAllLogMessageItems();
+                }
+            }
+        }
     }
 }

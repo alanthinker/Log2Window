@@ -13,8 +13,17 @@ namespace Log2Window
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
+            if (args.Length > 0)
+            {
+                if (args[0].ToLower() == "ClearEventLog".ToLower())
+                {
+                    MainForm.ClearEventLog(args[1]);
+                    return;
+                }
+            }
+
             log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo("Config/log4net.config"));
             Application.ThreadException += Application_ThreadException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
