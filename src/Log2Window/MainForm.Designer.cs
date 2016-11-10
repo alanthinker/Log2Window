@@ -79,7 +79,6 @@ namespace Log2Window
             this.collapseAllBtn = new System.Windows.Forms.ToolStripButton();
             this.dactivateSourcesBtn = new System.Windows.Forms.ToolStripButton();
             this.keepHighlightBtn = new System.Windows.Forms.ToolStripButton();
-            this.loggerTreeView = new Log2Window.UI.TreeViewWithoutDoubleClick();
             this.loggerSplitter = new System.Windows.Forms.Splitter();
             this.appNotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.trayContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -117,6 +116,9 @@ namespace Log2Window
             this.toolStripSeparator16 = new System.Windows.Forms.ToolStripSeparator();
             this.deleteAllLoggerTreeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.ddbExportBtn = new System.Windows.Forms.ToolStripDropDownButton();
+            this.miExportLog4jXmlFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.miExportExcelCsvFile = new System.Windows.Forms.ToolStripMenuItem();
             this.logListView = new Log2Window.UI.FlickerFreeListView();
             this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -126,9 +128,7 @@ namespace Log2Window
             this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader8 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.ddbExportBtn = new System.Windows.Forms.ToolStripDropDownButton();
-            this.miExportLog4jXmlFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.miExportExcelCsvFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.loggerTreeView = new Log2Window.UI.TreeViewWithoutDoubleClick();
             this.mainToolStrip.SuspendLayout();
             this.loggerPanel.SuspendLayout();
             this.loggerInnerPanel.SuspendLayout();
@@ -547,22 +547,6 @@ namespace Log2Window
             this.keepHighlightBtn.Name = "keepHighlightBtn";
             this.keepHighlightBtn.Size = new System.Drawing.Size(23, 4);
             // 
-            // loggerTreeView
-            // 
-            this.loggerTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.loggerTreeView.CheckBoxes = true;
-            this.loggerTreeView.Indent = 19;
-            this.loggerTreeView.Location = new System.Drawing.Point(0, 25);
-            this.loggerTreeView.Name = "loggerTreeView";
-            this.loggerTreeView.PathSeparator = ".";
-            this.loggerTreeView.Size = new System.Drawing.Size(237, 522);
-            this.loggerTreeView.TabIndex = 1;
-            this.loggerTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterCheck);
-            this.loggerTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterSelect);
-            this.loggerTreeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.loggerTreeView_MouseUp);
-            // 
             // loggerSplitter
             // 
             this.loggerSplitter.Dock = System.Windows.Forms.DockStyle.Right;
@@ -893,6 +877,34 @@ namespace Log2Window
             this.openFileDialog1.Filter = "All files|*.*";
             this.openFileDialog1.Title = "Open Log File";
             // 
+            // ddbExportBtn
+            // 
+            this.ddbExportBtn.AutoToolTip = false;
+            this.ddbExportBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miExportLog4jXmlFile,
+            this.miExportExcelCsvFile});
+            this.ddbExportBtn.Image = global::Log2Window.Properties.Resources.saveas16;
+            this.ddbExportBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.ddbExportBtn.Name = "ddbExportBtn";
+            this.ddbExportBtn.Size = new System.Drawing.Size(69, 20);
+            this.ddbExportBtn.Text = "Export";
+            // 
+            // miExportLog4jXmlFile
+            // 
+            this.miExportLog4jXmlFile.Image = global::Log2Window.Properties.Resources.saveas16;
+            this.miExportLog4jXmlFile.Name = "miExportLog4jXmlFile";
+            this.miExportLog4jXmlFile.Size = new System.Drawing.Size(191, 22);
+            this.miExportLog4jXmlFile.Text = "Export to log4j xml file";
+            this.miExportLog4jXmlFile.Click += new System.EventHandler(this.miExportLog4jXmlFile_Click);
+            // 
+            // miExportExcelCsvFile
+            // 
+            this.miExportExcelCsvFile.Image = global::Log2Window.Properties.Resources.Excel;
+            this.miExportExcelCsvFile.Name = "miExportExcelCsvFile";
+            this.miExportExcelCsvFile.Size = new System.Drawing.Size(191, 22);
+            this.miExportExcelCsvFile.Text = "Export to excel csv file";
+            this.miExportExcelCsvFile.Click += new System.EventHandler(this.miExportExcelCsvFile_Click);
+            // 
             // logListView
             // 
             this.logListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -958,32 +970,21 @@ namespace Log2Window
             this.columnHeader5.Text = "Message";
             this.columnHeader5.Width = 540;
             // 
-            // ddbExportBtn
+            // loggerTreeView
             // 
-            this.ddbExportBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.miExportLog4jXmlFile,
-            this.miExportExcelCsvFile});
-            this.ddbExportBtn.Image = global::Log2Window.Properties.Resources.saveas16;
-            this.ddbExportBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.ddbExportBtn.Name = "ddbExportBtn";
-            this.ddbExportBtn.Size = new System.Drawing.Size(69, 20);
-            this.ddbExportBtn.Text = "Export";
-            // 
-            // miExportLog4jXmlFile
-            // 
-            this.miExportLog4jXmlFile.Image = global::Log2Window.Properties.Resources.saveas16;
-            this.miExportLog4jXmlFile.Name = "miExportLog4jXmlFile";
-            this.miExportLog4jXmlFile.Size = new System.Drawing.Size(191, 22);
-            this.miExportLog4jXmlFile.Text = "Export to log4j xml file";
-            this.miExportLog4jXmlFile.Click += new System.EventHandler(this.miExportLog4jXmlFile_Click);
-            // 
-            // miExportExcelCsvFile
-            // 
-            this.miExportExcelCsvFile.Image = global::Log2Window.Properties.Resources.Excel;
-            this.miExportExcelCsvFile.Name = "miExportExcelCsvFile";
-            this.miExportExcelCsvFile.Size = new System.Drawing.Size(191, 22);
-            this.miExportExcelCsvFile.Text = "Export to excel csv file";
-            this.miExportExcelCsvFile.Click += new System.EventHandler(this.miExportExcelCsvFile_Click);
+            this.loggerTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.loggerTreeView.CheckBoxes = true;
+            this.loggerTreeView.Indent = 19;
+            this.loggerTreeView.Location = new System.Drawing.Point(0, 25);
+            this.loggerTreeView.Name = "loggerTreeView";
+            this.loggerTreeView.PathSeparator = ".";
+            this.loggerTreeView.Size = new System.Drawing.Size(237, 522);
+            this.loggerTreeView.TabIndex = 1;
+            this.loggerTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterCheck);
+            this.loggerTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterSelect);
+            this.loggerTreeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.loggerTreeView_MouseUp);
             // 
             // MainForm
             // 
