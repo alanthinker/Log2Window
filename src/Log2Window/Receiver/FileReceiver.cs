@@ -140,27 +140,36 @@ OR
         }
 
         [NonSerialized]
+        FileStream fileStream;
+
+        [NonSerialized]
+        StreamReader fileReader;
+
+        [NonSerialized]
         ManualResetEvent _waitReadExistingLogs;
+
         public override void Start()
         {
-            _fileWatcher.Changed += OnFileChanged;
+            _fileWatcher.Changed += _fileWatcher_Changed;  
             _fileWatcher.Deleted += _fileWatcher_Deleted;
+            _fileWatcher.Renamed += _fileWatcher_Renamed;
             _fileWatcher.Created += _fileWatcher_Created;
             _fileWatcher.EnableRaisingEvents = true;
             _fileWatcher.NotifyFilter =
                (NotifyFilters)(383);
+
+            // (FileShare.ReadWrite | FileShare.Delete) to allow log4net RollingFileAppender move original file to log.1, log.2 ... file.
+            // And even after file is deleted (deleted, moved, renamed), the stream object can still read the file. Because file will only be really deleted after the stream closed.
+            fileStream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            fileReader = new StreamReader(fileStream, this.EncodingObject);
 
             if (_showFromBeginning)
             {
                 ReadFile();
             }
             else
-            { 
-                using (var stream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
-                using (var fileReader = new StreamReader(stream, this.EncodingObject))
-                {
-                    _lastFileLength = fileReader.BaseStream.Length;
-                }
+            {
+                _lastFileLength = fileReader.BaseStream.Length;
             }
 
             _waitReadExistingLogs.Set();
@@ -188,6 +197,27 @@ OR
             });
         }
 
+        private void _fileWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            try
+            {
+                if (e.ChangeType != WatcherChangeTypes.Changed)
+                    return;
+
+                _waitReadExistingLogs.WaitOne();
+                ReadFile();
+            }
+            catch (Exception ex)
+            {
+                Utils.log.Error(ex.Message, ex);
+            }
+        }
+
+        private void _fileWatcher_Renamed(object sender, RenamedEventArgs e)
+        {
+
+        }
+
         private void _fileWatcher_Deleted(object sender, FileSystemEventArgs e)
         {
 
@@ -196,9 +226,19 @@ OR
         private void _fileWatcher_Created(object sender, FileSystemEventArgs e)
         {
             // lock to wait previous reading finished. 
-            // even old file has been moved, opened stream can still read its data.
+            // even old file has been moved, opened stream can still read its data. 
             lock (locker)
             {
+                //red remain content of old file.
+                ReadFile();
+
+                fileStream.Dispose();
+                fileReader.Dispose();
+
+                //Open new created file.
+                fileStream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                fileReader = new StreamReader(fileStream, this.EncodingObject);
+
                 //log4net RollingFileAppender move old file and crate a new file.
                 _lastFileLength = 0;
             }
@@ -209,8 +249,20 @@ OR
             if (_fileWatcher != null)
             {
                 _fileWatcher.EnableRaisingEvents = false;
-                _fileWatcher.Changed -= OnFileChanged;
+                _fileWatcher.Changed -= _fileWatcher_Changed;
+                _fileWatcher.Deleted -= _fileWatcher_Deleted;
+                _fileWatcher.Renamed -= _fileWatcher_Renamed;
+                _fileWatcher.Created -= _fileWatcher_Created;
+                _fileWatcher.Dispose();
                 _fileWatcher = null;
+            }
+
+            if (fileReader != null)
+            {
+                fileStream.Dispose();
+                fileReader.Dispose();
+                fileStream = null;
+                fileReader = null;
             }
 
             _lastFileLength = 0;
@@ -231,22 +283,7 @@ OR
         }
 
         static char[] log4jEndTag = "</log4j:event>".ToCharArray();
-        private void OnFileChanged(object sender, FileSystemEventArgs e)
-        {
-            try
-            {
-                if (e.ChangeType != WatcherChangeTypes.Changed)
-                    return;
-
-                _waitReadExistingLogs.WaitOne();
-                ReadFile();
-            }
-            catch (Exception ex)
-            {
-                Utils.log.Error(ex.Message, ex);
-            }
-
-        }
+        
 
         //if log4net set ImmediateFlush=false, log message may only write only a part.
         //So need stock this part.
@@ -260,39 +297,34 @@ OR
             // _lastFileLength may be change to 0 after log4net RollingFileAppender move original file to log.1, log.2 ... file.
             lock (locker)
             {
-                // (FileShare.ReadWrite | FileShare.Delete) to allow log4net RollingFileAppender move original file to log.1, log.2 ... file.
-                // And even after file is deleted (deleted, moved, renamed), the stream object can still read the file. Because file will only be really deleted after the stream closed.
-                using (var stream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
-                using (var fileReader = new StreamReader(stream, this.EncodingObject))
+                if ((fileReader == null) || (fileReader.BaseStream.Length == _lastFileLength))
+                    return;
+
+                // Seek to the last file length
+                fileReader.BaseStream.Seek(_lastFileLength, SeekOrigin.Begin);
+
+                // Get last added lines
+                int temp;
+
+                while ((temp = fileReader.Read()) != -1)
                 {
-                    if ((fileReader == null) || (fileReader.BaseStream.Length == _lastFileLength))
-                        return;
+                    // < ImmediateFlush value = "false" /> 有错, 尝试tcpreceiver的方法.
+                    sb.Append((char)temp);
 
-                    // Seek to the last file length
-                    fileReader.BaseStream.Seek(_lastFileLength, SeekOrigin.Begin);
-
-                    // Get last added lines
-                    int temp;
-
-                    while ((temp = fileReader.Read()) != -1)
+                    // This condition allows us to process events that spread over multiple lines
+                    if (IsEndWith(sb, log4jEndTag))
                     {
-                        // < ImmediateFlush value = "false" /> 有错, 尝试tcpreceiver的方法.
-                        sb.Append((char)temp);
-
-                        // This condition allows us to process events that spread over multiple lines
-                        if (IsEndWith(sb, log4jEndTag))
-                        {
-                            LogMessage logMsg = ReceiverUtils.ParseLog4JXmlLogEvent(sb.ToString(), _fullLoggerName);
-                            // Notify the UI with the set of messages
-                            if (Notifiable != null)
-                                Notifiable.Notify(logMsg);
-                            sb = new StringBuilder();
-                        }
+                        LogMessage logMsg = ReceiverUtils.ParseLog4JXmlLogEvent(sb.ToString(), _fullLoggerName);
+                        // Notify the UI with the set of messages
+                        if (Notifiable != null)
+                            Notifiable.Notify(logMsg);
+                        sb = new StringBuilder();
                     }
-
-                    // Update the last file length
-                    _lastFileLength = fileReader.BaseStream.Position;
                 }
+
+                // Update the last file length
+                _lastFileLength = fileReader.BaseStream.Position;
+
             }
         }
 
