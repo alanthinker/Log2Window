@@ -54,9 +54,6 @@ namespace Log2Window
             this.lblSearch = new System.Windows.Forms.ToolStripLabel();
             this.searchTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
-            this.logDetailsPanelToggleBtn = new System.Windows.Forms.ToolStripButton();
-            this.loggersPanelToggleBtn = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.settingsBtn = new System.Windows.Forms.ToolStripButton();
             this.receiversBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
@@ -70,7 +67,6 @@ namespace Log2Window
             this.aboutBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
             this.pinOnTopBtn = new System.Windows.Forms.ToolStripButton();
-            this.versionLabel = new System.Windows.Forms.ToolStripLabel();
             this.timeColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.levelColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.loggerColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -80,7 +76,6 @@ namespace Log2Window
             this.loggerInnerPanel = new System.Windows.Forms.Panel();
             this.loggersToolStrip = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-            this.closeLoggersPanelBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.clearLoggersBtn = new System.Windows.Forms.ToolStripButton();
             this.collapseAllBtn = new System.Windows.Forms.ToolStripButton();
@@ -103,7 +98,6 @@ namespace Log2Window
             this.logDetailTextBox = new System.Windows.Forms.RichTextBox();
             this.logDetailToolStrip = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
-            this.closeLogDetailPanelBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator11 = new System.Windows.Forms.ToolStripSeparator();
             this.zoomOutLogDetailsBtn = new System.Windows.Forms.ToolStripButton();
             this.zoomInLogDetailsBtn = new System.Windows.Forms.ToolStripButton();
@@ -174,9 +168,6 @@ namespace Log2Window
             this.lblSearch,
             this.searchTextBox,
             this.toolStripSeparator9,
-            this.logDetailsPanelToggleBtn,
-            this.loggersPanelToggleBtn,
-            this.toolStripSeparator3,
             this.settingsBtn,
             this.receiversBtn,
             this.toolStripSeparator14,
@@ -187,13 +178,12 @@ namespace Log2Window
             this.toolStripSeparator4,
             this.aboutBtn,
             this.toolStripSeparator12,
-            this.pinOnTopBtn,
-            this.versionLabel});
+            this.pinOnTopBtn});
             this.mainToolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
             this.mainToolStrip.Location = new System.Drawing.Point(0, 0);
             this.mainToolStrip.Name = "mainToolStrip";
             this.mainToolStrip.Padding = new System.Windows.Forms.Padding(0, 0, 0, 5);
-            this.mainToolStrip.Size = new System.Drawing.Size(1363, 52);
+            this.mainToolStrip.Size = new System.Drawing.Size(1363, 29);
             this.mainToolStrip.TabIndex = 2;
             this.mainToolStrip.Text = "mainToolStrip";
             // 
@@ -358,35 +348,6 @@ namespace Log2Window
             this.toolStripSeparator9.Name = "toolStripSeparator9";
             this.toolStripSeparator9.Size = new System.Drawing.Size(6, 23);
             // 
-            // logDetailsPanelToggleBtn
-            // 
-            this.logDetailsPanelToggleBtn.Checked = true;
-            this.logDetailsPanelToggleBtn.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.logDetailsPanelToggleBtn.Image = global::Log2Window.Properties.Resources.window16;
-            this.logDetailsPanelToggleBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.logDetailsPanelToggleBtn.Name = "logDetailsPanelToggleBtn";
-            this.logDetailsPanelToggleBtn.Size = new System.Drawing.Size(62, 20);
-            this.logDetailsPanelToggleBtn.Text = "Details";
-            this.logDetailsPanelToggleBtn.ToolTipText = "Show/Hide Log Details";
-            this.logDetailsPanelToggleBtn.Click += new System.EventHandler(this.logDetailsPanelToggleBtn_Click);
-            // 
-            // loggersPanelToggleBtn
-            // 
-            this.loggersPanelToggleBtn.Checked = true;
-            this.loggersPanelToggleBtn.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.loggersPanelToggleBtn.Image = global::Log2Window.Properties.Resources.window16;
-            this.loggersPanelToggleBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.loggersPanelToggleBtn.Name = "loggersPanelToggleBtn";
-            this.loggersPanelToggleBtn.Size = new System.Drawing.Size(69, 20);
-            this.loggersPanelToggleBtn.Text = "Loggers";
-            this.loggersPanelToggleBtn.ToolTipText = "Show/Hide Loggers";
-            this.loggersPanelToggleBtn.Click += new System.EventHandler(this.loggersPanelToggleBtn_Click);
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 23);
-            // 
             // settingsBtn
             // 
             this.settingsBtn.Image = global::Log2Window.Properties.Resources.configure16;
@@ -493,14 +454,6 @@ namespace Log2Window
             this.pinOnTopBtn.Text = "Pin on Top";
             this.pinOnTopBtn.Click += new System.EventHandler(this.pinOnTopBtn_Click);
             // 
-            // versionLabel
-            // 
-            this.versionLabel.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.versionLabel.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.versionLabel.Name = "versionLabel";
-            this.versionLabel.Size = new System.Drawing.Size(42, 13);
-            this.versionLabel.Text = "Version";
-            // 
             // timeColumnHeader
             // 
             this.timeColumnHeader.Text = "Time";
@@ -530,9 +483,9 @@ namespace Log2Window
             // 
             this.loggerPanel.Controls.Add(this.loggerInnerPanel);
             this.loggerPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.loggerPanel.Location = new System.Drawing.Point(1126, 52);
+            this.loggerPanel.Location = new System.Drawing.Point(1126, 29);
             this.loggerPanel.Name = "loggerPanel";
-            this.loggerPanel.Size = new System.Drawing.Size(237, 524);
+            this.loggerPanel.Size = new System.Drawing.Size(237, 547);
             this.loggerPanel.TabIndex = 5;
             // 
             // loggerInnerPanel
@@ -542,14 +495,13 @@ namespace Log2Window
             this.loggerInnerPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.loggerInnerPanel.Location = new System.Drawing.Point(0, 0);
             this.loggerInnerPanel.Name = "loggerInnerPanel";
-            this.loggerInnerPanel.Size = new System.Drawing.Size(237, 524);
+            this.loggerInnerPanel.Size = new System.Drawing.Size(237, 547);
             this.loggerInnerPanel.TabIndex = 5;
             // 
             // loggersToolStrip
             // 
             this.loggersToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabel1,
-            this.closeLoggersPanelBtn,
             this.toolStripSeparator2,
             this.clearLoggersBtn,
             this.collapseAllBtn,
@@ -567,17 +519,6 @@ namespace Log2Window
             this.toolStripLabel1.Name = "toolStripLabel1";
             this.toolStripLabel1.Size = new System.Drawing.Size(51, 22);
             this.toolStripLabel1.Text = "Loggers";
-            // 
-            // closeLoggersPanelBtn
-            // 
-            this.closeLoggersPanelBtn.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.closeLoggersPanelBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.closeLoggersPanelBtn.Image = global::Log2Window.Properties.Resources.close16;
-            this.closeLoggersPanelBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.closeLoggersPanelBtn.Name = "closeLoggersPanelBtn";
-            this.closeLoggersPanelBtn.Size = new System.Drawing.Size(23, 22);
-            this.closeLoggersPanelBtn.Text = "Close Loggers View";
-            this.closeLoggersPanelBtn.Click += new System.EventHandler(this.closeLoggersPanelBtn_Click);
             // 
             // toolStripSeparator2
             // 
@@ -599,7 +540,7 @@ namespace Log2Window
             this.collapseAllBtn.Image = global::Log2Window.Properties.Resources.collapse_all;
             this.collapseAllBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.collapseAllBtn.Name = "collapseAllBtn";
-            this.collapseAllBtn.Size = new System.Drawing.Size(72, 20);
+            this.collapseAllBtn.Size = new System.Drawing.Size(72, 22);
             this.collapseAllBtn.Text = "Collapse";
             this.collapseAllBtn.ToolTipText = "Collapse all sources";
             this.collapseAllBtn.Click += new System.EventHandler(this.collapseAllBtn_Click);
@@ -617,9 +558,9 @@ namespace Log2Window
             // loggerSplitter
             // 
             this.loggerSplitter.Dock = System.Windows.Forms.DockStyle.Right;
-            this.loggerSplitter.Location = new System.Drawing.Point(1123, 52);
+            this.loggerSplitter.Location = new System.Drawing.Point(1123, 29);
             this.loggerSplitter.Name = "loggerSplitter";
-            this.loggerSplitter.Size = new System.Drawing.Size(3, 524);
+            this.loggerSplitter.Size = new System.Drawing.Size(3, 547);
             this.loggerSplitter.TabIndex = 6;
             this.loggerSplitter.TabStop = false;
             // 
@@ -757,7 +698,6 @@ namespace Log2Window
             // 
             this.logDetailToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabel2,
-            this.closeLogDetailPanelBtn,
             this.toolStripSeparator11,
             this.zoomOutLogDetailsBtn,
             this.zoomInLogDetailsBtn,
@@ -775,17 +715,6 @@ namespace Log2Window
             this.toolStripLabel2.Name = "toolStripLabel2";
             this.toolStripLabel2.Size = new System.Drawing.Size(96, 22);
             this.toolStripLabel2.Text = "Message Details";
-            // 
-            // closeLogDetailPanelBtn
-            // 
-            this.closeLogDetailPanelBtn.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.closeLogDetailPanelBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.closeLogDetailPanelBtn.Image = global::Log2Window.Properties.Resources.close16;
-            this.closeLogDetailPanelBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.closeLogDetailPanelBtn.Name = "closeLogDetailPanelBtn";
-            this.closeLogDetailPanelBtn.Size = new System.Drawing.Size(23, 22);
-            this.closeLogDetailPanelBtn.Text = "Close Log Detail Panel";
-            this.closeLogDetailPanelBtn.Click += new System.EventHandler(this.closeLogDetailPanelBtn_Click);
             // 
             // toolStripSeparator11
             // 
@@ -971,10 +900,10 @@ namespace Log2Window
             this.logListView.FullRowSelect = true;
             this.logListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.logListView.HideSelection = false;
-            this.logListView.Location = new System.Drawing.Point(0, 52);
+            this.logListView.Location = new System.Drawing.Point(0, 29);
             this.logListView.Name = "logListView";
             this.logListView.ShowItemToolTips = true;
-            this.logListView.Size = new System.Drawing.Size(1123, 327);
+            this.logListView.Size = new System.Drawing.Size(1123, 350);
             this.logListView.TabIndex = 0;
             this.logListView.UseCompatibleStateImageBehavior = false;
             this.logListView.View = System.Windows.Forms.View.Details;
@@ -1031,7 +960,7 @@ namespace Log2Window
             this.loggerTreeView.Location = new System.Drawing.Point(0, 25);
             this.loggerTreeView.Name = "loggerTreeView";
             this.loggerTreeView.PathSeparator = ".";
-            this.loggerTreeView.Size = new System.Drawing.Size(237, 499);
+            this.loggerTreeView.Size = new System.Drawing.Size(237, 522);
             this.loggerTreeView.TabIndex = 1;
             this.loggerTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterCheck);
             this.loggerTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterSelect);
@@ -1103,13 +1032,10 @@ namespace Log2Window
         private System.Windows.Forms.Splitter loggerSplitter;
         private System.Windows.Forms.ToolStrip loggersToolStrip;
         private System.Windows.Forms.ToolStripLabel toolStripLabel1;
-        private System.Windows.Forms.ToolStripButton closeLoggersPanelBtn;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripButton loggersPanelToggleBtn;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton clearLoggersBtn;
 		private System.Windows.Forms.NotifyIcon appNotifyIcon;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripButton aboutBtn;
         private System.Windows.Forms.ToolStripButton settingsBtn;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
@@ -1125,8 +1051,6 @@ namespace Log2Window
         private System.Windows.Forms.Panel logDetailInnerPanel;
         private System.Windows.Forms.RichTextBox logDetailTextBox;
         private System.Windows.Forms.ToolStripLabel toolStripLabel2;
-        private System.Windows.Forms.ToolStripButton closeLogDetailPanelBtn;
-        private System.Windows.Forms.ToolStripButton logDetailsPanelToggleBtn;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
         private System.Windows.Forms.ToolStripButton copyLogDetailBtn;
         private System.Windows.Forms.ToolStripLabel toolStripLabel3;
@@ -1145,7 +1069,6 @@ namespace Log2Window
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator13;
         private System.Windows.Forms.ToolStripButton saveBtn;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
-        private System.Windows.Forms.ToolStripLabel versionLabel;
         private System.Windows.Forms.ToolStripButton pauseRefreshNewMessagesBtn;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator15;
         private System.Windows.Forms.ToolStripButton goToFirstLogBtn;

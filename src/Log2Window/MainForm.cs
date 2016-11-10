@@ -248,10 +248,7 @@ namespace Log2Window
         }
 
         protected override void OnLoad(EventArgs e)
-        {
-            // Display Version
-            versionLabel.Text = AboutForm.AssemblyTitle + @" v" + AboutForm.AssemblyVersion;
-
+        { 
             DoubleBuffered = true;
             base.OnLoad(e);
         }
@@ -325,11 +322,8 @@ namespace Log2Window
             {
                 DesktopBounds = UserSettings.Instance.Layout.WindowPosition;
                 WindowState = UserSettings.Instance.Layout.WindowState;
-
-                ShowDetailsPanel(UserSettings.Instance.Layout.ShowLogDetailView);
-                logDetailPanel.Size = UserSettings.Instance.Layout.LogDetailViewSize;
-
-                ShowLoggersPanel(UserSettings.Instance.Layout.ShowLoggerTree);
+ 
+                logDetailPanel.Size = UserSettings.Instance.Layout.LogDetailViewSize;                
                 loggerPanel.Size = UserSettings.Instance.Layout.LoggerTreeSize;
 
                 if (UserSettings.Instance.Layout.LogListViewColumnsWidths != null)
@@ -828,28 +822,8 @@ namespace Log2Window
         private void clearBtn_Click(object sender, EventArgs e)
         {
             ClearLogMessages();
-        }
-
-        private void closeLoggersPanelBtn_Click(object sender, EventArgs e)
-        {
-            ShowLoggersPanel(false);
-        }
-
-        private void loggersPanelToggleBtn_Click(object sender, EventArgs e)
-        {
-            // Toggle check state
-            ShowLoggersPanel(!loggersPanelToggleBtn.Checked);
-        }
-
-        private void ShowLoggersPanel(bool show)
-        {
-            loggersPanelToggleBtn.Checked = show;
-
-            if (show)
-                _dockExtender.Show(loggerPanel);
-            else
-                _dockExtender.Hide(loggerPanel);
-        }
+        } 
+        
 
         private void clearLoggersBtn_Click(object sender, EventArgs e)
         {
@@ -859,28 +833,7 @@ namespace Log2Window
         private void collapseAllBtn_Click(object sender, EventArgs e)
         {
             CollapseLoggers();
-        }
-
-        private void closeLogDetailPanelBtn_Click(object sender, EventArgs e)
-        {
-            ShowDetailsPanel(false);
-        }
-
-        private void logDetailsPanelToggleBtn_Click(object sender, EventArgs e)
-        {
-            // Toggle check state
-            ShowDetailsPanel(!logDetailsPanelToggleBtn.Checked);
-        }
-
-        private void ShowDetailsPanel(bool show)
-        {
-            logDetailsPanelToggleBtn.Checked = show;
-
-            if (show)
-                _dockExtender.Show(logDetailPanel);
-            else
-                _dockExtender.Hide(logDetailPanel);
-        }
+        } 
 
         private void copyLogDetailBtn_Click(object sender, EventArgs e)
         {
