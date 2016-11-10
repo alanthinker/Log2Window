@@ -61,8 +61,6 @@ namespace Log2Window
             this.miLoadEventLog = new System.Windows.Forms.ToolStripMenuItem();
             this.miClearEventLog = new System.Windows.Forms.ToolStripMenuItem();
             this.quickLoadBtn = new System.Windows.Forms.ToolStripButton();
-            this.saveBtn = new System.Windows.Forms.ToolStripButton();
-            this.saveToExcelBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
@@ -128,6 +126,9 @@ namespace Log2Window
             this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader8 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ddbExportBtn = new System.Windows.Forms.ToolStripDropDownButton();
+            this.miExportLog4jXmlFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.miExportExcelCsvFile = new System.Windows.Forms.ToolStripMenuItem();
             this.mainToolStrip.SuspendLayout();
             this.loggerPanel.SuspendLayout();
             this.loggerInnerPanel.SuspendLayout();
@@ -173,8 +174,7 @@ namespace Log2Window
             this.toolStripSeparator14,
             this.ddbEventLog,
             this.quickLoadBtn,
-            this.saveBtn,
-            this.saveToExcelBtn,
+            this.ddbExportBtn,
             this.toolStripSeparator4,
             this.aboutBtn,
             this.toolStripSeparator12,
@@ -413,26 +413,6 @@ namespace Log2Window
             this.quickLoadBtn.Size = new System.Drawing.Size(109, 20);
             this.quickLoadBtn.Text = "Open Log4j File";
             this.quickLoadBtn.Click += new System.EventHandler(this.quickLoadBtn_Click);
-            // 
-            // saveBtn
-            // 
-            this.saveBtn.AutoToolTip = false;
-            this.saveBtn.Image = global::Log2Window.Properties.Resources.saveas16;
-            this.saveBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.saveBtn.Name = "saveBtn";
-            this.saveBtn.Size = new System.Drawing.Size(106, 20);
-            this.saveBtn.Text = "Export  to log4j";
-            this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
-            // 
-            // saveToExcelBtn
-            // 
-            this.saveToExcelBtn.AutoToolTip = false;
-            this.saveToExcelBtn.Image = global::Log2Window.Properties.Resources.Excel;
-            this.saveToExcelBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.saveToExcelBtn.Name = "saveToExcelBtn";
-            this.saveToExcelBtn.Size = new System.Drawing.Size(106, 20);
-            this.saveToExcelBtn.Text = "Export  to excel";
-            this.saveToExcelBtn.Click += new System.EventHandler(this.saveToExcelBtn_Click);
             // 
             // toolStripSeparator4
             // 
@@ -978,6 +958,33 @@ namespace Log2Window
             this.columnHeader5.Text = "Message";
             this.columnHeader5.Width = 540;
             // 
+            // ddbExportBtn
+            // 
+            this.ddbExportBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miExportLog4jXmlFile,
+            this.miExportExcelCsvFile});
+            this.ddbExportBtn.Image = global::Log2Window.Properties.Resources.saveas16;
+            this.ddbExportBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.ddbExportBtn.Name = "ddbExportBtn";
+            this.ddbExportBtn.Size = new System.Drawing.Size(69, 20);
+            this.ddbExportBtn.Text = "Export";
+            // 
+            // miExportLog4jXmlFile
+            // 
+            this.miExportLog4jXmlFile.Image = global::Log2Window.Properties.Resources.saveas16;
+            this.miExportLog4jXmlFile.Name = "miExportLog4jXmlFile";
+            this.miExportLog4jXmlFile.Size = new System.Drawing.Size(191, 22);
+            this.miExportLog4jXmlFile.Text = "Export to log4j xml file";
+            this.miExportLog4jXmlFile.Click += new System.EventHandler(this.miExportLog4jXmlFile_Click);
+            // 
+            // miExportExcelCsvFile
+            // 
+            this.miExportExcelCsvFile.Image = global::Log2Window.Properties.Resources.Excel;
+            this.miExportExcelCsvFile.Name = "miExportExcelCsvFile";
+            this.miExportExcelCsvFile.Size = new System.Drawing.Size(191, 22);
+            this.miExportExcelCsvFile.Text = "Export to excel csv file";
+            this.miExportExcelCsvFile.Click += new System.EventHandler(this.miExportExcelCsvFile_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1079,7 +1086,6 @@ namespace Log2Window
         private System.Windows.Forms.ToolStripButton pinOnTopBtn;
         private System.Windows.Forms.ToolStripButton receiversBtn;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator13;
-        private System.Windows.Forms.ToolStripButton saveBtn;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
         private System.Windows.Forms.ToolStripButton pauseRefreshNewMessagesBtn;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator15;
@@ -1116,10 +1122,12 @@ namespace Log2Window
         private ToolStripButton btnWarn;
         private ToolStripButton btnError;
         private ToolStripButton btnFatal;
-        private ToolStripButton saveToExcelBtn;
         private ToolStripDropDownButton ddbEventLog;
         private ToolStripMenuItem miLoadEventLog;
         private ToolStripMenuItem miClearEventLog;
+        private ToolStripDropDownButton ddbExportBtn;
+        private ToolStripMenuItem miExportLog4jXmlFile;
+        private ToolStripMenuItem miExportExcelCsvFile;
     }
 }
 

@@ -1147,26 +1147,12 @@ namespace Log2Window
         /// </summary>
         private void saveBtn_Click(object sender, EventArgs e)
         {
-            SaveFileDialog dlg = new SaveFileDialog();
-            dlg.Filter = "log files (*.log)|*.log";
-            dlg.FileName = "logs";
-            dlg.Title = "Export to log4j xml file";
-            if (dlg.ShowDialog(this) == DialogResult.Cancel)
-                return;
-
-            Utils.Export2Log4jFile(dlg.FileName);
+            
         }
 
         private void saveToExcelBtn_Click(object sender, EventArgs e)
         {
-            SaveFileDialog dlg = new SaveFileDialog();
-            dlg.Filter = "csv files (*.csv)|*.csv";
-            dlg.FileName = "logs";
-            dlg.Title = "Export to csv file";
-            if (dlg.ShowDialog(this) == DialogResult.Cancel)
-                return;
-
-            Utils.Export2Excel(dlg.FileName);
+            
         }
 
         private void btnOpenFileInVS_Click(object sender, EventArgs e)
@@ -1417,6 +1403,30 @@ namespace Log2Window
                     ReBindListViewFromAllLogMessageItems();
                 }
             }
+        }
+
+        private void miExportLog4jXmlFile_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.Filter = "log files (*.log)|*.log";
+            dlg.FileName = "logs";
+            dlg.Title = "Export to log4j xml file";
+            if (dlg.ShowDialog(this) == DialogResult.Cancel)
+                return;
+
+            Utils.Export2Log4jFile(dlg.FileName);
+        }
+
+        private void miExportExcelCsvFile_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.Filter = "csv files (*.csv)|*.csv";
+            dlg.FileName = "logs";
+            dlg.Title = "Export to csv file";
+            if (dlg.ShowDialog(this) == DialogResult.Cancel)
+                return;
+
+            Utils.Export2Excel(dlg.FileName);
         }
     }
 }
