@@ -81,8 +81,7 @@ namespace Log2Window.Settings
 
 
         private FieldType[] _csvColumnHeaderFields;
-        private SourceFileLocation[] _sourceLocationMapConfiguration;
-        private bool _PauseRefreshNewMessages = false; 
+        private SourceFileLocation[] _sourceLocationMapConfiguration; 
         private int _messageCycleCount = 1000000;
         private string _timeStampFormatString = "yyyy-MM-dd HH:mm:ss.ffff";
 
@@ -102,8 +101,8 @@ namespace Log2Window.Settings
         private Color _fatalLevelColor = DefaultFatalLevelColor;
 
         private bool _msgDetailsProperties = false;
-        private bool _msgDetailsException = true;
-
+        private bool _msgDetailsException = true; 
+         
         private LogLevelInfo _logLevelInfo;
         private List<IReceiver> _receivers = new List<IReceiver>();
         private LayoutSettings _layout = new LayoutSettings();
@@ -111,8 +110,15 @@ namespace Log2Window.Settings
 
         private UserSettings()
         {
+            
+        }
+
+        public void Init()
+        {
             // Set default values
             _logLevelInfo = LogLevels.Instance[(int)LogLevel.Trace];
+
+            _logLevelInfo.Level = LogLevel.Trace; // after restart. Show all logs.
         }
 
         /// <summary>
@@ -134,7 +140,9 @@ namespace Log2Window.Settings
                 // Reset the stream and deserialize it.
                 ms.Position = 0;
 
-                return formatter.Deserialize(ms) as UserSettings;
+                var instance= formatter.Deserialize(ms) as UserSettings;
+                instance.Init();
+                return instance;
             }
         }
 
@@ -149,6 +157,7 @@ namespace Log2Window.Settings
             bool ok = false;
 
             _instance = new UserSettings();
+            _instance.Init();
 
             string settingsFilePath = GetSettingsFilePath();
             if (!File.Exists(settingsFilePath))
@@ -162,6 +171,7 @@ namespace Log2Window.Settings
                     {
                         BinaryFormatter bf = new BinaryFormatter();
                         _instance = bf.Deserialize(fs) as UserSettings;
+                        _instance.Init();
 
                         // During 1st load, some members are set to null
                         if (_instance != null)
@@ -488,7 +498,7 @@ namespace Log2Window.Settings
 
         /// <summary>
         /// This setting is not available through the Settings PropertyGrid.
-        /// </summary>
+        /// </summary>        
         [Browsable(false)]
         internal LogLevelInfo LogLevelInfo
         {
