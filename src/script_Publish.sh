@@ -3,7 +3,7 @@
 source "D:/Projects/XxcProjects/ShellScript/common.sh"
 
 ####################### 初始化 #######################  
-# 当前目录被定义在 $startScriptDir 中
+	# 当前目录被定义在 $startScriptDir 中
 alanInit
 mydir=$startScriptDir
  
@@ -33,6 +33,10 @@ checkIfActionError "出错 $LINENO"
 find d:/temp/Log2Window/ExampleProject -name "bin" -exec rm -rf {} \;
 find d:/temp/Log2Window/ExampleProject -name "obj" -exec rm -rf {} \;
 find d:/temp/Log2Window/ExampleProject -name "packages" -exec rm -rf {} \;   
+
+mkdir d:/temp/Log2Window/bin
+mv d:/temp/Log2Window/*.dll d:/temp/Log2Window/bin
+mv d:/temp/Log2Window/*.xml d:/temp/Log2Window/bin
 
 cd d:/temp
 zip -r Log2Window.zip Log2Window
