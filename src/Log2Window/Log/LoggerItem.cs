@@ -312,6 +312,9 @@ namespace Log2Window.Log
             if (LogManager.Instance.PauseRefreshNewMessages)
                 return;
 
+            if (lastEnsureVisibleTime > DateTime.Now) //PC time may changed by user.
+                lastEnsureVisibleTime = DateTime.Now - EnsureVisiblePeroid - EnsureVisiblePeroid; //let EnsureVisible trigger at once.
+
             if (DateTime.Now - lastEnsureVisibleTime > EnsureVisiblePeroid)
             {
                 logListView.Invoke(new Action(delegate ()
@@ -336,13 +339,13 @@ namespace Log2Window.Log
                                 Utils.log.Debug("EnsureVisiblePeroid:" + EnsureVisiblePeroid + " speed:" + speed + " index:" + index);
                                 LoggerItem.lastEnsureVisibleTime = DateTime.Now;
                                 lastEnsureVisibleArrivedId = thisArrivedId;
-                                
+
                                 logListView.EnsureVisible(index);
                                 logListView.SelectedIndices.Clear();
                                 //logListView.SelectedIndices.Add(index);
 
                                 MainForm.Instance.RefreshTitle();
-                               
+
                                 // If use MessageCycle, VirtualListSize and EnsureVisible index may not changed.
                                 // So force Refresh it.
                                 if (UserSettings.Instance.MessageCycleCount > 0)
