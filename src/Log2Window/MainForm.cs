@@ -233,6 +233,7 @@ namespace Log2Window
                 var menuItem = sender as MenuItem;
                 var selectedIndex = logListView.SelectedIndices[0];
                 var dataItem = LogManager.Instance._dataSource[selectedIndex];
+                _dictLoggerNameBackColor.Clear();
                 _dictThreadBackColor[dataItem.Message.ThreadName] = Color.FromName(menuItem.Text);
             }
 
@@ -262,6 +263,7 @@ namespace Log2Window
                 var menuItem = sender as MenuItem;
                 var selectedIndex = logListView.SelectedIndices[0];
                 var dataItem = LogManager.Instance._dataSource[selectedIndex];
+                _dictThreadBackColor.Clear();
                 _dictLoggerNameBackColor[dataItem.Message.LoggerName] = Color.FromName(menuItem.Text);
             }
 
