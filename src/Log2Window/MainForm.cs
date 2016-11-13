@@ -82,6 +82,27 @@ namespace Log2Window
             logListView.RetrieveVirtualItem += LogListView_RetrieveVirtualItem;
             logListView.CacheVirtualItems += LogListView_CacheVirtualItems;
             logListView.SearchForVirtualItem += LogListView_SearchForVirtualItem;
+            logListView.ContextMenu = new ContextMenu()
+            {
+                MenuItems = {
+                     new MenuItem("Highlight This Thread", new EventHandler(LogListView_MenuHighlightThisThread)),
+                     new MenuItem("Highlight This Category", new EventHandler(LogListView_MenuHighlightThisCategory)),
+                     new MenuItem("BackColor This Category") {
+                         MenuItems = {
+
+                            new MenuItem(Color.LightYellow.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
+                            new MenuItem(Color.LightBlue.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
+                            new MenuItem(Color.LightCyan.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
+                            new MenuItem(Color.LightGreen.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
+                            new MenuItem(Color.LightSkyBlue.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
+                            new MenuItem(Color.LightSeaGreen.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
+                        }
+                     },
+                     new MenuItem("Clear All Format", new EventHandler(LogListView_MenuClearAllFormat))
+                }
+            };
+
+            logListView.ContextMenu.Popup += logListViewContextMenu_Popup;
 
             _dockExtender = new DockExtender(this);
 
@@ -137,6 +158,11 @@ namespace Log2Window
             _logMsgThread.Start();
         }
 
+        private void logListViewContextMenu_Popup(object sender, EventArgs e)
+        {
+
+        }
+
         private void LogListView_SearchForVirtualItem(object sender, SearchForVirtualItemEventArgs e)
         {
 
@@ -152,11 +178,78 @@ namespace Log2Window
             lock (LogManager.Instance.dataLocker)
             {
                 if (e.ItemIndex < LogManager.Instance._dataSource.Count)
-                    e.Item = LogMessageItem.CreateListViewItem(LogManager.Instance._dataSource[e.ItemIndex].Message);
+                {
+                    var dataItem = LogManager.Instance._dataSource[e.ItemIndex];
+                    e.Item = LogMessageItem.CreateListViewItem(dataItem.Message);
+                    if (_dictThreadBackColor.ContainsKey(dataItem.Message.ThreadName))
+                    {
+                        e.Item.BackColor = _dictThreadBackColor[dataItem.Message.ThreadName];
+                        //e.Item.Font = new Font( new FontFamily("Consolas"), e.Item.Font.Size + 3, FontStyle.Bold);
+                    }
+                    if (_dictLoggerNameBackColor.ContainsKey(dataItem.Message.LoggerName))
+                    {
+                        e.Item.BackColor = _dictLoggerNameBackColor[dataItem.Message.LoggerName];  
+                    }
+                }
+
                 else
                     Utils.log.Debug("LogListView_RetrieveVirtualItem: e.ItemIndex=" + e.ItemIndex + " _dataSource.Count=" + LogManager.Instance._dataSource.Count);
             }
         }
+
+        Dictionary<string, Color> _dictThreadBackColor = new Dictionary<string, Color>();
+
+        private void LogListView_MenuHighlightThisThread(object sender, EventArgs e)
+        {
+            lock (LogManager.Instance.dataLocker)
+            {
+                var selectedIndex = logListView.SelectedIndices[0];
+                var dataItem = LogManager.Instance._dataSource[selectedIndex];
+                _dictLoggerNameBackColor.Clear();
+                _dictThreadBackColor.Clear();
+                _dictThreadBackColor[dataItem.Message.ThreadName] = Color.FromArgb(210, 255, 210); 
+            }
+
+            logListView.Refresh();
+        }  
+
+        private void LogListView_MenuHighlightThisCategory(object sender, EventArgs e)
+        {
+            lock (LogManager.Instance.dataLocker)
+            {
+                var selectedIndex = logListView.SelectedIndices[0];
+                var dataItem = LogManager.Instance._dataSource[selectedIndex];
+                _dictLoggerNameBackColor.Clear();
+                _dictThreadBackColor.Clear(); 
+                _dictLoggerNameBackColor[dataItem.Message.LoggerName] = Color.FromArgb(200, 200, 255);
+            }
+
+            logListView.Refresh();
+        }
+
+        Dictionary<string, Color> _dictLoggerNameBackColor = new Dictionary<string, Color>();
+        private void LogListView_MenuBackColorThisCategory(object sender, EventArgs e)
+        {
+            lock (LogManager.Instance.dataLocker)
+            {
+                var menuItem = sender as MenuItem;
+                var selectedIndex = logListView.SelectedIndices[0];
+                var dataItem = LogManager.Instance._dataSource[selectedIndex];
+                _dictLoggerNameBackColor[dataItem.Message.LoggerName] = Color.FromName(menuItem.Text);
+            }
+
+            logListView.Refresh();
+        }
+
+        private void LogListView_MenuClearAllFormat(object sender, EventArgs e)
+        {
+            _dictThreadBackColor.Clear();
+            _dictLoggerNameBackColor.Clear();
+
+            logListView.Refresh();
+        }
+
+
         private const int WM_SIZE = 0x0005;
         private const int SIZE_MINIMIZED = 1;
         internal static MainForm Instance;
@@ -248,7 +341,7 @@ namespace Log2Window
         }
 
         protected override void OnLoad(EventArgs e)
-        { 
+        {
             DoubleBuffered = true;
             base.OnLoad(e);
         }
@@ -322,8 +415,8 @@ namespace Log2Window
             {
                 DesktopBounds = UserSettings.Instance.Layout.WindowPosition;
                 WindowState = UserSettings.Instance.Layout.WindowState;
- 
-                logDetailPanel.Size = UserSettings.Instance.Layout.LogDetailViewSize;                
+
+                logDetailPanel.Size = UserSettings.Instance.Layout.LogDetailViewSize;
                 loggerPanel.Size = UserSettings.Instance.Layout.LoggerTreeSize;
 
                 if (UserSettings.Instance.Layout.LogListViewColumnsWidths != null)
@@ -822,8 +915,8 @@ namespace Log2Window
         private void clearBtn_Click(object sender, EventArgs e)
         {
             ClearLogMessages();
-        } 
-        
+        }
+
 
         private void clearLoggersBtn_Click(object sender, EventArgs e)
         {
@@ -833,7 +926,7 @@ namespace Log2Window
         private void collapseAllBtn_Click(object sender, EventArgs e)
         {
             CollapseLoggers();
-        } 
+        }
 
         private void copyLogDetailBtn_Click(object sender, EventArgs e)
         {
@@ -1147,12 +1240,12 @@ namespace Log2Window
         /// </summary>
         private void saveBtn_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void saveToExcelBtn_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void btnOpenFileInVS_Click(object sender, EventArgs e)
@@ -1206,7 +1299,7 @@ namespace Log2Window
             }
         }
 
-        EventLogReceiver eventLogReceiver; 
+        EventLogReceiver eventLogReceiver;
 
         private void logListView_KeyDown(object sender, KeyEventArgs e)
         {
@@ -1327,7 +1420,7 @@ namespace Log2Window
             }
 
             if (menuItem.Text == "--All--")
-            { 
+            {
                 this.Cursor = Cursors.WaitCursor;
                 eventLogReceiver = new EventLogReceiver();
                 eventLogReceiver.ShowFromBeginning = true;
@@ -1335,7 +1428,7 @@ namespace Log2Window
                 this.Cursor = Cursors.Default;
             }
             else
-            { 
+            {
                 this.Cursor = Cursors.WaitCursor;
                 eventLogReceiver = new EventLogReceiver();
                 eventLogReceiver.LogName = menuItem.Text;
@@ -1343,7 +1436,7 @@ namespace Log2Window
                 InitializeReceiver(eventLogReceiver);
                 this.Cursor = Cursors.Default;
             }
-        } 
+        }
 
         private void miClearEventLogSubutem_Click(object sender, EventArgs e)
         {
@@ -1358,7 +1451,7 @@ namespace Log2Window
             var process = new Process();
             process.StartInfo = psi;
             process.Start();
-            process.WaitForExit(); 
+            process.WaitForExit();
         }
 
         public static void ClearEventLog(string log)
