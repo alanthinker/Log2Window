@@ -86,10 +86,23 @@ namespace Log2Window
             {
                 MenuItems = {
                      new MenuItem("Highlight This Thread", new EventHandler(LogListView_MenuHighlightThisThread)),
+                     new MenuItem("BackColor This Thread") {
+                         MenuItems = {
+                            new MenuItem(Color.Orange.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },
+                            new MenuItem(Color.LightCoral.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },                            
+                            new MenuItem(Color.LightYellow.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },
+                            new MenuItem(Color.LightBlue.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },
+                            new MenuItem(Color.LightCyan.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },
+                            new MenuItem(Color.LightGreen.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },
+                            new MenuItem(Color.LightSkyBlue.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },
+                            new MenuItem(Color.LightSeaGreen.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },
+                        }
+                     },
                      new MenuItem("Highlight This Category", new EventHandler(LogListView_MenuHighlightThisCategory)),
                      new MenuItem("BackColor This Category") {
                          MenuItems = {
-
+                            new MenuItem(Color.Orange.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
+                            new MenuItem(Color.LightCoral.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },                            
                             new MenuItem(Color.LightYellow.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
                             new MenuItem(Color.LightBlue.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
                             new MenuItem(Color.LightCyan.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
@@ -188,7 +201,7 @@ namespace Log2Window
                     }
                     if (_dictLoggerNameBackColor.ContainsKey(dataItem.Message.LoggerName))
                     {
-                        e.Item.BackColor = _dictLoggerNameBackColor[dataItem.Message.LoggerName];  
+                        e.Item.BackColor = _dictLoggerNameBackColor[dataItem.Message.LoggerName];
                     }
                 }
 
@@ -207,11 +220,25 @@ namespace Log2Window
                 var dataItem = LogManager.Instance._dataSource[selectedIndex];
                 _dictLoggerNameBackColor.Clear();
                 _dictThreadBackColor.Clear();
-                _dictThreadBackColor[dataItem.Message.ThreadName] = Color.FromArgb(210, 255, 210); 
+                _dictThreadBackColor[dataItem.Message.ThreadName] = Color.FromArgb(210, 255, 210);
             }
 
             logListView.Refresh();
-        }  
+        }
+
+        private void LogListView_MenuBackColorThisThread(object sender, EventArgs e)
+        {
+            lock (LogManager.Instance.dataLocker)
+            {
+                var menuItem = sender as MenuItem;
+                var selectedIndex = logListView.SelectedIndices[0];
+                var dataItem = LogManager.Instance._dataSource[selectedIndex];
+                _dictThreadBackColor[dataItem.Message.ThreadName] = Color.FromName(menuItem.Text);
+            }
+
+            logListView.Refresh();
+        }
+
 
         private void LogListView_MenuHighlightThisCategory(object sender, EventArgs e)
         {
@@ -220,7 +247,7 @@ namespace Log2Window
                 var selectedIndex = logListView.SelectedIndices[0];
                 var dataItem = LogManager.Instance._dataSource[selectedIndex];
                 _dictLoggerNameBackColor.Clear();
-                _dictThreadBackColor.Clear(); 
+                _dictThreadBackColor.Clear();
                 _dictLoggerNameBackColor[dataItem.Message.LoggerName] = Color.FromArgb(200, 200, 255);
             }
 
