@@ -63,6 +63,7 @@ namespace Log2Window.Log
 
         public static ListViewItem CreateListViewItem(LogMessage logMsg)
         {
+            Utils.log.Debug("CreateListViewItem "+logMsg.ArrivedId);
             // Create List View Item
             var items = new ListViewItem.ListViewSubItem[UserSettings.Instance.ColumnConfiguration.Length];
             string toolTip = string.Empty;

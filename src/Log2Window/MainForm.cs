@@ -186,14 +186,30 @@ namespace Log2Window
 
         }
 
+        Dictionary<ulong, ListViewItem> dictListViewItem = new Dictionary<ulong, ListViewItem>();
+
         private void LogListView_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
         {
+            //Utils.log.Debug("LogListView_RetrieveVirtualItem");
             lock (LogManager.Instance.dataLocker)
             {
                 if (e.ItemIndex < LogManager.Instance._dataSource.Count)
                 {
                     var dataItem = LogManager.Instance._dataSource[e.ItemIndex];
-                    e.Item = LogMessageItem.CreateListViewItem(dataItem.Message);
+
+                    if (!dictListViewItem.ContainsKey(dataItem.Message.ArrivedId))
+                    {
+                        var listViewItem = LogMessageItem.CreateListViewItem(dataItem.Message);
+                        if (dictListViewItem.Count > 10000)
+                            dictListViewItem.Clear();
+                        dictListViewItem.Add(dataItem.Message.ArrivedId, listViewItem);
+                        e.Item = listViewItem;
+                    }
+                    else
+                    {
+                        e.Item = dictListViewItem[dataItem.Message.ArrivedId];
+                    } 
+
                     if (_dictThreadBackColor.ContainsKey(dataItem.Message.ThreadName))
                     {
                         e.Item.BackColor = _dictThreadBackColor[dataItem.Message.ThreadName];

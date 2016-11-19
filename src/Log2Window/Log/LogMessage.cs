@@ -194,7 +194,7 @@ namespace Log2Window.Log
 
                 if (fieldType.Field == LogMessageField.Message)
                 {
-                    Utils.log.Debug(info);
+                    //Utils.log.Debug(info);
                     tbMessage.Text = info;
 
                     if (!string.IsNullOrEmpty(this.ExceptionString))
