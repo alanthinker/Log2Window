@@ -3,14 +3,12 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-
 using log4net.Layout;
 using log4net.Core;
 using log4net.Util;
 using log4net.Appender;
 using System.Threading;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace AlanThinker.MyLog4net
@@ -179,7 +177,7 @@ namespace AlanThinker.MyLog4net
         #region Override implementation of AppenderSkeleton
 
         public readonly object dequeueLocker = new object();
-        private ConcurrentQueue<string> senderLocalQueue = new ConcurrentQueue<string>();
+        private SimpleConcurrentQueue<string> senderLocalQueue = new SimpleConcurrentQueue<string>();
 
         ManualResetEvent InnerEnqueueProcessor_MRE = new ManualResetEvent(false);
         public void InnerEnqueueProcessor()
@@ -298,7 +296,7 @@ namespace AlanThinker.MyLog4net
         {
             if (e.SocketError == SocketError.Success)
             {
-                
+
             }
 
             // In spite of Success or not. Stop waiting.
@@ -362,8 +360,8 @@ namespace AlanThinker.MyLog4net
             {
                 if (this.Client != null)
                 {
-                    this.Client.Dispose();
-                } 
+                    (this.Client as IDisposable).Dispose();
+                }
 
                 this.Client = new Socket(RemoteAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 this.Client.SendTimeout = 5 * 1000;
@@ -411,5 +409,64 @@ namespace AlanThinker.MyLog4net
 
 
         #endregion Private Instance Fields
+    }
+    // Just a simulation of real ConcurrentQueue
+
+    class SimpleConcurrentQueue<T>
+    {
+        private Queue<T> _queue = new Queue<T>();
+
+        public int Count
+        {
+            get
+            {
+                lock (_queue)
+                {
+                    return _queue.Count;
+                }
+            }
+        }
+
+        public void Enqueue(T item)
+        {
+            lock (_queue)
+            {
+                _queue.Enqueue(item);
+            }
+        }
+
+        public bool TryPeek(out T item)
+        {
+            lock (_queue)
+            {
+                if (_queue.Count > 0)
+                {
+                    item = _queue.Peek();
+                    return true;
+                }
+                else
+                {
+                    item = default(T);
+                    return false;
+                }
+            }
+        }
+
+        public bool TryDequeue(out T item)
+        {
+            lock (_queue)
+            {
+                if (_queue.Count > 0)
+                {
+                    item = _queue.Dequeue();
+                    return true;
+                }
+                else
+                {
+                    item = default(T);
+                    return false;
+                }
+            }
+        }
     }
 }

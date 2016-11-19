@@ -15,6 +15,7 @@ namespace Test
     using log4net.Repository.Hierarchy;
     using System.Diagnostics;
     using System.IO;
+    using System.Threading;
 
     class Program
     {
@@ -24,7 +25,7 @@ namespace Test
 
 
         static void Main(string[] args)
-        { 
+        {
             log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo("Config/log4net.config"));
 
             ////if (!EventLog.SourceExists("log4net"))
@@ -87,6 +88,20 @@ namespace Test
                 for (int i = 0; i < 1000000; i++)
                 {
                     _log.Info(i);
+                }
+            }
+            else if (Char.ToLower(keyChar) == 't')
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    var log = LogManager.GetLogger("Test.Program.t" + i);
+                    ThreadPool.QueueUserWorkItem(delegate (object ob)
+                    {
+                        for (int j = 0; j < 10000; j++)
+                        {
+                            (ob as ILog).Info(j);
+                        }
+                    }, log);
                 }
             }
             else if (keyChar >= '1' && keyChar <= '9')
