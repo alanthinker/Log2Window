@@ -208,16 +208,20 @@ namespace Log2Window
                     else
                     {
                         e.Item = dictListViewItem[dataItem.Message.ArrivedId];
-                    } 
+                    }
 
                     if (_dictThreadBackColor.ContainsKey(dataItem.Message.ThreadName))
                     {
                         e.Item.BackColor = _dictThreadBackColor[dataItem.Message.ThreadName];
                         //e.Item.Font = new Font( new FontFamily("Consolas"), e.Item.Font.Size + 3, FontStyle.Bold);
                     }
-                    if (_dictLoggerNameBackColor.ContainsKey(dataItem.Message.LoggerName))
+                    else if (_dictLoggerNameBackColor.ContainsKey(dataItem.Message.LoggerName))
                     {
                         e.Item.BackColor = _dictLoggerNameBackColor[dataItem.Message.LoggerName];
+                    }
+                    else
+                    {
+                        e.Item.BackColor = Color.White;
                     }
                 }
 
