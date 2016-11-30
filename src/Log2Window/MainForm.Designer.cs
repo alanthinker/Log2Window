@@ -60,7 +60,9 @@ namespace Log2Window
             this.ddbEventLog = new System.Windows.Forms.ToolStripDropDownButton();
             this.miLoadEventLog = new System.Windows.Forms.ToolStripMenuItem();
             this.miClearEventLog = new System.Windows.Forms.ToolStripMenuItem();
-            this.quickLoadBtn = new System.Windows.Forms.ToolStripButton();
+            this.ddbExportBtn = new System.Windows.Forms.ToolStripDropDownButton();
+            this.miExportLog4jXmlFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.miExportExcelCsvFile = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
@@ -116,9 +118,9 @@ namespace Log2Window
             this.toolStripSeparator16 = new System.Windows.Forms.ToolStripSeparator();
             this.deleteAllLoggerTreeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.ddbExportBtn = new System.Windows.Forms.ToolStripDropDownButton();
-            this.miExportLog4jXmlFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.miExportExcelCsvFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.ddbOpenLogFileBtn = new System.Windows.Forms.ToolStripDropDownButton();
+            this.miOpenLog4jXmlFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.miOpenPatternLayoutFile = new System.Windows.Forms.ToolStripMenuItem();
             this.logListView = new Log2Window.UI.FlickerFreeListView();
             this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -173,7 +175,7 @@ namespace Log2Window
             this.receiversBtn,
             this.toolStripSeparator14,
             this.ddbEventLog,
-            this.quickLoadBtn,
+            this.ddbOpenLogFileBtn,
             this.ddbExportBtn,
             this.toolStripSeparator4,
             this.aboutBtn,
@@ -404,15 +406,33 @@ namespace Log2Window
             this.miClearEventLog.Size = new System.Drawing.Size(101, 22);
             this.miClearEventLog.Text = "Clear";
             // 
-            // quickLoadBtn
+            // ddbExportBtn
             // 
-            this.quickLoadBtn.AutoToolTip = false;
-            this.quickLoadBtn.Image = global::Log2Window.Properties.Resources.documentsorcopy16;
-            this.quickLoadBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.quickLoadBtn.Name = "quickLoadBtn";
-            this.quickLoadBtn.Size = new System.Drawing.Size(109, 20);
-            this.quickLoadBtn.Text = "Open Log4j File";
-            this.quickLoadBtn.Click += new System.EventHandler(this.quickLoadBtn_Click);
+            this.ddbExportBtn.AutoToolTip = false;
+            this.ddbExportBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miExportLog4jXmlFile,
+            this.miExportExcelCsvFile});
+            this.ddbExportBtn.Image = global::Log2Window.Properties.Resources.saveas16;
+            this.ddbExportBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.ddbExportBtn.Name = "ddbExportBtn";
+            this.ddbExportBtn.Size = new System.Drawing.Size(69, 20);
+            this.ddbExportBtn.Text = "Export";
+            // 
+            // miExportLog4jXmlFile
+            // 
+            this.miExportLog4jXmlFile.Image = global::Log2Window.Properties.Resources.saveas16;
+            this.miExportLog4jXmlFile.Name = "miExportLog4jXmlFile";
+            this.miExportLog4jXmlFile.Size = new System.Drawing.Size(191, 22);
+            this.miExportLog4jXmlFile.Text = "Export to log4j xml file";
+            this.miExportLog4jXmlFile.Click += new System.EventHandler(this.miExportLog4jXmlFile_Click);
+            // 
+            // miExportExcelCsvFile
+            // 
+            this.miExportExcelCsvFile.Image = global::Log2Window.Properties.Resources.Excel;
+            this.miExportExcelCsvFile.Name = "miExportExcelCsvFile";
+            this.miExportExcelCsvFile.Size = new System.Drawing.Size(191, 22);
+            this.miExportExcelCsvFile.Text = "Export to excel csv file";
+            this.miExportExcelCsvFile.Click += new System.EventHandler(this.miExportExcelCsvFile_Click);
             // 
             // toolStripSeparator4
             // 
@@ -877,33 +897,31 @@ namespace Log2Window
             this.openFileDialog1.Filter = "All files|*.*";
             this.openFileDialog1.Title = "Open Log File";
             // 
-            // ddbExportBtn
+            // ddbOpenLogFileBtn
             // 
-            this.ddbExportBtn.AutoToolTip = false;
-            this.ddbExportBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.miExportLog4jXmlFile,
-            this.miExportExcelCsvFile});
-            this.ddbExportBtn.Image = global::Log2Window.Properties.Resources.saveas16;
-            this.ddbExportBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.ddbExportBtn.Name = "ddbExportBtn";
-            this.ddbExportBtn.Size = new System.Drawing.Size(69, 20);
-            this.ddbExportBtn.Text = "Export";
+            this.ddbOpenLogFileBtn.AutoToolTip = false;
+            this.ddbOpenLogFileBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miOpenPatternLayoutFile,
+            this.miOpenLog4jXmlFile});
+            this.ddbOpenLogFileBtn.Image = global::Log2Window.Properties.Resources.documentsorcopy16;
+            this.ddbOpenLogFileBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.ddbOpenLogFileBtn.Name = "ddbOpenLogFileBtn";
+            this.ddbOpenLogFileBtn.Size = new System.Drawing.Size(103, 20);
+            this.ddbOpenLogFileBtn.Text = "OpenLogFile";
             // 
-            // miExportLog4jXmlFile
+            // miOpenLog4jXmlFile
             // 
-            this.miExportLog4jXmlFile.Image = global::Log2Window.Properties.Resources.saveas16;
-            this.miExportLog4jXmlFile.Name = "miExportLog4jXmlFile";
-            this.miExportLog4jXmlFile.Size = new System.Drawing.Size(191, 22);
-            this.miExportLog4jXmlFile.Text = "Export to log4j xml file";
-            this.miExportLog4jXmlFile.Click += new System.EventHandler(this.miExportLog4jXmlFile_Click);
+            this.miOpenLog4jXmlFile.Name = "miOpenLog4jXmlFile";
+            this.miOpenLog4jXmlFile.Size = new System.Drawing.Size(204, 22);
+            this.miOpenLog4jXmlFile.Text = "Open log4j xml file";
+            this.miOpenLog4jXmlFile.Click += new System.EventHandler(this.miOpenLog4jXmlFile_Click);
             // 
-            // miExportExcelCsvFile
+            // miOpenPatternLayoutFile
             // 
-            this.miExportExcelCsvFile.Image = global::Log2Window.Properties.Resources.Excel;
-            this.miExportExcelCsvFile.Name = "miExportExcelCsvFile";
-            this.miExportExcelCsvFile.Size = new System.Drawing.Size(191, 22);
-            this.miExportExcelCsvFile.Text = "Export to excel csv file";
-            this.miExportExcelCsvFile.Click += new System.EventHandler(this.miExportExcelCsvFile_Click);
+            this.miOpenPatternLayoutFile.Name = "miOpenPatternLayoutFile";
+            this.miOpenPatternLayoutFile.Size = new System.Drawing.Size(204, 22);
+            this.miOpenPatternLayoutFile.Text = "Open Pattern Layout File";
+            this.miOpenPatternLayoutFile.Click += new System.EventHandler(this.miOpenPatternLayoutFile_Click);
             // 
             // logListView
             // 
@@ -1111,7 +1129,6 @@ namespace Log2Window
         private ToolStripButton btnOpenFileInVS;
         private TabPage tabExceptions;
         private RichTextBoxLinks.RichTextBoxEx tbExceptions;
-        private ToolStripButton quickLoadBtn;
         private OpenFileDialog openFileDialog1;
         private ToolStripButton dactivateSourcesBtn;
         private ToolStripButton collapseAllBtn;
@@ -1129,6 +1146,9 @@ namespace Log2Window
         private ToolStripDropDownButton ddbExportBtn;
         private ToolStripMenuItem miExportLog4jXmlFile;
         private ToolStripMenuItem miExportExcelCsvFile;
+        private ToolStripDropDownButton ddbOpenLogFileBtn;
+        private ToolStripMenuItem miOpenLog4jXmlFile;
+        private ToolStripMenuItem miOpenPatternLayoutFile;
     }
 }
 

@@ -1328,25 +1328,7 @@ namespace Log2Window
                     tabControlDetail.SelectedTab = tabSource;
                 }
             }
-        }
-
-        private void quickLoadBtn_Click(object sender, EventArgs e)
-        {
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                if (!File.Exists(openFileDialog1.FileName))
-                {
-                    MessageBox.Show(string.Format("File: {0} does not exists", openFileDialog1.FileName),
-                                    "Error Opening Log File");
-                    return;
-                }
-
-                FileReceiver fr = new FileReceiver();
-                fr.FileToWatch = openFileDialog1.FileName;
-                fr.ShowFromBeginning = true;
-                InitializeReceiver(fr);
-            }
-        }
+        } 
 
         EventLogReceiver eventLogReceiver;
 
@@ -1569,6 +1551,42 @@ namespace Log2Window
                 return;
 
             Utils.Export2Excel(dlg.FileName);
+        }
+
+        private void miOpenLog4jXmlFile_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                if (!File.Exists(openFileDialog1.FileName))
+                {
+                    MessageBox.Show(string.Format("File: {0} does not exists", openFileDialog1.FileName),
+                                    "Error Opening Log File");
+                    return;
+                }
+
+                Log4jFileReceiver fr = new Log4jFileReceiver();
+                fr.FileToWatch = openFileDialog1.FileName;
+                fr.ShowFromBeginning = true;
+                InitializeReceiver(fr);
+            }
+        }
+
+        private void miOpenPatternLayoutFile_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                if (!File.Exists(openFileDialog1.FileName))
+                {
+                    MessageBox.Show(string.Format("File: {0} does not exists", openFileDialog1.FileName),
+                                    "Error Opening Log File");
+                    return;
+                }
+
+                PatternLayoutFileReceiver fr = new PatternLayoutFileReceiver();
+                fr.FileToWatch = openFileDialog1.FileName;
+                fr.ShowFromBeginning = true;
+                InitializeReceiver(fr);
+            }
         }
     }
 }
