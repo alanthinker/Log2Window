@@ -327,7 +327,7 @@ namespace Log2Window.Log
                         // 因此使用LockWindowUpdate强制不更新此窗体. 当所有的设置结束后再显示窗口的最后状态.
                         MainForm.Instance.LockWindowUpdate(true);
                         try
-                        { 
+                        {
                             logListView.VirtualListSize = LogManager.Instance._dataSource.Count;
                             if (LogManager.Instance._dataSource.Count > 0
                             )
@@ -348,22 +348,28 @@ namespace Log2Window.Log
                                     lastEnsureVisibleArrivedId = thisArrivedId;
 
                                     logListView.EnsureVisible(index);
-                                    logListView.SelectedIndices.Clear();
                                     //logListView.SelectedIndices.Add(index);
 
                                     MainForm.Instance.RefreshTitle();
 
                                     // If use MessageCycle, VirtualListSize and EnsureVisible index may not changed.
                                     // So force Refresh it.
-                                    if (UserSettings.Instance.MessageCycleCount > 0)
+                                    if (UserSettings.Instance.MessageCycleCount > 0
+                                        && LogManager.Instance._dataSource.Count >= UserSettings.Instance.MessageCycleCount
+                                    )
+                                    {
+                                        //now SelectedIndices is wrong, because same index is not same arrivedId now.
+                                        logListView.SelectedIndices.Clear();
                                         logListView.Refresh();
+                                    }
+
                                 }
                             }
                         }
                         finally
                         {
                             MainForm.Instance.LockWindowUpdate(false);
-                        } 
+                        }
                     }
                 }));
             }
