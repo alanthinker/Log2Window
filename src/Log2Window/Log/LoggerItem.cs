@@ -321,37 +321,49 @@ namespace Log2Window.Log
                 {
                     lock (LogManager.Instance.dataLocker)
                     {
-                        logListView.VirtualListSize = LogManager.Instance._dataSource.Count;
-                        if (LogManager.Instance._dataSource.Count > 0
-                        )
-                        {
-                            var index = LogManager.Instance._dataSource.Count - 1;
-                            var thisArrivedId = LogManager.Instance._dataSource[index].Message.ArrivedId;
-
-                            if (thisArrivedId != lastEnsureVisibleArrivedId)
+                        //当用户点击了较为靠前的元素后, 设置的logListView.VirtualListSize导致用户点击的元素不在最后一页时, 窗口会先定位到用户先前点击的元素上, 然后在移动到最后, 导致闪烁.
+                        // 用代码清空SelectedIndices或者设置SelectedIndices到最后的元素也不行. 似乎电脑记住了用户点击的元素.
+                        // SuspendLayout不能阻止设置VirtualListSize时的刷新. 
+                        // 因此使用LockWindowUpdate强制不更新此窗体. 当所有的设置结束后再显示窗口的最后状态.
+                        MainForm.Instance.LockWindowUpdate(true);
+                        try
+                        { 
+                            logListView.VirtualListSize = LogManager.Instance._dataSource.Count;
+                            if (LogManager.Instance._dataSource.Count > 0
+                            )
                             {
-                                var speed = (double)(thisArrivedId - lastEnsureVisibleArrivedId) / Math.Max(0.01, (DateTime.Now - lastEnsureVisibleTime).Seconds);
-                                //Utils.log.Debug("speed:" + speed);
-                                //收到的消息速度越快, 下次间隔就越大, 可以改进性能. 
-                                //  如果1秒收到1000个消息, 那1秒后再收.
-                                //  如果1秒收到100个消息, 那0.1秒后再收.
-                                EnsureVisiblePeroid = TimeSpan.FromSeconds(Math.Max(0.1, Math.Min(1, speed / 1000)));
-                                Utils.log.Debug("EnsureVisiblePeroid:" + EnsureVisiblePeroid + " speed:" + speed + " index:" + index);
-                                LoggerItem.lastEnsureVisibleTime = DateTime.Now;
-                                lastEnsureVisibleArrivedId = thisArrivedId;
+                                var index = LogManager.Instance._dataSource.Count - 1;
+                                var thisArrivedId = LogManager.Instance._dataSource[index].Message.ArrivedId;
 
-                                logListView.EnsureVisible(index);
-                                logListView.SelectedIndices.Clear();
-                                //logListView.SelectedIndices.Add(index);
+                                if (thisArrivedId != lastEnsureVisibleArrivedId)
+                                {
+                                    var speed = (double)(thisArrivedId - lastEnsureVisibleArrivedId) / Math.Max(0.01, (DateTime.Now - lastEnsureVisibleTime).Seconds);
+                                    //Utils.log.Debug("speed:" + speed);
+                                    //收到的消息速度越快, 下次间隔就越大, 可以改进性能. 
+                                    //  如果1秒收到1000个消息, 那1秒后再收.
+                                    //  如果1秒收到100个消息, 那0.1秒后再收.
+                                    EnsureVisiblePeroid = TimeSpan.FromSeconds(Math.Max(0.1, Math.Min(1, speed / 1000)));
+                                    Utils.log.Debug("EnsureVisiblePeroid:" + EnsureVisiblePeroid + " speed:" + speed + " index:" + index);
+                                    LoggerItem.lastEnsureVisibleTime = DateTime.Now;
+                                    lastEnsureVisibleArrivedId = thisArrivedId;
 
-                                MainForm.Instance.RefreshTitle();
+                                    logListView.EnsureVisible(index);
+                                    logListView.SelectedIndices.Clear();
+                                    //logListView.SelectedIndices.Add(index);
 
-                                // If use MessageCycle, VirtualListSize and EnsureVisible index may not changed.
-                                // So force Refresh it.
-                                if (UserSettings.Instance.MessageCycleCount > 0)
-                                    logListView.Refresh();
+                                    MainForm.Instance.RefreshTitle();
+
+                                    // If use MessageCycle, VirtualListSize and EnsureVisible index may not changed.
+                                    // So force Refresh it.
+                                    if (UserSettings.Instance.MessageCycleCount > 0)
+                                        logListView.Refresh();
+                                }
                             }
                         }
+                        finally
+                        {
+                            MainForm.Instance.LockWindowUpdate(false);
+                        } 
                     }
                 }));
             }

@@ -19,6 +19,7 @@ using Timer = System.Threading.Timer;
 using System.Threading;
 using System.Security.Permissions;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Log2Window
 {
@@ -170,6 +171,24 @@ namespace Log2Window
             _logMsgThread = new Thread(ProcessLogMessageThread);
             _logMsgThread.Start();
         }
+
+        //锁定指定窗口，禁止它更新。同时只能有一个窗口处于锁定状态. 传入参数为0时, 解锁.
+        [DllImport("user32.dll")]
+        static extern bool LockWindowUpdate(IntPtr hWndLock);
+
+        public void LockWindowUpdate(bool isLock)
+        {
+            if (isLock)
+            { 
+                //停止绘制窗口
+                LockWindowUpdate(this.Handle);
+            }
+            else
+            {
+                //恢复绘制窗口
+                LockWindowUpdate(IntPtr.Zero);
+            }
+        } 
 
         private void logListViewContextMenu_Popup(object sender, EventArgs e)
         {
