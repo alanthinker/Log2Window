@@ -250,13 +250,15 @@ namespace AlanThinker.MyLog4net
                     if (!this.Client.Connected)
                     {
                         InitializeClientConnection();
-                        var args = new SocketAsyncEventArgs();
-                        args.RemoteEndPoint = this.RemoteEndPoint;
-                        args.Completed += Args_Completed;
-                        connectManualResetEvent.Reset();
-                        if (!Client.ConnectAsync(args)) // ConnectAsync will not raise exception. So it's better than connect here.
+                        using (var args = new SocketAsyncEventArgs()) //立刻是否对象, 否则内存消耗会不断增加. //但经过测试, 似乎最多增加200多M内存, 然后就不增加了. 可能.net内部有一个池保存了SocketAsyncEventArgs对象, 超过数量就会释放多余的对象.
                         {
-                            Args_Completed(Client, args);
+                            args.RemoteEndPoint = this.RemoteEndPoint;
+                            args.Completed += Args_Completed;
+                            connectManualResetEvent.Reset();
+                            if (!Client.ConnectAsync(args)) // ConnectAsync will not raise exception. So it's better than connect here.
+                            {
+                                Args_Completed(Client, args);
+                            }
                         }
 
                         if (!this.Client.Connected)
