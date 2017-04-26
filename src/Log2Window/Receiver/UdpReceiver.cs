@@ -63,6 +63,15 @@ namespace Log2Window.Receiver
             set { _bufferSize = Math.Max(1310720, value); }
         }
 
+        bool _useRemoteIPAsNamespacePrefix;
+        [Category("Configuration")]
+        [DisplayName("Use Remote IP As Namespace Prefix.")]
+        [DefaultValue(false)]
+        public bool UseRemoteIPAsNamespacePrefix
+        {
+            get { return _useRemoteIPAsNamespacePrefix; }
+            set { _useRemoteIPAsNamespacePrefix = value; }
+        }
 
         #region IReceiver Members
 
@@ -148,8 +157,12 @@ Configuration for log4net:
                         continue;
 
                     LogMessage logMsg = ReceiverUtils.ParseLog4JXmlLogEvent(loggingEvent, "UdpLogger");
-                    logMsg.RootLoggerName = _remoteEndPoint.Address.ToString().Replace(".", "-");
-                    logMsg.LoggerName = string.Format("{0}_{1}", _remoteEndPoint.Address.ToString().Replace(".", "-"), logMsg.LoggerName);
+                    if (_useRemoteIPAsNamespacePrefix)
+                    {
+                        logMsg.RootLoggerName = _remoteEndPoint.Address.ToString().Replace(".", "-");
+                        logMsg.LoggerName = string.Format("{0}_{1}", _remoteEndPoint.Address.ToString().Replace(".", "-"), logMsg.LoggerName);
+                    }
+                   
                     if (Notifiable != null)
                         Notifiable.Notify(logMsg);
                 }

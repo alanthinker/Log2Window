@@ -21,8 +21,10 @@ namespace AlanThinker.MyLog4net
         public bool Show_Hostname_Appdomain_Identity_UserName { get; set; }
         public bool ShowNDC { get; set; }
         public bool ShowProperties { get; set; }
+        //设置logName的命名空间前缀, 这样log2window收到多个来源的日志, 就可以很方便的通过前缀来区分了.
+        public string NamespacePrefix { get; set; }
 
-        #endregion  
+        #endregion
 
         protected override void FormatXml(XmlWriter writer, LoggingEvent loggingEvent)
         {
@@ -60,11 +62,16 @@ namespace AlanThinker.MyLog4net
                 {
                     loggingEvent.GetProperties()[LoggingEvent.UserNameProperty] = loggingEvent.UserName;
                 }
-            } 
+            }
 
             // Write the start element
             writer.WriteStartElement("log4j:event");
-            writer.WriteAttributeString("logger", loggingEvent.LoggerName);
+            var newLogName = loggingEvent.LoggerName;
+            if (!string.IsNullOrEmpty(NamespacePrefix))
+            {
+                newLogName = NamespacePrefix + "." + newLogName;
+            }
+            writer.WriteAttributeString("logger", newLogName);
 
             // Calculate the timestamp as the number of milliseconds since january 1970
             // 
@@ -120,7 +127,7 @@ namespace AlanThinker.MyLog4net
                     }
                     writer.WriteEndElement();
                 }
-            } 
+            }
 
             string exceptionStr = loggingEvent.GetExceptionString();
             if (exceptionStr != null && exceptionStr.Length > 0)

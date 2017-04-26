@@ -50,6 +50,16 @@ namespace Log2Window.Receiver
             set { _bufferSize = Math.Max(65536, value); }
         }
 
+        bool _useRemoteIPAsNamespacePrefix;
+        [Category("Configuration")]
+        [DisplayName("Use Remote IP As Namespace Prefix.")]
+        [DefaultValue(false)]
+        public bool UseRemoteIPAsNamespacePrefix
+        {
+            get { return _useRemoteIPAsNamespacePrefix; }
+            set { _useRemoteIPAsNamespacePrefix = value; }
+        }
+
         #endregion
 
         #region IReceiver Members
@@ -149,24 +159,27 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\TestLog4
                                     logMsg.RootLoggerName = logMsg.LoggerName;
                                     //logMsg.LoggerName = string.Format(":{1}.{0}", logMsg.LoggerName, _port); 
 
-                                    var ipEndPoint = socket.RemoteEndPoint as IPEndPoint;
-                                    if (ipEndPoint != null)
+                                    if (_useRemoteIPAsNamespacePrefix)
                                     {
-                                        logMsg.LoggerName = string.Format("{0}.{1}", ipEndPoint.Address.ToString().Replace('.', '_'), logMsg.LoggerName);
-                                    }
-                                    else
-                                    {
-                                        var dnsEndPoint = socket.RemoteEndPoint as DnsEndPoint;
-                                        if (dnsEndPoint != null)
+                                        var ipEndPoint = socket.RemoteEndPoint as IPEndPoint;
+                                        if (ipEndPoint != null)
                                         {
-                                            logMsg.LoggerName = string.Format("{0}.{1}", dnsEndPoint.Host.Replace('.', '_'), logMsg.LoggerName);
+                                            logMsg.LoggerName = string.Format("{0}.{1}", ipEndPoint.Address.ToString().Replace('.', '_'), logMsg.LoggerName);
                                         }
                                         else
                                         {
-                                            // rmove ':' , because same app may have different port number after it restart.
-                                            var fullAddress = socket.RemoteEndPoint.ToString();
-                                            var address = fullAddress.Substring(0, fullAddress.IndexOf(":"));
-                                            logMsg.LoggerName = string.Format("{0}.{1}", address.Replace('.', '_'), logMsg.LoggerName);
+                                            var dnsEndPoint = socket.RemoteEndPoint as DnsEndPoint;
+                                            if (dnsEndPoint != null)
+                                            {
+                                                logMsg.LoggerName = string.Format("{0}.{1}", dnsEndPoint.Host.Replace('.', '_'), logMsg.LoggerName);
+                                            }
+                                            else
+                                            {
+                                                // rmove ':' , because same app may have different port number after it restart.
+                                                var fullAddress = socket.RemoteEndPoint.ToString();
+                                                var address = fullAddress.Substring(0, fullAddress.IndexOf(":"));
+                                                logMsg.LoggerName = string.Format("{0}.{1}", address.Replace('.', '_'), logMsg.LoggerName);
+                                            }
                                         }
                                     }
 
