@@ -112,7 +112,8 @@ namespace Log2Window
                             new MenuItem(Color.LightSeaGreen.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
                         }
                      },
-                     new MenuItem("Clear All Format", new EventHandler(LogListView_MenuClearAllFormat))
+                     new MenuItem("Clear All Format", new EventHandler(LogListView_MenuClearAllFormat)),
+                     new MenuItem("Go to this message without search", new EventHandler(LogListView_GoToThisMessgeWithoutSearch))
                 }
             };
 
@@ -316,6 +317,46 @@ namespace Log2Window
 
             logListView.Refresh();
         }
+
+        private void LogListView_GoToThisMessgeWithoutSearch(object sender, EventArgs e)
+        { 
+            LogMessageItem dataItem;
+            lock (LogManager.Instance.dataLocker)
+            {
+                var menuItem = sender as MenuItem;
+                var selectedIndex = logListView.SelectedIndices[0];
+                dataItem = LogManager.Instance._dataSource[selectedIndex];
+                
+            }
+
+            using (new AutoWaitCursor())
+            {
+                try
+                {
+                    LogManager.Instance.SearchText("");
+                }
+                finally
+                {
+                    ReBindListViewFromAllLogMessageItems();
+                }
+            }
+
+            lock (LogManager.Instance.dataLocker)
+            {
+                var selectedIndex = 0;
+                while (LogManager.Instance._dataSource[selectedIndex].Message.ArrivedId < dataItem.Message.ArrivedId)
+                {
+                    selectedIndex++;
+                }
+
+                logListView.EnsureVisible(selectedIndex);
+                logListView.SelectedIndices.Clear();
+                logListView.SelectedIndices.Add(selectedIndex);
+            }
+
+            logListView.Refresh();
+        }
+        
 
 
         private const int WM_SIZE = 0x0005;
