@@ -365,7 +365,22 @@ namespace AlanThinker.MyLog4net
                     (this.Client as IDisposable).Dispose();
                 }
 
-                this.Client = new Socket(RemoteAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                while (true)
+                {
+                    this.Client = new Socket(RemoteAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    // 手动 bind 的目的就是预先找一个不会和 RemotePort 冲突的端口.
+                    // 因为当log2window 没打开的时候, 每秒都会重新连接一次, 很可能导致新分配的端口和 RemotePort 相同.
+                    this.Client.Bind(new IPEndPoint(IPAddress.Loopback, 0));//0 表示系统自动分配的端口.
+                    if (((IPEndPoint)this.Client.LocalEndPoint).Port == RemotePort)
+                    {
+                        //不允许等于RemotePort, 会导致自己连接自己, 并导致真正的 log2window 无法监听.
+                        (this.Client as IDisposable).Dispose();
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
                 this.Client.SendTimeout = 5 * 1000;
             }
             catch (Exception ex)
