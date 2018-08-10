@@ -20,7 +20,7 @@ namespace Log2Window.Settings
         internal static readonly Color DefaultTraceLevelColor = Color.Gray;
         internal static readonly Color DefaultDebugLevelColor = Color.Black;
         internal static readonly Color DefaultInfoLevelColor = Color.Green;
-        internal static readonly Color DefaultWarnLevelColor = Color.Orange;
+        internal static readonly Color DefaultWarnLevelColor = Color.DarkGoldenrod;
         internal static readonly Color DefaultErrorLevelColor = Color.Red;
         internal static readonly Color DefaultFatalLevelColor = Color.Purple;
 
