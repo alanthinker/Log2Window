@@ -8,7 +8,9 @@ alanInit
 mydir=$startScriptDir
  
 #######################        #######################   
-msbuild="C:/Program Files (x86)/MSBuild/14.0/Bin/MSBuild.exe"
+if [ "$msbuild" == "" ] ; then
+	showErrorAndExit "系统环境变量msbuild必须设置到MSBuild.exe的路径" 
+fi  
 
 rm -rf d:/temp/Log2Window
 checkIfActionError "清空目录出错 $LINENO"  
