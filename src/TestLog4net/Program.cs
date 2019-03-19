@@ -37,15 +37,13 @@ namespace Test
             ////    EventLog.CreateEventSource("log4net", "Application");
             ////}
 
-            ConsoleKeyInfo key = new ConsoleKeyInfo();
-            while (key.Key != ConsoleKey.X)
-            {
-
-                DoLog(key.KeyChar);
-
+            string cmd = Console.ReadLine();
+            while ("" != cmd)
+            { 
+                DoLog(cmd); 
 
                 DoWinDebug();
-                key = Console.ReadKey();
+                cmd = Console.ReadLine();
             }
         }
 
@@ -79,18 +77,26 @@ namespace Test
             //Console.WriteLine("End Doing WinDebug!");
         }
 
-        static void DoLog(char keyChar)
+        static void DoLog(string cmd)
         {
             Console.WriteLine("\nBegin Doing Log!");
             Console.WriteLine(DateTime.Now);
-            if (Char.ToLower(keyChar) == 'b')
+            if (cmd.ToLower() == "b")
             {
                 for (int i = 0; i < 1000000; i++)
                 {
                     _log.Info(i);
                 }
             }
-            else if (Char.ToLower(keyChar) == 't')
+            if (cmd.ToLower() == "b2")
+            {
+                string data = File.ReadAllText(@"d:\Projects\github\Log2Window\src\TestLog4net\testDatas.txt");
+                for (int i = 0; i < 100; i++)
+                {
+                    _log.Info(i+" "+ data);
+                }
+            }
+            else if (cmd.ToLower() == "t")
             {
                 for (int i = 0; i < 10; i++)
                 {
@@ -104,11 +110,11 @@ namespace Test
                     }, log);
                 }
             }
-            else if (keyChar >= '1' && keyChar <= '9')
+            else if (cmd[0] >= '1' && cmd[0] <= '9')
             {
-                _log.Info(keyChar);
+                _log.Info(cmd);
             }
-            else if (Char.ToLower(keyChar) == 'e')
+            else if (cmd.ToLower()  == "e")
             {
                 try
                 {
@@ -120,7 +126,7 @@ namespace Test
                     _log.Error("TestEx", ex);
                 }
             }
-            else if (Char.ToLower(keyChar) == 'c')
+            else if (cmd.ToLower()  == "c")
             {
                 for (int i = 0; i < 10; i++)
                 {

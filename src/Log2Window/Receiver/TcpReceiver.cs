@@ -150,8 +150,7 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\TestLog4
                             while (_socket != null
                                 && (temp = sr.Read()) != -1)
                             {
-                                sb.Append((char)temp);
-                                var str2 = sb.ToString();
+                                sb.Append((char)temp); 
                                 if (IsEndWith(sb, log4jEndTag))
                                 {
                                     var str = sb.ToString();
