@@ -18,6 +18,7 @@ namespace Log2Window.Log
         private LoggerItem _rootLoggerItem;
         private Dictionary<string, LoggerItem> _fullPathLoggers;
         public ListView _logListView;
+        internal ulong manulSelectedArrivedId;
 
         public bool IsDelay { get; set; }
 
@@ -66,9 +67,10 @@ namespace Log2Window.Log
             lock (dataLocker)
             {
                 _allLogMessageItems.Clear();
-                _dataSource.Clear();
-
+                _dataSource.Clear();                
                 MainForm.Instance.ReBindListViewFromAllLogMessageItems();
+
+                GC.Collect();
             }
         }
 
@@ -101,29 +103,34 @@ namespace Log2Window.Log
                     _dataSource.Enqueue(item);
                 }
 
-                var maxCount = Settings.UserSettings.Instance.MessageCycleCount;
-                if (maxCount > 0)
-                {
-                    while (_allLogMessageItems.Count > maxCount)
-                    {
-                        var tobeRemoveItem = _allLogMessageItems[0];
-                        _allLogMessageItems.Dequeue();
-                        if (_dataSource.Count > 0
-                            && !LogManager.Instance.PauseRefreshNewMessages
-                            )
-                        { 
-                            //remove all messages which ArrivedId <= tobeRemoveItem's ArrivedId.
-                            while (_dataSource.Peek().Message.ArrivedId <= tobeRemoveItem.Message.ArrivedId)
-                            {
-                                _dataSource.Dequeue();
-                            }
-                        } 
-                    }
-                }
+                // 只在 TryEnsureVisibleForSuitableItems 函数中调用 DequeueMoreThanMaxCount, 防止新增消息的时候, 影响listview的index指向的实际行.
+                //DequeueMoreThanMaxCount(); 
             }
 
         }
 
+        public void DequeueMoreThanMaxCount()
+        {
+            var maxCount = Settings.UserSettings.Instance.MessageCycleCount;
+            if (maxCount > 0)
+            {
+                while (_allLogMessageItems.Count > maxCount)
+                {
+                    var tobeRemoveItem = _allLogMessageItems[0];
+                    _allLogMessageItems.Dequeue();
+                    if (_dataSource.Count > 0
+                        && !LogManager.Instance.PauseRefreshNewMessages
+                        )
+                    {
+                        //remove all messages which ArrivedId <= tobeRemoveItem's ArrivedId.
+                        while (_dataSource.Peek().Message.ArrivedId <= tobeRemoveItem.Message.ArrivedId)
+                        {
+                            _dataSource.Dequeue();
+                        }
+                    }
+                }
+            }
+        }
 
         public void SearchText(string str)
         {
@@ -143,5 +150,7 @@ namespace Log2Window.Log
         {
             RootLoggerItem.Name = name;
         }
+
+        internal bool inSetSelectedIndicesByCode;
     }
 }

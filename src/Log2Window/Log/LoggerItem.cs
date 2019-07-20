@@ -298,7 +298,7 @@ namespace Log2Window.Log
                     item.Enabled = false;
                 }
 
-                TryEnsureVisibleLastItem(_logListView);
+                TryEnsureVisibleForSuitableItems(_logListView);
             }
 
             return item;
@@ -308,13 +308,10 @@ namespace Log2Window.Log
         public static ulong lastEnsureVisibleArrivedId = 0;
         public static TimeSpan EnsureVisiblePeroid = TimeSpan.FromSeconds(0.1);
 
-        public static void TryEnsureVisibleLastItem(ListView logListView)
+        public static void TryEnsureVisibleForSuitableItems(ListView logListView)
         {
             try
-            {
-                if (LogManager.Instance.PauseRefreshNewMessages)
-                    return;
-
+            { 
                 if (lastEnsureVisibleTime > DateTime.Now) //PC time may changed by user.
                     lastEnsureVisibleTime = DateTime.Now - EnsureVisiblePeroid - EnsureVisiblePeroid; //let EnsureVisible trigger at once.
 
@@ -324,21 +321,30 @@ namespace Log2Window.Log
                     {
                         lock (LogManager.Instance.dataLocker)
                         {
+                            LogManager.Instance.DequeueMoreThanMaxCount();
+
+                            if (LogManager.Instance.PauseRefreshNewMessages)
+                                return;
+
+                            bool needEnsureVisible = false;
                             //当用户点击了较为靠前的元素后, 设置的logListView.VirtualListSize导致用户点击的元素不在最后一页时, 窗口会先定位到用户先前点击的元素上, 然后在移动到最后, 导致闪烁.
                             // 用代码清空SelectedIndices或者设置SelectedIndices到最后的元素也不行. 似乎电脑记住了用户点击的元素.
                             // SuspendLayout不能阻止设置VirtualListSize时的刷新. 
-                            // 因此使用LockWindowUpdate强制不更新此窗体. 当所有的设置结束后再显示窗口的最后状态.
-                            MainForm.Instance.LockWindowUpdate(true);
+                            // LockWindowUpdate api 也不通用: https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-lockwindowupdate
+                            // 因此使用SetRedraw(false)强制不更新此窗体. 当所有的设置结束后再显示窗口的最后状态.
+                            MainForm.Instance.SetRedraw(false);
 
                             try
                             {
                                 for (int i = 0; i < 10; i++)//最多重试10次. 其实第一次抛出异常的时候, VirtualListSize 的值已经设置成功了. 第二次的时候, 因为 if 判断就已经相等了, 其实就不会出错了.
-                                { 
+                                {
                                     try
                                     {
                                         if (logListView.VirtualListSize != LogManager.Instance._dataSource.Count)
                                         {
+                                            Utils.log.Debug("set VirtualListSize in TryEnsureVisibleForSuitableItems");
                                             logListView.VirtualListSize = LogManager.Instance._dataSource.Count;
+                                            needEnsureVisible = true;
                                         }
                                         break;
                                     }
@@ -346,16 +352,49 @@ namespace Log2Window.Log
                                     {
                                         Utils.log.Error(ex.Message, ex);
                                         Thread.Sleep(100);
-                                    }                                    
+                                    }
                                 }
 
-                                if (LogManager.Instance._dataSource.Count > 0
-                                )
+                                if (LogManager.Instance._dataSource.Count > 0)
                                 {
-                                    var index = LogManager.Instance._dataSource.Count - 1;
-                                    var thisArrivedId = LogManager.Instance._dataSource[index].Message.ArrivedId;
+                                    int index = 0;
+                                    ulong thisArrivedId;
+                                    if (logListView.SelectedIndices.Count > 0)
+                                    {
+                                        index = logListView.SelectedIndices[0];
+                                    }
+                                    if (LogManager.Instance.manulSelectedArrivedId > 0)
+                                    {
+                                        if (LogManager.Instance._dataSource[index].Message.ArrivedId != LogManager.Instance.manulSelectedArrivedId)
+                                        {
+                                            index = 0;
+                                            while (LogManager.Instance._dataSource[index].Message.ArrivedId < LogManager.Instance.manulSelectedArrivedId
+                                                && index < LogManager.Instance._dataSource.Count - 1)
+                                            {
+                                                index++;
+                                            }
+
+                                            //如果当前界面包含选中的元素(没被条件过滤掉了), 后面才有必要让窗口强行刷新到 index 位置.
+                                            if (LogManager.Instance._dataSource[index].Message.ArrivedId == LogManager.Instance.manulSelectedArrivedId)
+                                            { 
+                                                needEnsureVisible = true;
+                                            }
+                                        }
+
+                                        thisArrivedId = LogManager.Instance._dataSource[index].Message.ArrivedId;
+                                    }
+                                    else
+                                    {
+                                        index = LogManager.Instance._dataSource.Count - 1;
+                                        thisArrivedId = LogManager.Instance._dataSource[index].Message.ArrivedId;
+                                    }
 
                                     if (thisArrivedId != lastEnsureVisibleArrivedId)
+                                    {
+                                        needEnsureVisible = true;
+                                    }
+
+                                    if (needEnsureVisible)
                                     {
                                         var speed = (double)(thisArrivedId - lastEnsureVisibleArrivedId) / Math.Max(0.01, (DateTime.Now - lastEnsureVisibleTime).Seconds);
                                         //Utils.log.Debug("speed:" + speed);
@@ -363,12 +402,23 @@ namespace Log2Window.Log
                                         //  如果1秒收到1000个消息, 那1秒后再收.
                                         //  如果1秒收到100个消息, 那0.1秒后再收.
                                         EnsureVisiblePeroid = TimeSpan.FromSeconds(Math.Max(0.1, Math.Min(1, speed / 1000)));
-                                        Utils.log.Debug("EnsureVisiblePeroid:" + EnsureVisiblePeroid + " speed:" + speed + " index:" + index);
+                                        Utils.log.Debug("EnsureVisiblePeroid:" + EnsureVisiblePeroid + " speed:" + speed + " index:" + index + " thisArrivedId:" + thisArrivedId);
                                         LoggerItem.lastEnsureVisibleTime = DateTime.Now;
                                         lastEnsureVisibleArrivedId = thisArrivedId;
 
+                                        try
+                                        {
+                                            LogManager.Instance.inSetSelectedIndicesByCode = true;
+                                            logListView.SelectedIndices.Clear();
+                                            logListView.SelectedIndices.Add(index);
+                                        }
+                                        finally
+                                        {
+                                            LogManager.Instance.inSetSelectedIndicesByCode = false;
+                                        }
+
                                         logListView.EnsureVisible(index);
-                                        //logListView.SelectedIndices.Add(index);
+                                        //logListView.Refresh();
 
                                         MainForm.Instance.RefreshTitle();
 
@@ -378,8 +428,8 @@ namespace Log2Window.Log
                                                 && LogManager.Instance._dataSource.Count >= UserSettings.Instance.MessageCycleCount
                                             )
                                         {
-                                            //now SelectedIndices is wrong, because same index is not same arrivedId now.
-                                            logListView.SelectedIndices.Clear();
+                                            ////now SelectedIndices is wrong, because same index is not same arrivedId now.
+                                            //logListView.SelectedIndices.Clear();
                                             logListView.Refresh();
                                         }
                                     }
@@ -387,7 +437,7 @@ namespace Log2Window.Log
                             }
                             finally
                             {
-                                MainForm.Instance.LockWindowUpdate(false);
+                                MainForm.Instance.SetRedraw(true);
                             }
                         }
                     }));

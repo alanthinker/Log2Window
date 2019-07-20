@@ -319,7 +319,7 @@ namespace Log2Window.Settings
         [Category("Logging")]
         [Description("When greater than 0, the log messages are limited to that number. Like a queue First-In-First-Out.")]
         [DisplayName("Message Cycle Count")]
-        [DefaultValue(1000000)]
+        [DefaultValue(1000000)] //100万条消息, 大概需要500M到1G的内存. 
         public int MessageCycleCount
         {
             get { return _messageCycleCount; }

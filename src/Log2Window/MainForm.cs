@@ -73,6 +73,8 @@ namespace Log2Window
 
             appNotifyIcon.Text = AboutForm.AssemblyTitle;
 
+            this.logListView.Click += LogListView_Click;
+
             //levelComboBox.SelectedIndex = 0;
 
             Minimized += OnMinimized;
@@ -90,7 +92,7 @@ namespace Log2Window
                      new MenuItem("BackColor This Thread") {
                          MenuItems = {
                             new MenuItem(Color.Orange.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },
-                            new MenuItem(Color.LightCoral.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },                            
+                            new MenuItem(Color.LightCoral.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },
                             new MenuItem(Color.LightYellow.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },
                             new MenuItem(Color.LightBlue.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },
                             new MenuItem(Color.LightCyan.Name,new EventHandler(LogListView_MenuBackColorThisThread)) {  },
@@ -103,7 +105,7 @@ namespace Log2Window
                      new MenuItem("BackColor This Category") {
                          MenuItems = {
                             new MenuItem(Color.Orange.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
-                            new MenuItem(Color.LightCoral.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },                            
+                            new MenuItem(Color.LightCoral.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
                             new MenuItem(Color.LightYellow.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
                             new MenuItem(Color.LightBlue.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
                             new MenuItem(Color.LightCyan.Name,new EventHandler(LogListView_MenuBackColorThisCategory)) {  },
@@ -113,7 +115,7 @@ namespace Log2Window
                         }
                      },
                      new MenuItem("Clear All Format", new EventHandler(LogListView_MenuClearAllFormat)),
-                     new MenuItem("Go to this message without search", new EventHandler(LogListView_GoToThisMessgeWithoutSearch))
+                     //new MenuItem("Go to this message without search", new EventHandler(LogListView_GoToThisMessgeWithoutSearch))
                 }
             };
 
@@ -171,25 +173,37 @@ namespace Log2Window
 
             _logMsgThread = new Thread(ProcessLogMessageThread);
             _logMsgThread.Start();
-        }
+        } 
 
-        //锁定指定窗口，禁止它更新。同时只能有一个窗口处于锁定状态. 传入参数为0时, 解锁.
-        [DllImport("user32.dll")]
-        static extern bool LockWindowUpdate(IntPtr hWndLock);
-
-        public void LockWindowUpdate(bool isLock)
+        public void SetRedraw(bool isRedraw)
         {
-            if (isLock)
-            { 
-                //停止绘制窗口
-                LockWindowUpdate(this.Handle);
+            if (isRedraw)
+            {
+                //恢复绘制窗口
+                ResumeDrawing(this);                
             }
             else
             {
-                //恢复绘制窗口
-                LockWindowUpdate(IntPtr.Zero);
+                //停止绘制窗口
+                SuspendDrawing(this);
             }
-        } 
+        }
+
+        [DllImport("user32.dll")]
+        public static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
+        private const int WM_SETREDRAW = 11;
+
+        public static void SuspendDrawing(Control Target)
+        {
+            SendMessage(Target.Handle, WM_SETREDRAW, false, 0);
+        }
+
+        public static void ResumeDrawing(Control Target)
+        {
+            SendMessage(Target.Handle, WM_SETREDRAW, true, 0);
+            Target.Invalidate(true);
+            //Target.Update();
+        }
 
         private void logListViewContextMenu_Popup(object sender, EventArgs e)
         {
@@ -318,45 +332,45 @@ namespace Log2Window
             logListView.Refresh();
         }
 
-        private void LogListView_GoToThisMessgeWithoutSearch(object sender, EventArgs e)
-        { 
-            LogMessageItem dataItem;
-            lock (LogManager.Instance.dataLocker)
-            {
-                var menuItem = sender as MenuItem;
-                var selectedIndex = logListView.SelectedIndices[0];
-                dataItem = LogManager.Instance._dataSource[selectedIndex];
-                
-            }
+        //private void LogListView_GoToThisMessgeWithoutSearch(object sender, EventArgs e)
+        //{
+        //    LogMessageItem dataItem;
+        //    lock (LogManager.Instance.dataLocker)
+        //    {
+        //        var menuItem = sender as MenuItem;
+        //        var selectedIndex = logListView.SelectedIndices[0];
+        //        dataItem = LogManager.Instance._dataSource[selectedIndex];
 
-            using (new AutoWaitCursor())
-            {
-                try
-                {
-                    LogManager.Instance.SearchText("");
-                }
-                finally
-                {
-                    ReBindListViewFromAllLogMessageItems();
-                }
-            }
+        //    }
 
-            lock (LogManager.Instance.dataLocker)
-            {
-                var selectedIndex = 0;
-                while (LogManager.Instance._dataSource[selectedIndex].Message.ArrivedId < dataItem.Message.ArrivedId)
-                {
-                    selectedIndex++;
-                }
+        //    using (new AutoWaitCursor())
+        //    {
+        //        try
+        //        {
+        //            LogManager.Instance.SearchText("");
+        //        }
+        //        finally
+        //        {
+        //            ReBindListViewFromAllLogMessageItems();
+        //        }
+        //    }
 
-                logListView.EnsureVisible(selectedIndex);
-                logListView.SelectedIndices.Clear();
-                logListView.SelectedIndices.Add(selectedIndex);
-            }
+        //    lock (LogManager.Instance.dataLocker)
+        //    {
+        //        var selectedIndex = 0;
+        //        while (LogManager.Instance._dataSource[selectedIndex].Message.ArrivedId < dataItem.Message.ArrivedId)
+        //        {
+        //            selectedIndex++;
+        //        }
 
-            logListView.Refresh();
-        }
-        
+        //        logListView.EnsureVisible(selectedIndex);
+        //        logListView.SelectedIndices.Clear();
+        //        logListView.SelectedIndices.Add(selectedIndex);
+        //    }
+
+        //    logListView.Refresh();
+        //}
+
 
 
         private const int WM_SIZE = 0x0005;
@@ -808,7 +822,7 @@ namespace Log2Window
 
                     if (_logMsgThread != null)
                     {
-                        LoggerItem.TryEnsureVisibleLastItem(logListView);
+                        LoggerItem.TryEnsureVisibleForSuitableItems(logListView);
                     }
                 }
                 catch (ThreadAbortException ex)
@@ -837,15 +851,29 @@ namespace Log2Window
             }
         }
 
+        private void LogListView_Click(object sender, EventArgs e)
+        {
+            //if (logListView.SelectedIndices.Count > 0)
+            //{
+            //    LogMessageItem logMsgItem = LogManager.Instance._dataSource[logListView.SelectedIndices[0]];
+            //    LogManager.Instance.manulSelectedArrivedId = logMsgItem.Message.ArrivedId;
+            //}
+        }
+
         private void logListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-
             LogMessageItem logMsgItem = null;
             if (logListView.SelectedIndices.Count > 0)
+            {
                 logMsgItem = LogManager.Instance._dataSource[logListView.SelectedIndices[0]];
 
-            SetLogMessageDetail(logMsgItem);
+                if (!LogManager.Instance.inSetSelectedIndicesByCode)
+                {
+                    LogManager.Instance.manulSelectedArrivedId = logMsgItem.Message.ArrivedId;
+                }
+            }
 
+            SetLogMessageDetail(logMsgItem);
         }
 
         private void ClearLogMessageDetail()
@@ -1253,12 +1281,36 @@ namespace Log2Window
 
                 if (LogManager.Instance._dataSource.Count > 0)
                 {
-                    var lastIndex = LogManager.Instance._dataSource.Count - 1;
-                    var thisArrivedId = LogManager.Instance._dataSource[lastIndex].Message.ArrivedId;
+                    int lastIndex;
+                    ulong thisArrivedId;
+                    if (LogManager.Instance.manulSelectedArrivedId > 0)
+                    {
+                        lastIndex = 0;
+                        while (LogManager.Instance._dataSource[lastIndex].Message.ArrivedId < LogManager.Instance.manulSelectedArrivedId
+                            && lastIndex < LogManager.Instance._dataSource.Count - 1)
+                        {
+                            lastIndex++;
+                        }
+                        thisArrivedId = LogManager.Instance._dataSource[lastIndex].Message.ArrivedId;
+                    }
+                    else
+                    {
+                        lastIndex = LogManager.Instance._dataSource.Count - 1;
+                        thisArrivedId = LogManager.Instance._dataSource[lastIndex].Message.ArrivedId;
+                    }
+
                     LoggerItem.lastEnsureVisibleArrivedId = thisArrivedId;
                     logListView.EnsureVisible(lastIndex);
-                    logListView.SelectedIndices.Clear();
-                    logListView.SelectedIndices.Add(lastIndex);
+                    try
+                    {
+                        LogManager.Instance.inSetSelectedIndicesByCode = true;
+                        logListView.SelectedIndices.Clear();
+                    }
+                    finally
+                    {
+                        LogManager.Instance.inSetSelectedIndicesByCode = false;
+                    }
+
                 }
 
                 this.RefreshTitle();
@@ -1301,6 +1353,7 @@ namespace Log2Window
                 logListView.EnsureVisible(LogManager.Instance._dataSource.Count - 1);
                 logListView.SelectedIndices.Clear();
                 logListView.SelectedIndices.Add(LogManager.Instance._dataSource.Count - 1);
+                LogManager.Instance.manulSelectedArrivedId = 0;
             }
         }
 
@@ -1388,7 +1441,7 @@ namespace Log2Window
                     tabControlDetail.SelectedTab = tabSource;
                 }
             }
-        } 
+        }
 
         EventLogReceiver eventLogReceiver;
 

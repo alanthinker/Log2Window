@@ -38,11 +38,13 @@ namespace Test
             ////}
 
             string cmd = Console.ReadLine();
-            while ("" != cmd)
-            { 
-                DoLog(cmd); 
-
-                DoWinDebug();
+            while ("end" != cmd)
+            {
+                if (cmd != "")
+                {
+                    DoLog(cmd);
+                    DoWinDebug();
+                }
                 cmd = Console.ReadLine();
             }
         }
@@ -93,7 +95,7 @@ namespace Test
                 string data = File.ReadAllText(@"d:\Projects\github\Log2Window\src\TestLog4net\testDatas.txt");
                 for (int i = 0; i < 100; i++)
                 {
-                    _log.Info(i+" "+ data);
+                    _log.Info(i + " " + data);
                 }
             }
             else if (cmd.ToLower() == "t")
@@ -114,7 +116,7 @@ namespace Test
             {
                 _log.Info(cmd);
             }
-            else if (cmd.ToLower()  == "e")
+            else if (cmd.ToLower() == "e")
             {
                 try
                 {
@@ -126,7 +128,7 @@ namespace Test
                     _log.Error("TestEx", ex);
                 }
             }
-            else if (cmd.ToLower()  == "c")
+            else if (cmd.ToLower() == "c")
             {
                 for (int i = 0; i < 10; i++)
                 {
