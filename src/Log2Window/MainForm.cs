@@ -179,13 +179,14 @@ namespace Log2Window
         {
             if (isRedraw)
             {
-                //恢复绘制窗口
-                ResumeDrawing(this);                
+                //恢复绘制
+                ResumeDrawing(this.logListView);                
             }
             else
             {
-                //停止绘制窗口
-                SuspendDrawing(this);
+                //停止绘制, 
+                //注意, 不要传递最外层的窗口, 建议只传递窗口中的一个控件, 否则会导致整个窗口消失, 点击的时候会点击到窗口后面的的其他窗口上. 导致误操作
+                SuspendDrawing(this.logListView);
             }
         }
 
@@ -195,6 +196,7 @@ namespace Log2Window
 
         public static void SuspendDrawing(Control Target)
         {
+            //注意, 不要传递最外层的窗口, 建议只传递窗口中的一个控件, 否则会导致整个窗口消失, 点击的时候会点击到窗口后面的的其他窗口上. 导致误操作
             SendMessage(Target.Handle, WM_SETREDRAW, false, 0);
         }
 
