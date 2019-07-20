@@ -23,8 +23,10 @@ namespace Log2Window
             //  - AssemblyInfo.cs
             Text = String.Format("About {0}", AssemblyTitle);
             labelProductName.Text = AssemblyProduct;
-            labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
-            this.labelCompileTime.Text = "CompileTime " + Utils.GetPeTime(Assembly.GetExecutingAssembly().Location).ToString("yyyy-MM-dd HH:mm:ss");
+            var compileTime = Utils.GetPeTimeInBeijingTime(Assembly.GetExecutingAssembly().Location).ToString("yyyy-MM-dd HH:mm:ss");
+            //labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
+            labelVersion.Text = String.Format("Version {0}", compileTime);
+            this.labelCompileTime.Text = "CompileTime (UTC+08) " + compileTime;
          
             List<string> lines = new List<string>();
             lines.Add(AssemblyDescription);

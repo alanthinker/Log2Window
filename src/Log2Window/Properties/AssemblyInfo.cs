@@ -28,5 +28,6 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("2.1.3.0")]
+//自2000年1月1日以来的天数作为内部版本号，以及自午夜以来的秒数除以2作为修订版, 注意, 必须给星号留够后面2位
+[assembly: AssemblyVersion("2.2.*")]
  

@@ -168,7 +168,7 @@ namespace Log2Window
             writer.WriteEndElement();
         }
 
-        public static DateTime GetPeTime(string fileName)
+        public static DateTime GetPeTimeInBeijingTime(string fileName)
         {
             int seconds;
             using (var br = new BinaryReader(new FileStream(fileName, FileMode.Open, FileAccess.Read)))
@@ -187,8 +187,13 @@ namespace Log2Window
                 if (bs.Length != 4) throw new Exception(msg);
                 seconds = br.ReadInt32();
             }
-            return DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc).
-              AddSeconds(seconds).ToLocalTime();
+
+            var utcTime = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc).
+              AddSeconds(seconds);
+
+            var beijingTime = TimeZoneInfo.ConvertTime(utcTime,
+                  TimeZoneInfo.CreateCustomTimeZone("beijingTime", TimeSpan.FromHours(8), "", ""));
+            return beijingTime;
         }
     }
 }
