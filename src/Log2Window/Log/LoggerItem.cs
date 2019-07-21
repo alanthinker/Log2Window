@@ -421,9 +421,11 @@ namespace Log2Window.Log
                                             else
                                             {
                                                 logListView.SelectedIndices.Clear();
-                                                logListView.SelectedIndices.Add(index);
+                                                if (LogManager.Instance._dataSource[index].Message.ArrivedId == LogManager.Instance.manulSelectedArrivedId)
+                                                {
+                                                    logListView.SelectedIndices.Add(index);
+                                                }
                                             }
-
                                         }
                                         finally
                                         {

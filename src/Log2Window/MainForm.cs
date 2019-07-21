@@ -1307,6 +1307,10 @@ namespace Log2Window
                     {
                         LogManager.Instance.inSetSelectedIndicesByCode = true;
                         logListView.SelectedIndices.Clear();
+                        if (LogManager.Instance._dataSource[lastIndex].Message.ArrivedId == LogManager.Instance.manulSelectedArrivedId)
+                        {
+                            logListView.SelectedIndices.Add(lastIndex);
+                        }
                     }
                     finally
                     {
