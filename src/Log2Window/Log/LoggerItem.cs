@@ -311,7 +311,7 @@ namespace Log2Window.Log
         public static void TryEnsureVisibleForSuitableItems(ListView logListView)
         {
             try
-            { 
+            {
                 if (lastEnsureVisibleTime > DateTime.Now) //PC time may changed by user.
                     lastEnsureVisibleTime = DateTime.Now - EnsureVisiblePeroid - EnsureVisiblePeroid; //let EnsureVisible trigger at once.
 
@@ -321,6 +321,7 @@ namespace Log2Window.Log
                     {
                         lock (LogManager.Instance.dataLocker)
                         {
+                            var islogListViewFocused = logListView.Focused;
                             LogManager.Instance.DequeueMoreThanMaxCount();
 
                             if (LogManager.Instance.PauseRefreshNewMessages)
@@ -334,6 +335,7 @@ namespace Log2Window.Log
                             // 因此使用SetRedraw(false)强制不更新此窗体. 当所有的设置结束后再显示窗口的最后状态.
                             MainForm.Instance.SetRedraw(false);
 
+
                             try
                             {
                                 for (int i = 0; i < 10; i++)//最多重试10次. 其实第一次抛出异常的时候, VirtualListSize 的值已经设置成功了. 第二次的时候, 因为 if 判断就已经相等了, 其实就不会出错了.
@@ -342,6 +344,8 @@ namespace Log2Window.Log
                                     {
                                         if (logListView.VirtualListSize != LogManager.Instance._dataSource.Count)
                                         {
+                                            logListView.Hide(); //当选中的行不再可视范围内时, 修改 VirtualListSize 会导致画面抖动. 即时设置了 MainForm.Instance.SetRedraw(false); 也无法解决, 因此这里先隐藏.
+                                            
                                             Utils.log.Debug("set VirtualListSize in TryEnsureVisibleForSuitableItems");
                                             logListView.VirtualListSize = LogManager.Instance._dataSource.Count;
                                             needEnsureVisible = true;
@@ -376,7 +380,7 @@ namespace Log2Window.Log
 
                                             //如果当前界面包含选中的元素(没被条件过滤掉了), 后面才有必要让窗口强行刷新到 index 位置.
                                             if (LogManager.Instance._dataSource[index].Message.ArrivedId == LogManager.Instance.manulSelectedArrivedId)
-                                            { 
+                                            {
                                                 needEnsureVisible = true;
                                             }
                                         }
@@ -409,15 +413,29 @@ namespace Log2Window.Log
                                         try
                                         {
                                             LogManager.Instance.inSetSelectedIndicesByCode = true;
-                                            logListView.SelectedIndices.Clear();
-                                            logListView.SelectedIndices.Add(index);
+                                            if (logListView.SelectedIndices.Count == 1 && logListView.SelectedIndices[0] == index)
+                                            {
+                                                //如果索引没变, 没必要再设置, 会触发index change事件.
+                                                // do nothing 
+                                            }
+                                            else
+                                            {
+                                                logListView.SelectedIndices.Clear();
+                                                logListView.SelectedIndices.Add(index);
+                                            }
+
                                         }
                                         finally
                                         {
                                             LogManager.Instance.inSetSelectedIndicesByCode = false;
                                         }
 
-                                        logListView.EnsureVisible(index);
+                                        if (thisArrivedId != lastEnsureVisibleArrivedId 
+                                            || LogManager.Instance.manulSelectedArrivedId == 0 //未选中任何行, 需要定位到最后一行
+                                        )
+                                        {
+                                            logListView.EnsureVisible(index);
+                                        }
                                         //logListView.Refresh();
 
                                         MainForm.Instance.RefreshTitle();
@@ -437,7 +455,13 @@ namespace Log2Window.Log
                             }
                             finally
                             {
-                                MainForm.Instance.SetRedraw(true);
+                                logListView.Show();
+                                if (islogListViewFocused)
+                                {
+                                    logListView.Focus();
+                                }
+
+                                MainForm.Instance.SetRedraw(true);                                
                             }
                         }
                     }));

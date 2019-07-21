@@ -1316,6 +1316,7 @@ namespace Log2Window
                 }
 
                 this.RefreshTitle();
+                logListView.Focus();
                 //}
             }
         }

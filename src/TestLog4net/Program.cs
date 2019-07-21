@@ -90,6 +90,14 @@ namespace Test
                     _log.Info(i);
                 }
             }
+            if (cmd.ToLower() == "b3")
+            {
+                for (int i = 0; i < 10000; i++)
+                {
+                    _log.Info(i);
+                    Thread.Sleep(100);
+                }
+            }
             if (cmd.ToLower() == "b2")
             {
                 string data = File.ReadAllText(@"d:\Projects\github\Log2Window\src\TestLog4net\testDatas.txt");
