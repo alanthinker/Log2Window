@@ -50,8 +50,9 @@ namespace Log2Window.Log
         private bool _enabled = true;
         public bool _messagesDeleted = false;
 
-        private string _searchedText;
-        private bool _hasSearchedText;
+        //需要使用全局变量, 不然新创建的 LoggerItem 没有这些属性的正确值
+        private static string _searchedText;
+        private static bool _hasSearchedText;
 
 
         private LoggerItem()
@@ -308,12 +309,30 @@ namespace Log2Window.Log
         public static ulong lastEnsureVisibleArrivedId = 0;
         public static TimeSpan EnsureVisiblePeroid = TimeSpan.FromSeconds(0.1);
 
+        public static DateTime lastGCTime = DateTime.MinValue;
+        public static TimeSpan GCPeroid = TimeSpan.FromSeconds(60);
+
+        private static long MaxAllowedMemory = (long)5 * 1024 * 1024 * 1024;//5G
+
         public static void TryEnsureVisibleForSuitableItems(ListView logListView)
         {
             try
             {
                 if (lastEnsureVisibleTime > DateTime.Now) //PC time may changed by user.
                     lastEnsureVisibleTime = DateTime.Now - EnsureVisiblePeroid - EnsureVisiblePeroid; //let EnsureVisible trigger at once.
+
+                if (DateTime.Now - lastGCTime > GCPeroid)
+                {
+                    GC.Collect();
+                    var mem = GC.GetTotalMemory(false);
+                    if (mem > MaxAllowedMemory)
+                    {
+                        //占用内存太多, 强制退出, 防止程序耗尽服务器的内存.
+                        Utils.log.Fatal($"GC.GetTotalMemory(false)={mem}, force exit.");
+                        Environment.Exit(-1);
+                    }
+                    lastGCTime = DateTime.Now;
+                }
 
                 if (DateTime.Now - lastEnsureVisibleTime > EnsureVisiblePeroid)
                 {
@@ -345,7 +364,7 @@ namespace Log2Window.Log
                                         if (logListView.VirtualListSize != LogManager.Instance._dataSource.Count)
                                         {
                                             logListView.Hide(); //当选中的行不再可视范围内时, 修改 VirtualListSize 会导致画面抖动. 即时设置了 MainForm.Instance.SetRedraw(false); 也无法解决, 因此这里先隐藏.
-                                            
+
                                             Utils.log.Debug("set VirtualListSize in TryEnsureVisibleForSuitableItems");
                                             logListView.VirtualListSize = LogManager.Instance._dataSource.Count;
                                             needEnsureVisible = true;
@@ -432,7 +451,7 @@ namespace Log2Window.Log
                                             LogManager.Instance.inSetSelectedIndicesByCode = false;
                                         }
 
-                                        if (thisArrivedId != lastEnsureVisibleArrivedId 
+                                        if (thisArrivedId != lastEnsureVisibleArrivedId
                                             || LogManager.Instance.manulSelectedArrivedId == 0 //未选中任何行, 需要定位到最后一行
                                         )
                                         {
@@ -463,7 +482,7 @@ namespace Log2Window.Log
                                     logListView.Focus();
                                 }
 
-                                MainForm.Instance.SetRedraw(true);                                
+                                MainForm.Instance.SetRedraw(true);
                             }
                         }
                     }));

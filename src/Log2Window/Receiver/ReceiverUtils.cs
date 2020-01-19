@@ -65,7 +65,7 @@ namespace Log2Window.Receiver
             }
             catch (Exception ex)
             {
-                Utils.log.Error("ParseLog4JXmlLogEvent: " + ex.Message, ex);
+                Utils.log.Error("ParseLog4JXmlLogEvent: " + ex.Message + "\nraw message:\n" + logEvent, ex);
                 return new LogMessage
                 {
                     // Create a simple log message with some default values
