@@ -314,6 +314,7 @@ namespace Log2Window.Log
 
         private static long MaxAllowedMemory = (long)5 * 1024 * 1024 * 1024;//5G
 
+        static long _lastState;
         public static void TryEnsureVisibleForSuitableItems(ListView logListView)
         {
             try
@@ -334,12 +335,13 @@ namespace Log2Window.Log
                     lastGCTime = DateTime.Now;
                 }
 
-                if (DateTime.Now - lastEnsureVisibleTime > EnsureVisiblePeroid)
+                if (DateTime.Now - lastEnsureVisibleTime > EnsureVisiblePeroid && _lastState!= LogManager.Instance._dataSource.StateId)
                 {
                     logListView.Invoke(new Action(delegate ()
                     {
                         lock (LogManager.Instance.dataLocker)
                         {
+                            _lastState = LogManager.Instance._dataSource.StateId;
                             var islogListViewFocused = logListView.Focused;
                             LogManager.Instance.DequeueMoreThanMaxCount();
 

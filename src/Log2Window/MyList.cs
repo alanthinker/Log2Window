@@ -17,6 +17,7 @@ namespace Log2Window
         private int endIndexAddOne = 0;//not include;
 
         private int resetCount = 1000;
+        public long StateId { get; private set; }
 
         public T this[int index]
         {
@@ -36,6 +37,7 @@ namespace Log2Window
 
         public void Enqueue(T item)
         {
+            StateId++;
             list.Add(item);
             endIndexAddOne++;
 
@@ -55,6 +57,7 @@ namespace Log2Window
 
         public void Clear()
         {
+            StateId++;
             list.Clear();
             endIndexAddOne = 0;
             startIndex = 0;
@@ -75,6 +78,7 @@ namespace Log2Window
 
         public T Dequeue()
         {
+            StateId++;
             var item = this.Peek();
             startIndex++;
             return item;
