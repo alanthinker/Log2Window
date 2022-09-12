@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace Log2Window.Receiver
@@ -53,6 +54,14 @@ namespace Log2Window.Receiver
                 return ParseLog4JXmlLogEvent(reader, defaultLogger);
         }
 
+        // 将不可解析的特殊字符替换为空格.
+        // https://stackoverflow.com/questions/21053138/c-sharp-hexadecimal-value-0x12-is-an-invalid-character
+        static string ReplaceHexadecimalSymbols(string txt)
+        {
+            string r = "[\x00-\x08\x0B\x0C\x0E-\x1F\x26]";
+            return Regex.Replace(txt, r, " ", RegexOptions.Compiled);
+        }
+
         /// <summary>
         /// Parse LOG4JXml from string
         /// </summary>
@@ -60,6 +69,7 @@ namespace Log2Window.Receiver
         {
             try
             {
+                logEvent = ReplaceHexadecimalSymbols(logEvent);
                 using (var reader = new XmlTextReader(logEvent, XmlNodeType.Element, XmlContext))
                     return ParseLog4JXmlLogEvent(reader, defaultLogger);
             }
