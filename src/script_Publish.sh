@@ -48,6 +48,7 @@ cd /mnt/d/temp
 zip -r Log2Window.zip Log2Window
 checkIfActionError "压缩出错" 
 cp -af /mnt/d/temp/Log2Window/. "/mnt/d/Users/Alan/Documents/YunPan/Program Files/Log2Window" 
+cp -f "/mnt/d/Temp/Log2Window.zip" "/mnt/d/Users/Alan/Documents/YunPan/Program Files"
 checkIfActionError "出错 $LINENO" 
 showInfo 全部完成.
 

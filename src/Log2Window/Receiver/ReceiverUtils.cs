@@ -56,9 +56,10 @@ namespace Log2Window.Receiver
 
         // 将不可解析的特殊字符替换为空格.
         // https://stackoverflow.com/questions/21053138/c-sharp-hexadecimal-value-0x12-is-an-invalid-character
+        // 注意, 原回答中, 0x26 也被替换了. 这是错误的. 只应当替换0x1F以下的字符. 因为 &quot; 之类的是表示引号. 等等
         static string ReplaceHexadecimalSymbols(string txt)
         {
-            string r = "[\x00-\x08\x0B\x0C\x0E-\x1F\x26]";
+            string r = "[\x00-\x08\x0B\x0C\x0E-\x1F]";
             return Regex.Replace(txt, r, " ", RegexOptions.Compiled);
         }
 
