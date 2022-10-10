@@ -343,7 +343,11 @@ namespace Log2Window.Log
                         {
                             _lastState = LogManager.Instance._dataSource.StateId;
                             var islogListViewFocused = logListView.Focused;
-                            LogManager.Instance.DequeueMoreThanMaxCount();
+                            var removedCount= LogManager.Instance.DequeueMoreThanMaxCount();
+                            if (removedCount > 0)
+                            {
+                                logListView.Refresh();
+                            }
 
                             if (LogManager.Instance.PauseRefreshNewMessages)
                                 return;
@@ -459,20 +463,8 @@ namespace Log2Window.Log
                                         {
                                             logListView.EnsureVisible(index);
                                         }
-                                        //logListView.Refresh();
 
                                         MainForm.Instance.RefreshTitle();
-
-                                        // If use MessageCycle, VirtualListSize and EnsureVisible index may not changed.
-                                        // So force Refresh it.
-                                        if (UserSettings.Instance.MessageCycleCount > 0
-                                                && LogManager.Instance._dataSource.Count >= UserSettings.Instance.MessageCycleCount
-                                            )
-                                        {
-                                            ////now SelectedIndices is wrong, because same index is not same arrivedId now.
-                                            //logListView.SelectedIndices.Clear();
-                                            logListView.Refresh();
-                                        }
                                     }
                                 }
                             }

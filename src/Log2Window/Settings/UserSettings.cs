@@ -12,7 +12,7 @@ using System.Diagnostics;
 
 namespace Log2Window.Settings
 {
-   
+
 
     [Serializable]
     public sealed class UserSettings
@@ -63,10 +63,10 @@ namespace Log2Window.Settings
         [NonSerialized]
         private Dictionary<string, int> _columnProperties = new Dictionary<string, int>();
 
-        [NonSerialized] 
+        [NonSerialized]
         private Dictionary<string, FieldType> _csvHeaderFieldTypes;
 
-        [NonSerialized] 
+        [NonSerialized]
         private Dictionary<string, string> _sourceCodeLocationMap;
 
         private static UserSettings _instance;
@@ -75,14 +75,14 @@ namespace Log2Window.Settings
         private bool _hideTaskbarIcon = false;
         private bool _notifyNewLogWhenHidden = false;
         private bool _alwaysOnTop = false;
-        private int _transparency = 100; 
+        private int _transparency = 100;
         private FieldType[] _columnConfiguration;
         private FieldType[] _messageDetailConfiguration;
 
 
         private FieldType[] _csvColumnHeaderFields;
-        private SourceFileLocation[] _sourceLocationMapConfiguration; 
-        private int _messageCycleCount = 1000000;
+        private SourceFileLocation[] _sourceLocationMapConfiguration;
+        private int _messageCycleCountForEachLevel = 500_000;
         private string _timeStampFormatString = "yyyy-MM-dd HH:mm:ss.ffff";
 
         private Font _defaultFont = null;
@@ -318,12 +318,12 @@ namespace Log2Window.Settings
 
         [Category("Logging")]
         [Description("When greater than 0, the log messages are limited to that number. Like a queue First-In-First-Out.")]
-        [DisplayName("Message Cycle Count")]
-        [DefaultValue(1000000)] //100万条消息, 大概需要500M到1G的内存. 
-        public int MessageCycleCount
+        [DisplayName("Message Cycle Count For Each Level")]
+        [DefaultValue(500_000)] //100万条消息, 大概需要500M到1G的内存. 
+        public int MessageCycleCountForEachLevel
         {
-            get { return _messageCycleCount; }
-            set { _messageCycleCount = value; }
+            get { return _messageCycleCountForEachLevel; }
+            set { _messageCycleCountForEachLevel = value; }
         }
 
         [Category("Logging")]

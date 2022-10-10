@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 
@@ -109,22 +110,23 @@ namespace Log2Window.Log
 
         }
 
-        public void DequeueMoreThanMaxCount()
+        public long DequeueMoreThanMaxCount()
         {
-            var maxCount = Settings.UserSettings.Instance.MessageCycleCount;
+            long removedCount=0;
+            var maxCount = Settings.UserSettings.Instance.MessageCycleCountForEachLevel;
             if (maxCount > 0)
             {
-                long removedCount = _allLogMessageItems.DequeueSmart(maxCount);
+                removedCount = _allLogMessageItems.DequeueSmart(maxCount);
                 if (removedCount > 0)
                 {
                     if (!LogManager.Instance.PauseRefreshNewMessages
                            )
                     {
-                        //remove all messages which ArrivedId <= tobeRemoveItem's ArrivedId.
                         ToDataSource();
                     }
                 }
             }
+            return removedCount;
         }
 
         public void ToDataSource()
@@ -142,7 +144,10 @@ namespace Log2Window.Log
 
 
             var listList = temp.ToListList();
+            var t0 = DateTime.Now;
             this._dataSource = new NListsMerger<LogMessageItem>().MergeNLists(listList);
+            var t1 = DateTime.Now;
+            Trace.WriteLine("ts=" + (t1 - t0));
         }
 
         public void SearchText(string str)
