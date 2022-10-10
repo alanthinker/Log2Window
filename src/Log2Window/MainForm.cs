@@ -173,14 +173,14 @@ namespace Log2Window
 
             _logMsgThread = new Thread(ProcessLogMessageThread);
             _logMsgThread.Start();
-        } 
+        }
 
         public void SetRedraw(bool isRedraw)
         {
             if (isRedraw)
             {
                 //ª÷∏¥ªÊ÷∆
-                ResumeDrawing(this.logListView);                
+                ResumeDrawing(this.logListView);
             }
             else
             {
@@ -1255,26 +1255,18 @@ namespace Log2Window
             {
                 if (needDeleteMessages)
                 {
-                    MyList<LogMessageItem> tempAllLogMessageItems = new MyList<LogMessageItem>();
+                    MyCategoryList<LogMessageItem, LogLevel> tempAllLogMessageItems = new MyCategoryList<LogMessageItem, LogLevel>(new List<LogLevel> { LogLevel.Fatal, LogLevel.Error, LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace });
+
                     foreach (var item in LogManager.Instance._allLogMessageItems)
                     {
                         if (!item.Parent._messagesDeleted)
-                            tempAllLogMessageItems.Enqueue(item);
+                            tempAllLogMessageItems.Enqueue(item, item.Message.Level.Level);
                     }
                     LogManager.Instance._allLogMessageItems.Clear();
                     LogManager.Instance._allLogMessageItems = tempAllLogMessageItems;
                 }
 
-                LogManager.Instance._dataSource.Clear();
-
-                foreach (var item in LogManager.Instance._allLogMessageItems)
-                {
-                    item.Enabled = item.Parent.IsItemToBeEnabled(item);
-                    if (item.Enabled)
-                    {
-                        LogManager.Instance._dataSource.Enqueue(item);
-                    }
-                }
+                LogManager.Instance.ToDataSource();
 
                 logListView.VirtualListSize = LogManager.Instance._dataSource.Count;
 
@@ -1325,6 +1317,7 @@ namespace Log2Window
             }
         }
 
+        
 
         private void LoggerTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
@@ -1393,7 +1386,7 @@ namespace Log2Window
                 sb.Append(" -      ");
             }
 
-            sb.Append(" Count: " + LogManager.Instance._dataSource.Count + "/" + LogManager.Instance._allLogMessageItems.Count);
+            sb.Append(" Count: " + LogManager.Instance._dataSource.Count + "/" + LogManager.Instance._allLogMessageItems.AllItemsCount);
 
             this.Text = sb.ToString();
         }

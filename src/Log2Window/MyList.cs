@@ -83,5 +83,10 @@ namespace Log2Window
             startIndex++;
             return item;
         }
+
+        public void Sort()
+        {
+            this.list.Sort(startIndex, endIndexAddOne - startIndex, Comparer<T>.Default);
+        }
     }
 }

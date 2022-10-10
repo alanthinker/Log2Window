@@ -88,6 +88,7 @@
     <Compile Include="AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MyCategoryList.cs" />
     <Compile Include="MyList.cs" />
     <Compile Include="ICSharpCodeExtension\Actions\CaretActionsExtension.cs" />
     <Compile Include="Log\ILoggerView.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="NListsMerger.cs" />
     <Compile Include="UI\TreeViewWithoutDoubleClick.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -12,7 +12,7 @@ namespace Log2Window.Log
         //_allLogMessageItems and _dataSource must use this locker.        
         public readonly object dataLocker = new object();
         //_allLogMessageItems may be reassigned, so cannot use as a locker.
-        public MyList<LogMessageItem> _allLogMessageItems = new MyList<LogMessageItem>();
+        public MyCategoryList<LogMessageItem, LogLevel> _allLogMessageItems = new MyCategoryList<LogMessageItem, LogLevel>(new List<LogLevel> { LogLevel.Fatal, LogLevel.Error, LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace });
         public MyList<LogMessageItem> _dataSource = new MyList<LogMessageItem>();
 
         private LoggerItem _rootLoggerItem;
@@ -67,7 +67,7 @@ namespace Log2Window.Log
             lock (dataLocker)
             {
                 _allLogMessageItems.Clear();
-                _dataSource.Clear();                
+                _dataSource.Clear();
                 MainForm.Instance.ReBindListViewFromAllLogMessageItems();
 
                 GC.Collect();
@@ -97,7 +97,7 @@ namespace Log2Window.Log
 
             lock (LogManager.Instance.dataLocker)
             {
-                _allLogMessageItems.Enqueue(item);
+                _allLogMessageItems.Enqueue(item, item.Message.Level.Level);
                 if (item.Enabled && !LogManager.Instance.PauseRefreshNewMessages)
                 {
                     _dataSource.Enqueue(item);
@@ -114,22 +114,35 @@ namespace Log2Window.Log
             var maxCount = Settings.UserSettings.Instance.MessageCycleCount;
             if (maxCount > 0)
             {
-                while (_allLogMessageItems.Count > maxCount)
+                long removedCount = _allLogMessageItems.DequeueSmart(maxCount);
+                if (removedCount > 0)
                 {
-                    var tobeRemoveItem = _allLogMessageItems[0];
-                    _allLogMessageItems.Dequeue();
-                    if (_dataSource.Count > 0
-                        && !LogManager.Instance.PauseRefreshNewMessages
-                        )
+                    if (!LogManager.Instance.PauseRefreshNewMessages
+                           )
                     {
                         //remove all messages which ArrivedId <= tobeRemoveItem's ArrivedId.
-                        while (_dataSource.Peek().Message.ArrivedId <= tobeRemoveItem.Message.ArrivedId)
-                        {
-                            _dataSource.Dequeue();
-                        }
+                        ToDataSource();
                     }
                 }
             }
+        }
+
+        public void ToDataSource()
+        {
+            this._dataSource.Clear();
+            var temp = new MyCategoryList<LogMessageItem, LogLevel>(new List<LogLevel> { LogLevel.Fatal, LogLevel.Error, LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace });
+            foreach (var item in this._allLogMessageItems)
+            {
+                item.Enabled = item.Parent.IsItemToBeEnabled(item);
+                if (item.Enabled)
+                {
+                    temp.Enqueue(item, item.Message.Level.Level);
+                }
+            }
+
+
+            var listList = temp.ToListList();
+            this._dataSource = new NListsMerger<LogMessageItem>().MergeNLists(listList);
         }
 
         public void SearchText(string str)

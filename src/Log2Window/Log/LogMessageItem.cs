@@ -3,6 +3,8 @@ using Log2Window.Settings;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Log2Window.Log
 {
@@ -24,7 +26,7 @@ namespace Log2Window.Log
     /// Describes a Log Message.
     /// TODO: Make it disposable to dereference Item?
     /// </summary>
-    public class LogMessageItem
+    public class LogMessageItem : IComparable<LogMessageItem>
     {
         /// <summary>
         /// Logger Item Parent.
@@ -63,7 +65,7 @@ namespace Log2Window.Log
 
         public static ListViewItem CreateListViewItem(LogMessage logMsg)
         {
-            Utils.log.Debug("CreateListViewItem "+logMsg.ArrivedId);
+            Utils.log.Debug("CreateListViewItem " + logMsg.ArrivedId);
             // Create List View Item
             var items = new ListViewItem.ListViewSubItem[UserSettings.Instance.ColumnConfiguration.Length];
             string toolTip = string.Empty;
@@ -169,6 +171,11 @@ namespace Log2Window.Log
         internal void GetMessageDetails(RichTextBox logDetailTextBox, RichTextBox tbMessage)
         {
             Message.GetMessageDetails(logDetailTextBox, tbMessage);
+        }
+
+        public int CompareTo(LogMessageItem other)
+        {
+            return this.Message.ArrivedId.CompareTo(other.Message.ArrivedId);            
         }
     }
 }
