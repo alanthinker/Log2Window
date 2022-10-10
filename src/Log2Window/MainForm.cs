@@ -1266,7 +1266,7 @@ namespace Log2Window
                     LogManager.Instance._allLogMessageItems = tempAllLogMessageItems;
                 }
 
-                LogManager.Instance.ToDataSource();
+                LogManager.Instance.allLogMessageItems_to_dataSource();
 
                 logListView.VirtualListSize = LogManager.Instance._dataSource.Count;
 

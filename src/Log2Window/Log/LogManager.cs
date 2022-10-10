@@ -122,14 +122,15 @@ namespace Log2Window.Log
                     if (!LogManager.Instance.PauseRefreshNewMessages
                            )
                     {
-                        ToDataSource();
+                        MainForm.Instance.ReBindListViewFromAllLogMessageItems(false);
                     }
                 }
             }
+            GC.Collect();
             return removedCount;
         }
 
-        public void ToDataSource()
+        public void allLogMessageItems_to_dataSource()
         {
             this._dataSource.Clear();
             var temp = new MyCategoryList<LogMessageItem, LogLevel>(new List<LogLevel> { LogLevel.Fatal, LogLevel.Error, LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace });
