@@ -154,15 +154,9 @@ namespace Log2Window.Log
             Trace.WriteLine("ts=" + (t1 - t0));
         }
 
-        public void SearchText(string str)
+        public void SearchByTextAndThread(string text,string thread)
         {
-            _rootLoggerItem.SearchText(str);
-        }
-
-
-        public void SearchByThread(string str)
-        {
-            _rootLoggerItem.SearchByThread(str);
+            _rootLoggerItem.SearchByTextAndThread(text, thread);
         }       
 
 

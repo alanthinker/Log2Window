@@ -278,7 +278,7 @@ namespace Log2Window
                 var selectedIndex = logListView.SelectedIndices[0];
                 var dataItem = LogManager.Instance._dataSource[selectedIndex];
                 searchThreadBox.Text = dataItem.Message.ThreadName;
-                searchThreadBox_KeyUp(null, new KeyEventArgs(Keys.Enter));
+                searchBox_KeyUp(null, new KeyEventArgs(Keys.Enter));
             }
 
             logListView.Refresh();
@@ -289,7 +289,7 @@ namespace Log2Window
             lock (LogManager.Instance.dataLocker)
             {
                 searchThreadBox.Text = "";
-                searchThreadBox_KeyUp(null, new KeyEventArgs(Keys.Enter));
+                searchBox_KeyUp(null, new KeyEventArgs(Keys.Enter));
             }
 
             logListView.Refresh();
@@ -1157,7 +1157,7 @@ namespace Log2Window
             }
         }
 
-        private void searchTextBox_KeyUp(object sender, KeyEventArgs e)
+        private void searchBox_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Return || e.Alt || e.Control)
                 return;
@@ -1165,25 +1165,7 @@ namespace Log2Window
             {
                 try
                 {
-                    LogManager.Instance.SearchText(searchTextBox.Text);
-                }
-                finally
-                {
-                    ReBindListViewFromAllLogMessageItems();
-                }
-            }
-
-        }
-
-        private void searchThreadBox_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode != Keys.Return || e.Alt || e.Control)
-                return;
-            using (new AutoWaitCursor())
-            {
-                try
-                {
-                    LogManager.Instance.SearchByThread(searchThreadBox.Text);
+                    LogManager.Instance.SearchByTextAndThread(searchTextBox.Text, searchThreadBox.Text);
                 }
                 finally
                 {
@@ -1679,7 +1661,7 @@ namespace Log2Window
             {
                 try
                 {
-                    LogManager.Instance.SearchText(searchTextBox.Text);
+                    LogManager.Instance.SearchByTextAndThread(searchTextBox.Text, searchThreadBox.Text);
                 }
                 finally
                 {

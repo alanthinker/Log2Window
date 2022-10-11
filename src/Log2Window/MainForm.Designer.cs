@@ -353,7 +353,7 @@ namespace Log2Window
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(100, 23);
             this.searchTextBox.ToolTipText = "Search Text in Log Messages";
-            this.searchTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.searchTextBox_KeyUp);
+            this.searchTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.searchBox_KeyUp);
             // 
             // searchThreadBox
             // 
@@ -365,7 +365,7 @@ namespace Log2Window
             this.searchThreadBox.Name = "searchThreadBox";
             this.searchThreadBox.Size = new System.Drawing.Size(100, 23);
             this.searchThreadBox.ToolTipText = "Search by Thread in Log Messages";
-            this.searchThreadBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.searchThreadBox_KeyUp);
+            this.searchThreadBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.searchBox_KeyUp);
             // 
             // toolStripSeparator9
             // 

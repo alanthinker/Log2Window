@@ -491,53 +491,33 @@ namespace Log2Window.Log
             }
         }
 
-
-        internal void SearchText(string str)
+        internal void SearchByTextAndThread(string text, string thread)
         {
             _logListView.BeginUpdate();
 
-            DoSearch(str);
-
-            _logListView.EndUpdate();
-        }
-
-        internal void SearchByThread(string str)
-        {
-            _logListView.BeginUpdate();
-
-            var searchedThreads = str.Split(new char[] { ',', '，', ';', '；' }, StringSplitOptions.RemoveEmptyEntries);
+            var searchedThreads = thread.Split(new char[] { ',', '，', ';', '；' }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < searchedThreads.Length; i++)
             {
                 searchedThreads[i] = searchedThreads[i].Trim();
             }
             searchedThreads = searchedThreads.Where(x => !String.IsNullOrWhiteSpace(x)).ToArray();
 
-            DoSearchByThread(searchedThreads);
+            DoSearchByTextAndThread(text, searchedThreads);
 
             _logListView.EndUpdate();
-        }
+        } 
 
-        private void DoSearch(string str)
+        private void DoSearchByTextAndThread(string text, string[] searchedThreads)
         {
-            _hasSearchedText = !String.IsNullOrEmpty(str);
-            _searchedText = str;
-
-            // Iterate call
-            foreach (KeyValuePair<string, LoggerItem> kvp in Loggers)
-            {
-                kvp.Value.DoSearch(_searchedText);
-            }
-        }
-
-        private void DoSearchByThread(string[] searchedThreads)
-        {
+            _hasSearchedText = !String.IsNullOrEmpty(text);
+            _searchedText = text;
             _hasSearchedThread = searchedThreads.Length > 0;
             _searchedThreads = searchedThreads;
 
             // Iterate call
             foreach (KeyValuePair<string, LoggerItem> kvp in Loggers)
             {
-                kvp.Value.DoSearchByThread(_searchedThreads);
+                kvp.Value.DoSearchByTextAndThread(_searchedText,_searchedThreads);
             }
         }
 
