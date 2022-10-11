@@ -86,6 +86,9 @@ namespace Log2Window.Log
             LoggerItem logger;
             logMsg.CheckNull();
 
+            // Search by thread need compare ThreadName. So need trim.
+            logMsg.ThreadName = logMsg.ThreadName?.Trim();
+
             if (!_fullPathLoggers.TryGetValue(logMsg.LoggerName, out logger))
             {
                 // Not found, create one
@@ -155,6 +158,12 @@ namespace Log2Window.Log
         {
             _rootLoggerItem.SearchText(str);
         }
+
+
+        public void SearchByThread(string str)
+        {
+            _rootLoggerItem.SearchByThread(str);
+        }       
 
 
         public void UpdateLogLevel()

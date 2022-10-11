@@ -88,6 +88,9 @@ namespace Log2Window
             logListView.ContextMenu = new ContextMenu()
             {
                 MenuItems = {
+                     new MenuItem("Filter by This Thread", new EventHandler(LogListView_MenuFilterThisThread)),
+                     new MenuItem("Remove all Filter by Thread", new EventHandler(LogListView_MenuRemoveAllFilterByThread)),
+                     new MenuItem("-"),
                      new MenuItem("Highlight This Thread", new EventHandler(LogListView_MenuHighlightThisThread)),
                      new MenuItem("BackColor This Thread") {
                          MenuItems = {
@@ -267,6 +270,31 @@ namespace Log2Window
         }
 
         Dictionary<string, Color> _dictThreadBackColor = new Dictionary<string, Color>();
+
+        private void LogListView_MenuFilterThisThread(object sender, EventArgs e)
+        {
+            lock (LogManager.Instance.dataLocker)
+            {
+                var selectedIndex = logListView.SelectedIndices[0];
+                var dataItem = LogManager.Instance._dataSource[selectedIndex];
+                searchThreadBox.Text = dataItem.Message.ThreadName;
+                searchThreadBox_KeyUp(null, new KeyEventArgs(Keys.Enter));
+            }
+
+            logListView.Refresh();
+        }
+
+        private void LogListView_MenuRemoveAllFilterByThread(object sender, EventArgs e)
+        {
+            lock (LogManager.Instance.dataLocker)
+            {
+                searchThreadBox.Text = "";
+                searchThreadBox_KeyUp(null, new KeyEventArgs(Keys.Enter));
+            }
+
+            logListView.Refresh();
+        }
+
 
         private void LogListView_MenuHighlightThisThread(object sender, EventArgs e)
         {
@@ -1147,6 +1175,24 @@ namespace Log2Window
 
         }
 
+        private void searchThreadBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Return || e.Alt || e.Control)
+                return;
+            using (new AutoWaitCursor())
+            {
+                try
+                {
+                    LogManager.Instance.SearchByThread(searchThreadBox.Text);
+                }
+                finally
+                {
+                    ReBindListViewFromAllLogMessageItems();
+                }
+            }
+
+        }
+
         private void zoomOutLogListBtn_Click(object sender, EventArgs e)
         {
             ZoomControlFont(logListView, false);
@@ -1317,7 +1363,7 @@ namespace Log2Window
             }
         }
 
-        
+
 
         private void LoggerTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {

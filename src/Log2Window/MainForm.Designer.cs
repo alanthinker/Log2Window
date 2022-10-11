@@ -52,7 +52,8 @@ namespace Log2Window
             this.btnTrace = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.lblSearch = new System.Windows.Forms.ToolStripLabel();
-            this.searchTextBox = new System.Windows.Forms.ToolStripTextBox();
+            this.searchTextBox = new MyToolStripTextBox();
+            this.searchThreadBox = new MyToolStripTextBox();
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.settingsBtn = new System.Windows.Forms.ToolStripButton();
             this.receiversBtn = new System.Windows.Forms.ToolStripButton();
@@ -60,6 +61,9 @@ namespace Log2Window
             this.ddbEventLog = new System.Windows.Forms.ToolStripDropDownButton();
             this.miLoadEventLog = new System.Windows.Forms.ToolStripMenuItem();
             this.miClearEventLog = new System.Windows.Forms.ToolStripMenuItem();
+            this.ddbOpenLogFileBtn = new System.Windows.Forms.ToolStripDropDownButton();
+            this.miOpenPatternLayoutFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.miOpenLog4jXmlFile = new System.Windows.Forms.ToolStripMenuItem();
             this.ddbExportBtn = new System.Windows.Forms.ToolStripDropDownButton();
             this.miExportLog4jXmlFile = new System.Windows.Forms.ToolStripMenuItem();
             this.miExportExcelCsvFile = new System.Windows.Forms.ToolStripMenuItem();
@@ -81,6 +85,7 @@ namespace Log2Window
             this.collapseAllBtn = new System.Windows.Forms.ToolStripButton();
             this.dactivateSourcesBtn = new System.Windows.Forms.ToolStripButton();
             this.keepHighlightBtn = new System.Windows.Forms.ToolStripButton();
+            this.loggerTreeView = new Log2Window.UI.TreeViewWithoutDoubleClick();
             this.loggerSplitter = new System.Windows.Forms.Splitter();
             this.appNotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.trayContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -118,9 +123,6 @@ namespace Log2Window
             this.toolStripSeparator16 = new System.Windows.Forms.ToolStripSeparator();
             this.deleteAllLoggerTreeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.ddbOpenLogFileBtn = new System.Windows.Forms.ToolStripDropDownButton();
-            this.miOpenLog4jXmlFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.miOpenPatternLayoutFile = new System.Windows.Forms.ToolStripMenuItem();
             this.logListView = new Log2Window.UI.FlickerFreeListView();
             this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -130,7 +132,6 @@ namespace Log2Window
             this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader8 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.loggerTreeView = new Log2Window.UI.TreeViewWithoutDoubleClick();
             this.mainToolStrip.SuspendLayout();
             this.loggerPanel.SuspendLayout();
             this.loggerInnerPanel.SuspendLayout();
@@ -170,6 +171,7 @@ namespace Log2Window
             this.toolStripSeparator1,
             this.lblSearch,
             this.searchTextBox,
+            this.searchThreadBox,
             this.toolStripSeparator9,
             this.settingsBtn,
             this.receiversBtn,
@@ -322,7 +324,7 @@ namespace Log2Window
             this.btnTrace.AutoToolTip = false;
             this.btnTrace.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnTrace.Name = "btnTrace";
-            this.btnTrace.Size = new System.Drawing.Size(39, 19);
+            this.btnTrace.Size = new System.Drawing.Size(38, 19);
             this.btnTrace.Text = "Trace";
             this.btnTrace.Click += new System.EventHandler(this.btnLogLevel_Click);
             // 
@@ -345,11 +347,25 @@ namespace Log2Window
             // 
             this.searchTextBox.BackColor = System.Drawing.SystemColors.Window;
             this.searchTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.searchTextBox.CueBanner = "Search Text";
+            this.searchTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.searchTextBox.Margin = new System.Windows.Forms.Padding(1, 1, 1, 0);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(100, 23);
             this.searchTextBox.ToolTipText = "Search Text in Log Messages";
             this.searchTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.searchTextBox_KeyUp);
+            // 
+            // searchThreadBox
+            // 
+            this.searchThreadBox.BackColor = System.Drawing.SystemColors.Window;
+            this.searchThreadBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.searchThreadBox.CueBanner = "Search Threads";
+            this.searchThreadBox.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.searchThreadBox.Margin = new System.Windows.Forms.Padding(1, 1, 1, 0);
+            this.searchThreadBox.Name = "searchThreadBox";
+            this.searchThreadBox.Size = new System.Drawing.Size(100, 23);
+            this.searchThreadBox.ToolTipText = "Search by Thread in Log Messages";
+            this.searchThreadBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.searchThreadBox_KeyUp);
             // 
             // toolStripSeparator9
             // 
@@ -406,6 +422,32 @@ namespace Log2Window
             this.miClearEventLog.Size = new System.Drawing.Size(101, 22);
             this.miClearEventLog.Text = "Clear";
             // 
+            // ddbOpenLogFileBtn
+            // 
+            this.ddbOpenLogFileBtn.AutoToolTip = false;
+            this.ddbOpenLogFileBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miOpenPatternLayoutFile,
+            this.miOpenLog4jXmlFile});
+            this.ddbOpenLogFileBtn.Image = global::Log2Window.Properties.Resources.documentsorcopy16;
+            this.ddbOpenLogFileBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.ddbOpenLogFileBtn.Name = "ddbOpenLogFileBtn";
+            this.ddbOpenLogFileBtn.Size = new System.Drawing.Size(103, 20);
+            this.ddbOpenLogFileBtn.Text = "OpenLogFile";
+            // 
+            // miOpenPatternLayoutFile
+            // 
+            this.miOpenPatternLayoutFile.Name = "miOpenPatternLayoutFile";
+            this.miOpenPatternLayoutFile.Size = new System.Drawing.Size(204, 22);
+            this.miOpenPatternLayoutFile.Text = "Open Pattern Layout File";
+            this.miOpenPatternLayoutFile.Click += new System.EventHandler(this.miOpenPatternLayoutFile_Click);
+            // 
+            // miOpenLog4jXmlFile
+            // 
+            this.miOpenLog4jXmlFile.Name = "miOpenLog4jXmlFile";
+            this.miOpenLog4jXmlFile.Size = new System.Drawing.Size(204, 22);
+            this.miOpenLog4jXmlFile.Text = "Open log4j xml file";
+            this.miOpenLog4jXmlFile.Click += new System.EventHandler(this.miOpenLog4jXmlFile_Click);
+            // 
             // ddbExportBtn
             // 
             this.ddbExportBtn.AutoToolTip = false;
@@ -415,14 +457,14 @@ namespace Log2Window
             this.ddbExportBtn.Image = global::Log2Window.Properties.Resources.saveas16;
             this.ddbExportBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.ddbExportBtn.Name = "ddbExportBtn";
-            this.ddbExportBtn.Size = new System.Drawing.Size(69, 20);
+            this.ddbExportBtn.Size = new System.Drawing.Size(70, 20);
             this.ddbExportBtn.Text = "Export";
             // 
             // miExportLog4jXmlFile
             // 
             this.miExportLog4jXmlFile.Image = global::Log2Window.Properties.Resources.saveas16;
             this.miExportLog4jXmlFile.Name = "miExportLog4jXmlFile";
-            this.miExportLog4jXmlFile.Size = new System.Drawing.Size(191, 22);
+            this.miExportLog4jXmlFile.Size = new System.Drawing.Size(193, 22);
             this.miExportLog4jXmlFile.Text = "Export to log4j xml file";
             this.miExportLog4jXmlFile.Click += new System.EventHandler(this.miExportLog4jXmlFile_Click);
             // 
@@ -430,7 +472,7 @@ namespace Log2Window
             // 
             this.miExportExcelCsvFile.Image = global::Log2Window.Properties.Resources.Excel;
             this.miExportExcelCsvFile.Name = "miExportExcelCsvFile";
-            this.miExportExcelCsvFile.Size = new System.Drawing.Size(191, 22);
+            this.miExportExcelCsvFile.Size = new System.Drawing.Size(193, 22);
             this.miExportExcelCsvFile.Text = "Export to excel csv file";
             this.miExportExcelCsvFile.Click += new System.EventHandler(this.miExportExcelCsvFile_Click);
             // 
@@ -566,6 +608,22 @@ namespace Log2Window
             // 
             this.keepHighlightBtn.Name = "keepHighlightBtn";
             this.keepHighlightBtn.Size = new System.Drawing.Size(23, 4);
+            // 
+            // loggerTreeView
+            // 
+            this.loggerTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.loggerTreeView.CheckBoxes = true;
+            this.loggerTreeView.Indent = 19;
+            this.loggerTreeView.Location = new System.Drawing.Point(0, 25);
+            this.loggerTreeView.Name = "loggerTreeView";
+            this.loggerTreeView.PathSeparator = ".";
+            this.loggerTreeView.Size = new System.Drawing.Size(237, 522);
+            this.loggerTreeView.TabIndex = 1;
+            this.loggerTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterCheck);
+            this.loggerTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterSelect);
+            this.loggerTreeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.loggerTreeView_MouseUp);
             // 
             // loggerSplitter
             // 
@@ -897,32 +955,6 @@ namespace Log2Window
             this.openFileDialog1.Filter = "All files|*.*";
             this.openFileDialog1.Title = "Open Log File";
             // 
-            // ddbOpenLogFileBtn
-            // 
-            this.ddbOpenLogFileBtn.AutoToolTip = false;
-            this.ddbOpenLogFileBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.miOpenPatternLayoutFile,
-            this.miOpenLog4jXmlFile});
-            this.ddbOpenLogFileBtn.Image = global::Log2Window.Properties.Resources.documentsorcopy16;
-            this.ddbOpenLogFileBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.ddbOpenLogFileBtn.Name = "ddbOpenLogFileBtn";
-            this.ddbOpenLogFileBtn.Size = new System.Drawing.Size(103, 20);
-            this.ddbOpenLogFileBtn.Text = "OpenLogFile";
-            // 
-            // miOpenLog4jXmlFile
-            // 
-            this.miOpenLog4jXmlFile.Name = "miOpenLog4jXmlFile";
-            this.miOpenLog4jXmlFile.Size = new System.Drawing.Size(204, 22);
-            this.miOpenLog4jXmlFile.Text = "Open log4j xml file";
-            this.miOpenLog4jXmlFile.Click += new System.EventHandler(this.miOpenLog4jXmlFile_Click);
-            // 
-            // miOpenPatternLayoutFile
-            // 
-            this.miOpenPatternLayoutFile.Name = "miOpenPatternLayoutFile";
-            this.miOpenPatternLayoutFile.Size = new System.Drawing.Size(204, 22);
-            this.miOpenPatternLayoutFile.Text = "Open Pattern Layout File";
-            this.miOpenPatternLayoutFile.Click += new System.EventHandler(this.miOpenPatternLayoutFile_Click);
-            // 
             // logListView
             // 
             this.logListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -987,22 +1019,6 @@ namespace Log2Window
             // 
             this.columnHeader5.Text = "Message";
             this.columnHeader5.Width = 540;
-            // 
-            // loggerTreeView
-            // 
-            this.loggerTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.loggerTreeView.CheckBoxes = true;
-            this.loggerTreeView.Indent = 19;
-            this.loggerTreeView.Location = new System.Drawing.Point(0, 25);
-            this.loggerTreeView.Name = "loggerTreeView";
-            this.loggerTreeView.PathSeparator = ".";
-            this.loggerTreeView.Size = new System.Drawing.Size(237, 522);
-            this.loggerTreeView.TabIndex = 1;
-            this.loggerTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterCheck);
-            this.loggerTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.loggerTreeView_AfterSelect);
-            this.loggerTreeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.loggerTreeView_MouseUp);
             // 
             // MainForm
             // 
@@ -1093,7 +1109,7 @@ namespace Log2Window
         private System.Windows.Forms.ToolStripButton copyLogDetailBtn;
         private System.Windows.Forms.ToolStripLabel toolStripLabel3;
         private System.Windows.Forms.ToolStripLabel lblSearch;
-        private System.Windows.Forms.ToolStripTextBox searchTextBox;
+        private MyToolStripTextBox searchTextBox;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
         private System.Windows.Forms.ToolStripButton zoomOutLogListBtn;
         private System.Windows.Forms.ToolStripButton zoomInLogListBtn;
@@ -1149,6 +1165,7 @@ namespace Log2Window
         private ToolStripDropDownButton ddbOpenLogFileBtn;
         private ToolStripMenuItem miOpenLog4jXmlFile;
         private ToolStripMenuItem miOpenPatternLayoutFile;
+        private MyToolStripTextBox searchThreadBox;
     }
 }
 

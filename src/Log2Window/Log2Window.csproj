@@ -88,6 +88,9 @@
     <Compile Include="AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="CueTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MyCategoryList.cs" />
     <Compile Include="MyList.cs" />
     <Compile Include="ICSharpCodeExtension\Actions\CaretActionsExtension.cs" />

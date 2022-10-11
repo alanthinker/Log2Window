@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Log2Window.Log
 {
@@ -166,6 +167,11 @@ namespace Log2Window.Log
         internal bool HasSearchedText(string str)
         {
             return (Message.Message.IndexOf(str, StringComparison.InvariantCultureIgnoreCase) >= 0);
+        }
+
+        internal bool IsThreadMatch(string[] threads)
+        {
+            return threads.Contains(Message.ThreadName);
         }
 
         internal void GetMessageDetails(RichTextBox logDetailTextBox, RichTextBox tbMessage)

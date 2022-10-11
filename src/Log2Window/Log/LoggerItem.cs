@@ -53,6 +53,9 @@ namespace Log2Window.Log
         //需要使用全局变量, 不然新创建的 LoggerItem 没有这些属性的正确值
         private static string _searchedText;
         private static bool _hasSearchedText;
+        private static string[] _searchedThreads;
+        private static bool _hasSearchedThread;
+
 
 
         private LoggerItem()
@@ -335,7 +338,7 @@ namespace Log2Window.Log
                     lastGCTime = DateTime.Now;
                 }
 
-                if (DateTime.Now - lastEnsureVisibleTime > EnsureVisiblePeroid && _lastState!= LogManager.Instance._dataSource.StateId)
+                if (DateTime.Now - lastEnsureVisibleTime > EnsureVisiblePeroid && _lastState != LogManager.Instance._dataSource.StateId)
                 {
                     logListView.Invoke(new Action(delegate ()
                     {
@@ -343,7 +346,7 @@ namespace Log2Window.Log
                         {
                             _lastState = LogManager.Instance._dataSource.StateId;
                             var islogListViewFocused = logListView.Focused;
-                            var removedCount= LogManager.Instance.DequeueMoreThanMaxCount();
+                            var removedCount = LogManager.Instance.DequeueMoreThanMaxCount();
                             if (removedCount > 0)
                             {
                                 logListView.Refresh();
@@ -498,6 +501,22 @@ namespace Log2Window.Log
             _logListView.EndUpdate();
         }
 
+        internal void SearchByThread(string str)
+        {
+            _logListView.BeginUpdate();
+
+            var searchedThreads = str.Split(new char[] { ',', '，', ';', '；' }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < searchedThreads.Length; i++)
+            {
+                searchedThreads[i] = searchedThreads[i].Trim();
+            }
+            searchedThreads = searchedThreads.Where(x => !String.IsNullOrWhiteSpace(x)).ToArray();
+
+            DoSearchByThread(searchedThreads);
+
+            _logListView.EndUpdate();
+        }
+
         private void DoSearch(string str)
         {
             _hasSearchedText = !String.IsNullOrEmpty(str);
@@ -510,9 +529,32 @@ namespace Log2Window.Log
             }
         }
 
+        private void DoSearchByThread(string[] searchedThreads)
+        {
+            _hasSearchedThread = searchedThreads.Length > 0;
+            _searchedThreads = searchedThreads;
+
+            // Iterate call
+            foreach (KeyValuePair<string, LoggerItem> kvp in Loggers)
+            {
+                kvp.Value.DoSearchByThread(_searchedThreads);
+            }
+        }
+
         internal bool IsItemToBeEnabled(LogMessageItem item)
         {
-            return (this.Enabled && item.IsLevelInRange() && (!_hasSearchedText || item.HasSearchedText(_searchedText)));
+            return (
+                this.Enabled
+                && item.IsLevelInRange()
+                && (
+                    !_hasSearchedText
+                    || item.HasSearchedText(_searchedText)
+                  )
+                && (
+                    !_hasSearchedThread
+                    || item.IsThreadMatch(_searchedThreads)
+                )
+            );
         }
 
         public override string ToString()
