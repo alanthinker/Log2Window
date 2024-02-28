@@ -76,12 +76,42 @@ namespace Log2Window.UI
                 temp = AddNewInner(text, logger);
             }
             return temp;
+        } 
+
+        //按 text 排序添加.
+        TreeNode AddNode(TreeNodeCollection nodes, string key, string text)
+        {
+            int firstBiggerThanNewIndex = -1;
+
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                //忽略区域和字母大小写比较大小
+                if (string.CompareOrdinal(nodes[i].Text, text) > 0)
+                {
+                    firstBiggerThanNewIndex = i;
+                    break;
+                }
+            }
+
+            var newNode = new TreeNode(text);
+            newNode.Name = key;
+            if (firstBiggerThanNewIndex == -1)
+            {
+                nodes.Add(newNode);
+            }
+            else
+            {
+                nodes.Insert(firstBiggerThanNewIndex, newNode);
+            }
+
+            return newNode;
+
         }
 
         public ILoggerView AddNewInner(string text, LoggerItem logger)
         {
             // Creating a new node.
-            TreeNode node = _isRoot ? _treeView.Nodes.Add(text, text) : _node.Nodes.Add(text, text);
+            TreeNode node = _isRoot ? AddNode(_treeView.Nodes, text, text) : AddNode(_node.Nodes, text, text);
             node.Tag = logger;
             node.Checked = true;
             if (_node != null && _node.Level == 0)
@@ -127,7 +157,7 @@ namespace Log2Window.UI
                 }
             }
         }
-         
+
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="ILoggerView"/> is enabled.
@@ -148,7 +178,7 @@ namespace Log2Window.UI
                         _treeView.Invoke(new Action(delegate ()
                         {
                             _node.Checked = value;
-                        })); 
+                        }));
                     }
                     else
                     {
