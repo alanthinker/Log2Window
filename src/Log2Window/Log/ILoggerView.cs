@@ -28,6 +28,8 @@ namespace Log2Window.Log
         /// </summary>
         void Remove(string text);
 
+        void Sync();
+
 
         /// <summary>
         /// Gets or sets the text of the view. The text is what is shown to the user.

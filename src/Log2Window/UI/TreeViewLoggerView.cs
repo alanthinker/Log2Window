@@ -139,6 +139,16 @@ namespace Log2Window.UI
             }
         }
 
+        public void Sync()
+        {
+            var node = _node;
+            while(node != null)
+            {
+                node.Expand();
+                node = node.Parent;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the text of the view. The text is what is shown to the user.
         /// </summary>

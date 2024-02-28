@@ -204,33 +204,33 @@ namespace Log2Window.Log
             }
         }
 
-        private void EnableLogMessage(LogMessageItem item, bool enable)
-        {
-            if ((item.Enabled && enable) || (!item.Enabled && !enable))
-                return;
+        //private void EnableLogMessage(LogMessageItem item, bool enable)
+        //{
+        //    if ((item.Enabled && enable) || (!item.Enabled && !enable))
+        //        return;
 
-            if (enable)
-                EnableLogMessage(item);
-            else
-                DisableLogMessage(item);
-        }
+        //    if (enable)
+        //        EnableLogMessage(item);
+        //    else
+        //        DisableLogMessage(item);
+        //}
 
-        private void EnableLogMessage(LogMessageItem item)
-        {
-            if (item.Enabled)
-                return;
+        //private void EnableLogMessage(LogMessageItem item)
+        //{
+        //    if (item.Enabled)
+        //        return;
 
-            item.Enabled = Enabled;
-        }
+        //    item.Enabled = Enabled;
+        //}
 
-        private void DisableLogMessage(LogMessageItem item)
-        {
-            if (!item.Enabled)
-                return;
+        //private void DisableLogMessage(LogMessageItem item)
+        //{
+        //    if (!item.Enabled)
+        //        return;
 
-            // Mark the item as disabled
-            item.Enabled = false;
-        }
+        //    // Mark the item as disabled
+        //    item.Enabled = false;
+        //}
 
 
 

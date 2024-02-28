@@ -88,6 +88,8 @@ namespace Log2Window
             logListView.ContextMenu = new ContextMenu()
             {
                 MenuItems = {
+                     new MenuItem("Sync with Logger Tree", new EventHandler(LogListView_SyncWithLoggerTree)),
+                     new MenuItem("Disable Logger", new EventHandler(LogListView_DisableLogger)),
                      new MenuItem("Filter by This Thread", new EventHandler(LogListView_MenuFilterThisThread)),
                      new MenuItem("Remove all Filter by Thread", new EventHandler(LogListView_MenuRemoveAllFilterByThread)),
                      new MenuItem("-"),
@@ -119,6 +121,7 @@ namespace Log2Window
                      },
                      new MenuItem("Clear All Format", new EventHandler(LogListView_MenuClearAllFormat)),
                      //new MenuItem("Go to this message without search", new EventHandler(LogListView_GoToThisMessgeWithoutSearch))
+                   
                 }
             };
 
@@ -361,6 +364,32 @@ namespace Log2Window
 
             logListView.Refresh();
         }
+
+        private void LogListView_SyncWithLoggerTree(object sender, EventArgs e)
+        {
+            lock (LogManager.Instance.dataLocker)
+            {
+                var selectedIndex = logListView.SelectedIndices[0];
+                var dataItem = LogManager.Instance._dataSource[selectedIndex];
+                var loggerItem = dataItem.Parent;
+                loggerItem.LoggerView.Sync();
+            } 
+        }
+
+        private void LogListView_DisableLogger(object sender, EventArgs e)
+        {
+            lock (LogManager.Instance.dataLocker)
+            {
+                var selectedIndex = logListView.SelectedIndices[0];
+                var dataItem = LogManager.Instance._dataSource[selectedIndex];
+                var loggerItem = dataItem.Parent;
+                loggerItem.LoggerView.Sync();
+                loggerItem.Enabled = false;
+            }
+
+            ReBindListViewFromAllLogMessageItems(true); 
+        }
+        
 
         //private void LogListView_GoToThisMessgeWithoutSearch(object sender, EventArgs e)
         //{
