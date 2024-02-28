@@ -387,7 +387,7 @@ namespace Log2Window
                 loggerItem.Enabled = false;
             }
 
-            ReBindListViewFromAllLogMessageItems(true); 
+            ReBindListViewFromAllLogMessageItems(); 
         }
         
 
