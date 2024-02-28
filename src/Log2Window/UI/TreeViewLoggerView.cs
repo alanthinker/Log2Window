@@ -3,6 +3,8 @@ using System.Drawing;
 
 using Log2Window.Log;
 using System;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Log2Window.UI
 {
@@ -138,6 +140,7 @@ namespace Log2Window.UI
             }
         }
 
+
         public void Sync()
         {
             var node = _node;
@@ -146,6 +149,21 @@ namespace Log2Window.UI
                 node.Expand();
                 node = node.Parent;
             }
+
+            BlinkTreeNode();
+        }
+
+        private void BlinkTreeNode()
+        {
+            _node.ForeColor = Color.Red;
+            Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(1000);
+                _treeView.Invoke((MethodInvoker)delegate
+                {
+                    _node.ForeColor = Color.Black;
+                });
+            });
         }
 
         /// <summary>
