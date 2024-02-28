@@ -76,7 +76,7 @@ namespace Log2Window.UI
                 temp = AddNewInner(text, logger);
             }
             return temp;
-        } 
+        }
 
         //按 text 排序添加.
         TreeNode AddNode(TreeNodeCollection nodes, string key, string text)
@@ -85,8 +85,7 @@ namespace Log2Window.UI
 
             for (int i = 0; i < nodes.Count; i++)
             {
-                //忽略区域和字母大小写比较大小
-                if (string.CompareOrdinal(nodes[i].Text, text) > 0)
+                if (string.Compare(nodes[i].Text, text, StringComparison.InvariantCultureIgnoreCase) > 0)
                 {
                     firstBiggerThanNewIndex = i;
                     break;
@@ -142,7 +141,7 @@ namespace Log2Window.UI
         public void Sync()
         {
             var node = _node;
-            while(node != null)
+            while (node != null)
             {
                 node.Expand();
                 node = node.Parent;
