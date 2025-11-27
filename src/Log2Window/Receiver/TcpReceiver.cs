@@ -133,6 +133,7 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\TestLog4
         }
 
         static char[] log4jEndTag = "</log4j:event>".ToCharArray();
+        static char[] myJsonEndTag = "<$=myJsonEndTag=$>".ToCharArray();
         void ProcessReceivedData(object newSocket)
         {
             try
@@ -155,6 +156,43 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\TestLog4
                                 {
                                     var str = sb.ToString();
                                     LogMessage logMsg = ReceiverUtils.ParseLog4JXmlLogEvent(str, "TcpLogger");
+                                    logMsg.RootLoggerName = logMsg.LoggerName;
+                                    //logMsg.LoggerName = string.Format(":{1}.{0}", logMsg.LoggerName, _port); 
+
+                                    if (_useRemoteIPAsNamespacePrefix)
+                                    {
+                                        var ipEndPoint = socket.RemoteEndPoint as IPEndPoint;
+                                        if (ipEndPoint != null)
+                                        {
+                                            logMsg.LoggerName = string.Format("{0}.{1}", ipEndPoint.Address.ToString().Replace('.', '_'), logMsg.LoggerName);
+                                        }
+                                        else
+                                        {
+                                            var dnsEndPoint = socket.RemoteEndPoint as DnsEndPoint;
+                                            if (dnsEndPoint != null)
+                                            {
+                                                logMsg.LoggerName = string.Format("{0}.{1}", dnsEndPoint.Host.Replace('.', '_'), logMsg.LoggerName);
+                                            }
+                                            else
+                                            {
+                                                // rmove ':' , because same app may have different port number after it restart.
+                                                var fullAddress = socket.RemoteEndPoint.ToString();
+                                                var address = fullAddress.Substring(0, fullAddress.IndexOf(":"));
+                                                logMsg.LoggerName = string.Format("{0}.{1}", address.Replace('.', '_'), logMsg.LoggerName);
+                                            }
+                                        }
+                                    }
+
+                                    if (Notifiable != null)
+                                        Notifiable.Notify(logMsg);
+
+                                    sb = new StringBuilder();
+                                }
+                                else if (IsEndWith(sb, myJsonEndTag))
+                                {
+                                    sb.Remove(sb.Length - myJsonEndTag.Length, myJsonEndTag.Length);
+                                    var str = sb.ToString();
+                                    LogMessage logMsg = ReceiverUtils.ParseJsonLogEvent(str, "TcpLogger");
                                     logMsg.RootLoggerName = logMsg.LoggerName;
                                     //logMsg.LoggerName = string.Format(":{1}.{0}", logMsg.LoggerName, _port); 
 

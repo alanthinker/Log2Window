@@ -91,6 +91,41 @@ namespace Log2Window.Receiver
             }
         }
 
+        public static LogMessage ParseJsonLogEvent(string logEvent, string defaultLogger)
+        {
+            try
+            {
+                logEvent = ReplaceHexadecimalSymbols(logEvent);
+                var ob = System.Text.Json.JsonSerializer.Deserialize<JsonLogMsg>(logEvent);
+
+                return new LogMessage
+                {
+                    // Create a simple log message with some default values
+                    LoggerName = ob.target,
+                    RootLoggerName = defaultLogger,
+                    ThreadName = ob.threadId,
+                    Message = ob.ToMessage() + (ob.spans != null ? "\nspans:\n" + ob.spans : ""),
+                    TimeStamp = DateTime.Parse(ob.timestamp),
+                    Level = LogLevels.Instance[ob.level]  //todo                   
+                };
+            }
+            catch (Exception ex)
+            {
+                Utils.log.Error("ParseJsonLogEvent: " + ex.Message + "\nraw message:\n" + logEvent, ex);
+                return new LogMessage
+                {
+                    // Create a simple log message with some default values
+                    LoggerName = defaultLogger,
+                    RootLoggerName = defaultLogger,
+                    ThreadName = "NA",
+                    Message = logEvent,
+                    TimeStamp = DateTime.Now,
+                    Level = LogLevels.Instance[LogLevel.Info],
+                    ExceptionString = ex.Message
+                };
+            }
+        }
+
         /// <summary>
         /// Here we expect the log event to use the log4j schema.
         /// Sample:
