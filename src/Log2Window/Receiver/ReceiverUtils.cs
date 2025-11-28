@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -96,6 +97,7 @@ namespace Log2Window.Receiver
             try
             {
                 logEvent = ReplaceHexadecimalSymbols(logEvent);
+                
                 var ob = System.Text.Json.JsonSerializer.Deserialize<JsonLogMsg>(logEvent);
 
                 return new LogMessage
@@ -104,7 +106,7 @@ namespace Log2Window.Receiver
                     LoggerName = !string.IsNullOrEmpty(nsPreFixStr) ? nsPreFixStr + "." + ob.target : ob.target,
                     RootLoggerName = defaultLogger,
                     ThreadName = ob.threadId,
-                    Message = ob.ToMessage() + (ob.spans != null ? "\nspans:\n" + ob.spans : ""),
+                    Message = ob.ToMessage() + (ob.spans != null ? "\nspans:\n" + ob.ToSpanListDesp() : ""),
                     TimeStamp = DateTime.Parse(ob.timestamp),
                     Level = LogLevels.Instance[ob.level]  //todo                   
                 };

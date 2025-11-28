@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace Log2Window.Log
@@ -23,8 +24,32 @@ namespace Log2Window.Log
             foreach (var field in fields)
             {
                 if (field.Key != "message")
-                { sb.AppendLine(field.Key + " = " + field.Value); }
+                {
+                    sb.AppendLine(field.Key + " = " + field.Value);
+                }
             }
+
+            return sb.ToString();
+        }
+
+        public string ToSpanListDesp()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("[");
+            foreach (var span1 in spans)
+            {
+                
+                if (span1 is JsonObject span2)
+                {
+                    sb.AppendLine("  {");
+                    foreach (var pair in span2)
+                    {
+                        sb.AppendLine($"    {pair.Key} = {pair.Value}");
+                    }
+                    sb.AppendLine("  }");
+                }
+            }
+            sb.AppendLine("]");
 
             return sb.ToString();
         }
