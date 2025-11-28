@@ -1,4 +1,4 @@
-using Log2Window.Log;
+﻿using Log2Window.Log;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -133,7 +133,8 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\TestLog4
         }
 
         static char[] log4jEndTag = "</log4j:event>".ToCharArray();
-        static char[] myJsonEndTag = "<$=myJsonEndTag=$>".ToCharArray();
+        static string myJsonEndStartTag = "'''".Replace("'", "\""); // 3个双引号
+        static char[] myJsonEndEndTag = "''''".Replace("'", "\"").ToCharArray(); // 4个双引号
         void ProcessReceivedData(object newSocket)
         {
             try
@@ -159,66 +160,55 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\TestLog4
                                     logMsg.RootLoggerName = logMsg.LoggerName;
                                     //logMsg.LoggerName = string.Format(":{1}.{0}", logMsg.LoggerName, _port); 
 
-                                    if (_useRemoteIPAsNamespacePrefix)
-                                    {
-                                        var ipEndPoint = socket.RemoteEndPoint as IPEndPoint;
-                                        if (ipEndPoint != null)
-                                        {
-                                            logMsg.LoggerName = string.Format("{0}.{1}", ipEndPoint.Address.ToString().Replace('.', '_'), logMsg.LoggerName);
-                                        }
-                                        else
-                                        {
-                                            var dnsEndPoint = socket.RemoteEndPoint as DnsEndPoint;
-                                            if (dnsEndPoint != null)
-                                            {
-                                                logMsg.LoggerName = string.Format("{0}.{1}", dnsEndPoint.Host.Replace('.', '_'), logMsg.LoggerName);
-                                            }
-                                            else
-                                            {
-                                                // rmove ':' , because same app may have different port number after it restart.
-                                                var fullAddress = socket.RemoteEndPoint.ToString();
-                                                var address = fullAddress.Substring(0, fullAddress.IndexOf(":"));
-                                                logMsg.LoggerName = string.Format("{0}.{1}", address.Replace('.', '_'), logMsg.LoggerName);
-                                            }
-                                        }
-                                    }
+                                    ReNameLoggerNameByIp(socket, logMsg);
 
                                     if (Notifiable != null)
                                         Notifiable.Notify(logMsg);
 
                                     sb = new StringBuilder();
                                 }
-                                else if (IsEndWith(sb, myJsonEndTag))
+                                else if (IsEndWith(sb, myJsonEndEndTag))
                                 {
-                                    sb.Remove(sb.Length - myJsonEndTag.Length, myJsonEndTag.Length);
-                                    var str = sb.ToString();
-                                    LogMessage logMsg = ReceiverUtils.ParseJsonLogEvent(str, "TcpLogger");
+                                    // 完整的 json 后, 会追加 """{nsPreFixStr}"""" 作为结尾. 这里提取出 nsPreFixStr
+                                    ReadOnlySpan<char> endEndTag = myJsonEndEndTag.AsSpan();
+                                    ReadOnlySpan<char> endStartTag = myJsonEndStartTag.AsSpan();
+
+                                    // 获取字符串内容（不可避免的一次 ToString）
+                                    string str = sb.ToString();
+                                    ReadOnlySpan<char> totalSpan = str.AsSpan();
+
+                                    // 去掉结尾的 endEndTag：判断是否以它结尾，然后手动切片
+                                    if (totalSpan.Length >= endEndTag.Length &&
+                                        totalSpan.EndsWith(endEndTag))
+                                    {
+                                        totalSpan = totalSpan.Slice(0, totalSpan.Length - endEndTag.Length);
+                                    }
+
+                                    // 查找最后一个开始标签的位置
+                                    int lastIndex = totalSpan.LastIndexOf(endStartTag);
+                                    if (lastIndex == -1)
+                                    {
+                                        //todo
+                                        throw new InvalidOperationException("Start tag not found");
+                                    }
+
+                                    // 提取 nsPreFix：从 lastIndex + tag长度 到结尾
+                                    int prefixStart = lastIndex + endStartTag.Length;
+                                    int prefixLength = totalSpan.Length - prefixStart;
+                                    ReadOnlySpan<char> nsPreFix = totalSpan.Slice(prefixStart, prefixLength);
+
+                                    // 提取前面部分（str）：从开头到 lastIndex
+                                    ReadOnlySpan<char> resultSpan = totalSpan.Slice(0, lastIndex);
+
+                                    // 如果你需要 string，只在这里转换（按需分配）
+                                    string finalString = resultSpan.ToString();
+                                    string nsPreFixStr = nsPreFix.ToString();
+
+                                    LogMessage logMsg = ReceiverUtils.ParseJsonLogEvent(finalString, "TcpLogger", nsPreFixStr);
                                     logMsg.RootLoggerName = logMsg.LoggerName;
                                     //logMsg.LoggerName = string.Format(":{1}.{0}", logMsg.LoggerName, _port); 
 
-                                    if (_useRemoteIPAsNamespacePrefix)
-                                    {
-                                        var ipEndPoint = socket.RemoteEndPoint as IPEndPoint;
-                                        if (ipEndPoint != null)
-                                        {
-                                            logMsg.LoggerName = string.Format("{0}.{1}", ipEndPoint.Address.ToString().Replace('.', '_'), logMsg.LoggerName);
-                                        }
-                                        else
-                                        {
-                                            var dnsEndPoint = socket.RemoteEndPoint as DnsEndPoint;
-                                            if (dnsEndPoint != null)
-                                            {
-                                                logMsg.LoggerName = string.Format("{0}.{1}", dnsEndPoint.Host.Replace('.', '_'), logMsg.LoggerName);
-                                            }
-                                            else
-                                            {
-                                                // rmove ':' , because same app may have different port number after it restart.
-                                                var fullAddress = socket.RemoteEndPoint.ToString();
-                                                var address = fullAddress.Substring(0, fullAddress.IndexOf(":"));
-                                                logMsg.LoggerName = string.Format("{0}.{1}", address.Replace('.', '_'), logMsg.LoggerName);
-                                            }
-                                        }
-                                    }
+                                    ReNameLoggerNameByIp(socket, logMsg);
 
                                     if (Notifiable != null)
                                         Notifiable.Notify(logMsg);
@@ -237,6 +227,33 @@ Please using AlanThinker.MyLog4net.TcpAppender.cs in the ExampleProject\TestLog4
             catch (Exception ex)
             {
                 Utils.log.Error(ex.Message, ex);
+            }
+        }
+
+        private void ReNameLoggerNameByIp(Socket socket, LogMessage logMsg)
+        {
+            if (_useRemoteIPAsNamespacePrefix)
+            {
+                var ipEndPoint = socket.RemoteEndPoint as IPEndPoint;
+                if (ipEndPoint != null)
+                {
+                    logMsg.LoggerName = string.Format("{0}.{1}", ipEndPoint.Address.ToString().Replace('.', '_'), logMsg.LoggerName);
+                }
+                else
+                {
+                    var dnsEndPoint = socket.RemoteEndPoint as DnsEndPoint;
+                    if (dnsEndPoint != null)
+                    {
+                        logMsg.LoggerName = string.Format("{0}.{1}", dnsEndPoint.Host.Replace('.', '_'), logMsg.LoggerName);
+                    }
+                    else
+                    {
+                        // rmove ':' , because same app may have different port number after it restart.
+                        var fullAddress = socket.RemoteEndPoint.ToString();
+                        var address = fullAddress.Substring(0, fullAddress.IndexOf(":"));
+                        logMsg.LoggerName = string.Format("{0}.{1}", address.Replace('.', '_'), logMsg.LoggerName);
+                    }
+                }
             }
         }
 
