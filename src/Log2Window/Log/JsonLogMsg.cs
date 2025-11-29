@@ -15,6 +15,8 @@ namespace Log2Window.Log
         public string target { get; set; }
         public System.Text.Json.Nodes.JsonArray spans { get; set; }
         public string threadId { get; set; }
+        public string filename { get; set; }
+        public UInt32 line_number { get; set; }
 
         public string ToMessage()
         {

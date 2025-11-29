@@ -97,7 +97,7 @@ namespace Log2Window.Receiver
             try
             {
                 logEvent = ReplaceHexadecimalSymbols(logEvent);
-                
+
                 var ob = System.Text.Json.JsonSerializer.Deserialize<JsonLogMsg>(logEvent);
 
                 return new LogMessage
@@ -108,7 +108,9 @@ namespace Log2Window.Receiver
                     ThreadName = ob.threadId,
                     Message = ob.ToMessage() + (ob.spans != null ? "\nspans:\n" + ob.ToSpanListDesp() : ""),
                     TimeStamp = DateTime.Parse(ob.timestamp),
-                    Level = LogLevels.Instance[ob.level]  //todo                   
+                    Level = LogLevels.Instance[ob.level],     //todo
+                    SourceFileName = ob.filename,
+                    SourceFileLineNr = ob.line_number,
                 };
             }
             catch (Exception ex)
