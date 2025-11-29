@@ -92,7 +92,7 @@ namespace Log2Window.Receiver
             }
         }
 
-        public static LogMessage ParseJsonLogEvent(string logEvent, string defaultLogger, string nsPreFixStr)
+        public static LogMessage ParseJsonLogEvent(string logEvent, string defaultLogger)
         {
             try
             {
@@ -103,7 +103,7 @@ namespace Log2Window.Receiver
                 return new LogMessage
                 {
                     // Create a simple log message with some default values
-                    LoggerName = !string.IsNullOrEmpty(nsPreFixStr) ? nsPreFixStr + "." + ob.target : ob.target,
+                    LoggerName = ob.target,
                     RootLoggerName = defaultLogger,
                     ThreadName = ob.threadId,
                     Message = ob.ToMessage() + (ob.spans != null ? "\nspans:\n" + ob.ToSpanListDesp() : ""),
