@@ -103,6 +103,30 @@ namespace Log2Window
 
         }
 
+        public static string GenerateCsvString()
+        {
+            using (StringWriter stringWriter = new StringWriter())
+            {
+                lock (LogManager.Instance.dataLocker)
+                {
+                    var csvWriter = new CsvWriter(stringWriter);
+                    csvWriter.Configuration.Encoding = Encoding.UTF8;
+
+                    for (int i = 0; i < UserSettings.Instance.ColumnConfiguration.Length; i++)
+                    {
+                        csvWriter.WriteField(UserSettings.Instance.ColumnConfiguration[i].Field.ToString());
+                    }
+                    csvWriter.NextRecord();
+
+                    foreach (var loggerItem in LogManager.Instance._dataSource)
+                    {
+                        WriteARow(csvWriter, loggerItem.Message);
+                    }
+                }
+                return stringWriter.ToString();
+            }
+        }
+
         public static void Export2Log4jFile(string FileName)
         {
             lock (LogManager.Instance.dataLocker)
@@ -174,7 +198,7 @@ namespace Log2Window
             using (var br = new BinaryReader(new FileStream(fileName, FileMode.Open, FileAccess.Read)))
             {
                 var bs = br.ReadBytes(2);
-                var msg = "·Ç·¨µÄPEÎÄ¼þ";
+                var msg = "ï¿½Ç·ï¿½ï¿½ï¿½PEï¿½Ä¼ï¿½";
                 if (bs.Length != 2) throw new Exception(msg);
                 if (bs[0] != 'M' || bs[1] != 'Z') throw new Exception(msg);
                 br.BaseStream.Seek(0x3c, SeekOrigin.Begin);

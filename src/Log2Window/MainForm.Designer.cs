@@ -67,6 +67,7 @@ namespace Log2Window
             this.ddbExportBtn = new System.Windows.Forms.ToolStripDropDownButton();
             this.miExportLog4jXmlFile = new System.Windows.Forms.ToolStripMenuItem();
             this.miExportExcelCsvFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.miCopyCsvToClipboard = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
@@ -453,7 +454,8 @@ namespace Log2Window
             this.ddbExportBtn.AutoToolTip = false;
             this.ddbExportBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.miExportLog4jXmlFile,
-            this.miExportExcelCsvFile});
+            this.miExportExcelCsvFile,
+            this.miCopyCsvToClipboard});
             this.ddbExportBtn.Image = global::Log2Window.Properties.Resources.saveas16;
             this.ddbExportBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.ddbExportBtn.Name = "ddbExportBtn";
@@ -475,6 +477,14 @@ namespace Log2Window
             this.miExportExcelCsvFile.Size = new System.Drawing.Size(193, 22);
             this.miExportExcelCsvFile.Text = "Export to excel csv file";
             this.miExportExcelCsvFile.Click += new System.EventHandler(this.miExportExcelCsvFile_Click);
+            // 
+            // miCopyCsvToClipboard
+            // 
+            this.miCopyCsvToClipboard.Image = global::Log2Window.Properties.Resources.documentsorcopy16;
+            this.miCopyCsvToClipboard.Name = "miCopyCsvToClipboard";
+            this.miCopyCsvToClipboard.Size = new System.Drawing.Size(193, 22);
+            this.miCopyCsvToClipboard.Text = "Copy csv to clipboard";
+            this.miCopyCsvToClipboard.Click += new System.EventHandler(this.miCopyCsvToClipboard_Click);
             // 
             // toolStripSeparator4
             // 
@@ -1162,6 +1172,7 @@ namespace Log2Window
         private ToolStripDropDownButton ddbExportBtn;
         private ToolStripMenuItem miExportLog4jXmlFile;
         private ToolStripMenuItem miExportExcelCsvFile;
+        private ToolStripMenuItem miCopyCsvToClipboard;
         private ToolStripDropDownButton ddbOpenLogFileBtn;
         private ToolStripMenuItem miOpenLog4jXmlFile;
         private ToolStripMenuItem miOpenPatternLayoutFile;
