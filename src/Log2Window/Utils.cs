@@ -5,6 +5,7 @@ using Log2Window.Settings;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -198,7 +199,7 @@ namespace Log2Window
             using (var br = new BinaryReader(new FileStream(fileName, FileMode.Open, FileAccess.Read)))
             {
                 var bs = br.ReadBytes(2);
-                var msg = "�Ƿ���PE�ļ�";
+                var msg = "非法的PE文件";
                 if (bs.Length != 2) throw new Exception(msg);
                 if (bs[0] != 'M' || bs[1] != 'Z') throw new Exception(msg);
                 br.BaseStream.Seek(0x3c, SeekOrigin.Begin);
@@ -219,5 +220,91 @@ namespace Log2Window
                   TimeZoneInfo.CreateCustomTimeZone("beijingTime", TimeSpan.FromHours(8), "", ""));
             return beijingTime;
         }
+
+        #region Centered MessageBox
+
+        private static IntPtr _centerMessageBoxHook = IntPtr.Zero;
+        private static Form _centerMessageBoxOwner = null;
+        private const int WH_CBT = 5;
+        private const int HCBT_ACTIVATE = 5;
+
+        [DllImport("kernel32.dll")]
+        private static extern int GetCurrentThreadId();
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SetWindowsHookEx(int idHook, CenterMessageBoxCBTHookDelegate lpfn, IntPtr hMod, int dwThreadId);
+
+        [DllImport("user32.dll")]
+        private static extern int CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+        [DllImport("user32.dll")]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        private delegate IntPtr CenterMessageBoxCBTHookDelegate(int nCode, IntPtr wParam, IntPtr lParam);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int left;
+            public int top;
+            public int right;
+            public int bottom;
+        }
+
+        /// <summary>
+        /// Shows a MessageBox centered on the parent form instead of screen center.
+        /// Uses Windows API hook to position the dialog correctly.
+        /// </summary>
+        public static DialogResult ShowCenteredMessageBox(Form owner, string text, string caption,
+            MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
+        {
+            _centerMessageBoxOwner = owner;
+            _centerMessageBoxHook = SetWindowsHookEx(WH_CBT, new CenterMessageBoxCBTHookDelegate(CenterMessageBoxCBTHook), IntPtr.Zero, GetCurrentThreadId());
+            try
+            {
+                return MessageBox.Show(owner, text, caption, buttons, icon, defaultButton);
+            }
+            finally
+            {
+                if (_centerMessageBoxHook != IntPtr.Zero)
+                {
+                    UnhookWindowsHookEx(_centerMessageBoxHook);
+                    _centerMessageBoxHook = IntPtr.Zero;
+                }
+                _centerMessageBoxOwner = null;
+            }
+        }
+
+        private static IntPtr CenterMessageBoxCBTHook(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode == HCBT_ACTIVATE && _centerMessageBoxOwner != null)
+            {
+                IntPtr hMsgBox = wParam;
+
+                RECT rect;
+                GetWindowRect(hMsgBox, out rect);
+                int msgWidth = rect.right - rect.left;
+                int msgHeight = rect.bottom - rect.top;
+
+                int x = _centerMessageBoxOwner.Left + (_centerMessageBoxOwner.Width - msgWidth) / 2;
+                int y = _centerMessageBoxOwner.Top + (_centerMessageBoxOwner.Height - msgHeight) / 2;
+
+                SetWindowPos(hMsgBox, IntPtr.Zero, x, y, 0, 0, 0x0001 | 0x0004 | 0x0010);
+
+                UnhookWindowsHookEx(_centerMessageBoxHook);
+                _centerMessageBoxHook = IntPtr.Zero;
+            }
+
+            return (IntPtr)CallNextHookEx(_centerMessageBoxHook, nCode, wParam, lParam);
+        }
+
+        #endregion
     }
 }

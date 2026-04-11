@@ -372,6 +372,18 @@ namespace Log2Window
             if (logListView.SelectedIndices.Count == 0)
                 return;
 
+// Ask for confirmation before deleting
+            var result = Utils.ShowCenteredMessageBox(
+                this,
+                "Are you sure you want to delete all log items before this one?\n\nThis action cannot be undone!",
+                "Confirm Delete",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+            if (result != DialogResult.Yes)
+                return;
+
             lock (LogManager.Instance.dataLocker)
             {
                 var selectedIndex = logListView.SelectedIndices[0];
@@ -1806,5 +1818,6 @@ namespace Log2Window
                 InitializeReceiver(fr);
             }
         }
-    }
+
+        }
 }
