@@ -120,9 +120,11 @@ namespace Log2Window
                         }
                      },
                      new MenuItem("Clear All Format", new EventHandler(LogListView_MenuClearAllFormat)),
-                     //new MenuItem("Go to this message without search", new EventHandler(LogListView_GoToThisMessgeWithoutSearch))
-                   
-                }
+                      new MenuItem("-"),
+                      new MenuItem("Delete all before this log item", new EventHandler(LogListView_DeleteAllBeforeThisItem)),
+                      //new MenuItem("Go to this message without search", new EventHandler(LogListView_GoToThisMessgeWithoutSearch))
+                    
+                 }
             };
 
             logListView.ContextMenu.Popup += logListViewContextMenu_Popup;
@@ -365,6 +367,37 @@ namespace Log2Window
             logListView.Refresh();
         }
 
+        private void LogListView_DeleteAllBeforeThisItem(object sender, EventArgs e)
+        {
+            if (logListView.SelectedIndices.Count == 0)
+                return;
+
+            lock (LogManager.Instance.dataLocker)
+            {
+                var selectedIndex = logListView.SelectedIndices[0];
+                if (selectedIndex <= 0)
+                    return; // No items to delete before the first item
+
+                var selectedArrivedId = LogManager.Instance._dataSource[selectedIndex].Message.ArrivedId;
+
+                // Efficiently remove items from head using predicate
+                // This avoids creating a new list and iterates only items to be removed
+                long removedCount = LogManager.Instance._allLogMessageItems.RemoveFromHead(
+                    item => item.Message.ArrivedId < selectedArrivedId);
+
+                if (removedCount > 0)
+                {
+                    // Clear the cache dictionary
+                    dictListViewItem.Clear();
+                    // Force GC to reclaim memory
+                    GC.Collect();
+                }
+            }
+
+            ReBindListViewFromAllLogMessageItems();
+            logListView.Focus();
+        }
+
         private void LogListView_SyncWithLoggerTree(object sender, EventArgs e)
         {
             lock (LogManager.Instance.dataLocker)
@@ -373,7 +406,7 @@ namespace Log2Window
                 var dataItem = LogManager.Instance._dataSource[selectedIndex];
                 var loggerItem = dataItem.Parent;
                 loggerItem.LoggerView.Sync();
-            } 
+            }
         }
 
         private void LogListView_DisableLogger(object sender, EventArgs e)
@@ -387,9 +420,9 @@ namespace Log2Window
                 loggerItem.Enabled = false;
             }
 
-            ReBindListViewFromAllLogMessageItems(); 
+            ReBindListViewFromAllLogMessageItems();
         }
-        
+
 
         //private void LogListView_GoToThisMessgeWithoutSearch(object sender, EventArgs e)
         //{

@@ -91,5 +91,30 @@ namespace Log2Window
             }
             return list;
         }
+
+        /// <summary>
+        /// Remove all items from the head of each category list where predicate returns true.
+        /// Uses binary search to find the boundary, then batch removes items.
+        /// </summary>
+        /// <param name="predicate">Function to test each item. Return true to remove.</param>
+        /// <returns>Number of items removed.</returns>
+        public long RemoveFromHead(Func<T, bool> predicate)
+        {
+            long removedCount = 0;
+            foreach (var pair in _categories)
+            {
+                var myList = pair.Value;
+                // Binary search to find first item to keep
+                int firstToKeep = myList.FindFirstIndexToKeep(predicate);
+                if (firstToKeep > 0)
+                {
+                    removedCount += firstToKeep;
+                    myList.RemoveRangeFromHead(firstToKeep);
+                }
+                // Compact memory after removal
+                myList.TrimExcess();
+            }
+            return removedCount;
+        }
     }   
 }

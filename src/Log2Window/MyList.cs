@@ -88,5 +88,68 @@ namespace Log2Window
         {
             this.list.Sort(startIndex, endIndexAddOne - startIndex, Comparer<T>.Default);
         }
+
+        /// <summary>
+        /// Compact the internal list by removing dequeued items and freeing memory.
+        /// </summary>
+        public void TrimExcess()
+        {
+            if (startIndex > 0)
+            {
+                StateId++;
+                var newlist = new List<T>(this.Count);
+                for (int i = startIndex; i < endIndexAddOne; i++)
+                {
+                    newlist.Add(list[i]);
+                }
+                list.Clear();
+                list = newlist;
+                startIndex = 0;
+                endIndexAddOne = list.Count;
+            }
+        }
+
+        /// <summary>
+        /// Remove specified number of items from head. O(1) operation.
+        /// </summary>
+        /// <param name="count">Number of items to remove.</param>
+        public void RemoveRangeFromHead(int count)
+        {
+            if (count <= 0) return;
+            if (count > this.Count) count = this.Count;
+            
+            StateId++;
+            startIndex += count;
+        }
+
+        /// <summary>
+        /// Find the index of first item where predicate returns false using binary search.
+        /// Assumes list is sorted by the property being compared.
+        /// </summary>
+        /// <param name="predicate">Return true for items to be removed (smaller items).</param>
+        /// <returns>Index of first item to keep, or Count if all items should be removed.</returns>
+        public int FindFirstIndexToKeep(Func<T, bool> predicate)
+        {
+            // Binary search: find first index where predicate returns false
+            int left = 0;
+            int right = this.Count;
+            
+            while (left < right)
+            {
+                int mid = left + (right - left) / 2;
+                if (predicate(this[mid]))
+                {
+                    // Item at mid should be removed, search in right half
+                    left = mid + 1;
+                }
+                else
+                {
+                    // Item at mid should be kept, search in left half (including mid)
+                    right = mid;
+                }
+            }
+            
+            return left; // First index to keep
+        }
     }
 }
