@@ -1306,20 +1306,37 @@ namespace Log2Window
             ctrl.Font = new Font(ctrl.Font.FontFamily, newSize);
         }
 
+        [DllImport("user32.dll")]
+        private static extern bool GetSystemMetrics(int nIndex);
+        private const int SM_REMOTESESSION = 0x1000;
+
         /// <summary>
-        /// Calculates the effective DPI scale factor by considering both:
-        /// 1. System DPI scaling (when Windows scaling is > 100%)
-        /// 2. Physical screen PPI via GetDpiForMonitor (Windows 8.1+)
-        /// 3. Physical screen PPI via GetDeviceCaps fallback
+        /// Calculates the effective DPI scale factor.
+        /// 
+        /// Order of preference:
+        ///   1. System display scaling (g.DpiX) — the only reliable source in Remote Desktop.
+        ///   2. Raw physical DPI via GetDpiForMonitor (Windows 8.1+, local session only).
+        ///   3. Physical PPI from GetDeviceCaps.
+        ///   
+        /// In a Remote Desktop session the virtual driver / DPI APIs report the HOST monitor's
+        /// physical DPI, not the CLIENT's.  We therefore skip physical-PPI probes entirely
+        /// and rely solely on the host's display-scaling % (which RDP passes through).
         /// </summary>
         private float GetEffectiveScaleFactor()
         {
+            bool isRemoteSession = GetSystemMetrics(SM_REMOTESESSION);
+
             // First check: system DPI scaling (Windows display scaling > 100%)
             using (var g = CreateGraphics())
             {
                 if (g.DpiX > 96.5f)
                     return g.DpiX / 96f;
             }
+
+            // In Remote Desktop the remaining APIs report the HOST's physical monitor,
+            // which does NOT represent the CLIENT's display density — bail with default.
+            if (isRemoteSession)
+                return 1.0f;
 
             // Second check: raw physical DPI from the monitor via GetDpiForMonitor (Windows 8.1+)
             try
@@ -1347,7 +1364,7 @@ namespace Log2Window
                 Utils.log.Debug("GetDpiForMonitor failed: " + ex.Message);
             }
 
-            // Third check: fallback to GetDeviceCaps physical PPI
+            // Third check: fallback to GetDeviceCaps physical PPI (local session only)
             IntPtr hdc = GetDC(IntPtr.Zero);
             if (hdc != IntPtr.Zero)
             {
@@ -1377,23 +1394,8 @@ namespace Log2Window
                 }
             }
 
-            // Fourth fallback: heuristic based on screen resolution
-            // Some drivers report inaccurate physical dimensions, so use pixel width
-            // as a rough indicator of display density
-            if (this.IsHandleCreated)
-            {
-                var screen = Screen.FromHandle(Handle);
-                int width = screen.Bounds.Width;
-                Utils.log.Debug(string.Format(
-                    "Resolution heuristic: screenWidth={0}", width));
-                if (width >= 3840) // 4K or higher
-                    return 1.6f;
-                if (width >= 3200) // 3K (e.g. 3200x1800)
-                    return 1.4f;
-                if (width >= 2560) // 2K / WQHD
-                    return 1.2f;
-            }
-
+            // No heuristic fallback — pixel-width alone is wildly unreliable (especially in
+            // RDP virtual displays).  Return 1.0 so icons never appear comically oversized.
             return 1.0f;
         }
 
@@ -1423,37 +1425,62 @@ namespace Log2Window
                 scale = GetEffectiveScaleFactor();
             }
 
-            int imgSize = Math.Max(24, (int)Math.Round(24 * scale));
+            int imgSize = Math.Max(19, (int)Math.Round(19 * scale));
             Size imageScalingSize = new Size(imgSize, imgSize);
 
             // Apply vector font icons for crisp rendering at any DPI.
-            // ToolStrip's built-in SizeToFit image scaling will downscale the generously-padded
-            // bitmap to ImageScalingSize, and each item's AutoSize (default true) will make
-            // room for it.
+            // Each item gets a uniform height so that text-only level buttons,
+            // text boxes, and image+text buttons all sit on the same baseline.
             mainToolStrip.ImageScalingSize = imageScalingSize;
             IconProvider.ApplyGlyphIcons(mainToolStrip, imgSize);
+            NormalizeToolStripItemHeights(mainToolStrip, imgSize);
 
             if (loggersToolStrip != null)
             {
                 loggersToolStrip.ImageScalingSize = imageScalingSize;
                 IconProvider.ApplyGlyphIcons(loggersToolStrip, imgSize);
+                NormalizeToolStripItemHeights(loggersToolStrip, imgSize);
             }
             if (logDetailToolStrip != null)
             {
                 logDetailToolStrip.ImageScalingSize = imageScalingSize;
                 IconProvider.ApplyGlyphIcons(logDetailToolStrip, imgSize);
+                NormalizeToolStripItemHeights(logDetailToolStrip, imgSize);
             }
             if (toolStrip1 != null)
             {
                 toolStrip1.ImageScalingSize = imageScalingSize;
                 IconProvider.ApplyGlyphIcons(toolStrip1, imgSize);
+                NormalizeToolStripItemHeights(toolStrip1, imgSize);
             }
+
+            // Remove the Designer-specified bottom padding — with uniform item
+            // heights we no longer need the extra clearance.
+            mainToolStrip.Padding = new Padding(0);
 
             // Refresh layout
             mainToolStrip.PerformLayout();
             if (loggersToolStrip != null) loggersToolStrip.PerformLayout();
             if (logDetailToolStrip != null) logDetailToolStrip.PerformLayout();
             if (toolStrip1 != null) toolStrip1.PerformLayout();
+        }
+
+        /// <summary>
+        /// Gives every non-separator item on the ToolStrip a uniform height based on the
+        /// current image size. Without this, Flow layout leaves text-only items (level
+        /// filter buttons, labels) and text boxes at their Designer heights while image
+        /// buttons grow taller — causing vertical misalignment.
+        /// </summary>
+        private void NormalizeToolStripItemHeights(ToolStrip toolStrip, int imageSize)
+        {
+            int itemHeight = imageSize + 4; // image area + minimal margins
+            foreach (ToolStripItem item in toolStrip.Items)
+            {
+                if (item is ToolStripSeparator)
+                    continue;
+                item.AutoSize = false;
+                item.Size = new Size(item.Width, itemHeight);
+            }
         }
 
         private void deleteLoggerTreeMenuItem_Click(object sender, EventArgs e)

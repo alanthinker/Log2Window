@@ -48,6 +48,16 @@ namespace Log2Window.UI
 
             // ── Source Code Toolbar (toolStrip1) ──
             { "btnOpenFileInVS",             "\uF35D" },   // up-right-from-square
+
+            // ── Dropdown menu items (nested under ToolStripDropDownButton) ──
+            { "miLoadEventLog",              "\uF019" },   // download
+            { "miClearEventLog",             "\uF1F8" },   // trash
+            { "miOpenPatternLayoutFile",     "\uF15C" },   // file-lines
+            { "miOpenLog4jXmlFile",          "\uF1C9" },   // file-code
+            { "miExportLog4jXmlFile",        "\uF56D" },   // file-export
+            { "miExportExcelCsvFile",        "\uF1C3" },   // file-excel
+            { "miCopyCsvToClipboard",        "\uF0C5" },   // copy
+            { "miCopySelectedCsvToClipboard","\uF0C5" },   // copy
         };
 
         /// <summary>
@@ -80,10 +90,20 @@ namespace Log2Window.UI
             // ── Log Detail Toolbar ──
             { "zoomOutLogDetailsBtn",        Color.FromArgb(0, 150, 200) },    // 青蓝
             { "zoomInLogDetailsBtn",         Color.FromArgb(0, 150, 200) },    // 青蓝
-            { "copyLogDetailBtn",            Color.FromArgb(0, 150, 140) },    // teal
+            { "copyLogDetailBtn",            Color.FromArgb(210, 150, 30) },   // amber
 
             // ── Source Code Toolbar ──
             { "btnOpenFileInVS",             Color.FromArgb(130, 80, 180) },   // purple
+
+            // ── Dropdown menu items ──
+            { "miLoadEventLog",              Color.FromArgb(60, 120, 210) },   // blue (load)
+            { "miClearEventLog",             Color.FromArgb(210, 60, 60) },    // red (delete)
+            { "miOpenPatternLayoutFile",     Color.FromArgb(200, 160, 40) },   // gold (open)
+            { "miOpenLog4jXmlFile",          Color.FromArgb(200, 160, 40) },   // gold (open)
+            { "miExportLog4jXmlFile",        Color.FromArgb(60, 160, 80) },    // green (export)
+            { "miExportExcelCsvFile",        Color.FromArgb(60, 160, 80) },    // green (export)
+            { "miCopyCsvToClipboard",        Color.FromArgb(210, 150, 30) },  // amber
+            { "miCopySelectedCsvToClipboard",Color.FromArgb(210, 150, 30) },  // amber
         };
 
         private static readonly PrivateFontCollection _fonts = new PrivateFontCollection();
@@ -192,37 +212,54 @@ namespace Log2Window.UI
         }
 
         /// <summary>
-        /// Replaces all mapped bitmap images on the given <paramref name="toolStrip"/>
-        /// with high-quality font glyphs rendered at <paramref name="targetSize"/> pixels.
+        /// Replaces all mapped bitmap images on the toolstrip (including dropdown menu items)
+        /// with Font Awesome glyphs rendered at <paramref name="targetSize"/> pixels.
         /// </summary>
         public static void ApplyGlyphIcons(ToolStrip toolStrip, int targetSize)
         {
             foreach (ToolStripItem item in toolStrip.Items)
             {
-                if (item is ToolStripSeparator)
-                    continue;
+                ApplyGlyphToItem(item, targetSize);
 
-                string glyph;
-                if (!TryGetGlyph(item, out glyph))
-                    continue;
+                // Recurse into dropdown menus (ToolStripDropDownButton, ToolStripMenuItem)
+                if (item is ToolStripDropDownItem dropDown)
+                {
+                    foreach (ToolStripItem subItem in dropDown.DropDownItems)
+                        ApplyGlyphToItem(subItem, targetSize);
+                }
+            }
+        }
 
-                var bmp = RenderGlyph(glyph, targetSize, GetGlyphColor(item));
+        private static void ApplyGlyphToItem(ToolStripItem item, int targetSize)
+        {
+            if (item is ToolStripSeparator)
+                return;
 
-                if (item is ToolStripButton btn)
-                {
-                    btn.Image = bmp;
-                    btn.ImageTransparentColor = Color.Empty;
-                }
-                else if (item is ToolStripDropDownButton ddb)
-                {
-                    ddb.Image = bmp;
-                    ddb.ImageTransparentColor = Color.Empty;
-                }
-                else if (item is ToolStripLabel lbl)
-                {
-                    lbl.Image = bmp;
-                    lbl.ImageTransparentColor = Color.Empty;
-                }
+            string glyph;
+            if (!TryGetGlyph(item, out glyph))
+                return;
+
+            var bmp = RenderGlyph(glyph, targetSize, GetGlyphColor(item));
+
+            if (item is ToolStripButton btn)
+            {
+                btn.Image = bmp;
+                btn.ImageTransparentColor = Color.Empty;
+            }
+            else if (item is ToolStripDropDownButton ddb)
+            {
+                ddb.Image = bmp;
+                ddb.ImageTransparentColor = Color.Empty;
+            }
+            else if (item is ToolStripLabel lbl)
+            {
+                lbl.Image = bmp;
+                lbl.ImageTransparentColor = Color.Empty;
+            }
+            else if (item is ToolStripMenuItem mi)
+            {
+                mi.Image = bmp;
+                mi.ImageTransparentColor = Color.Empty;
             }
         }
     }
