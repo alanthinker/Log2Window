@@ -1783,6 +1783,36 @@ namespace Log2Window
             }
         }
 
+        private void miCopySelectedCsvToClipboard_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                List<LogMessage> selectedMessages;
+                lock (LogManager.Instance.dataLocker)
+                {
+                    selectedMessages = logListView.SelectedIndices
+                        .Cast<int>()
+                        .Select(index => LogManager.Instance._dataSource[index].Message)
+                        .ToList();
+                }
+
+                if (selectedMessages.Count == 0)
+                {
+                    MessageBox.Show("No log items selected.", "Copy to Clipboard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                string csvContent = Utils.GenerateCsvString(selectedMessages);
+                Clipboard.SetText(csvContent);
+                MessageBox.Show("CSV content copied to clipboard", "Copy to Clipboard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                Utils.log.Error(ex.Message, ex);
+                MessageBox.Show("Failed to copy to clipboard: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void miOpenLog4jXmlFile_Click(object sender, EventArgs e)
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)

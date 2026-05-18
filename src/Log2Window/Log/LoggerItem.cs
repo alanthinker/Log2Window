@@ -391,9 +391,18 @@ namespace Log2Window.Log
                                 {
                                     int index = 0;
                                     ulong thisArrivedId;
+                                    // 保存当前所有选中项的 ArrivedId，用于在新消息到达后恢复多选状态
+                                    List<ulong> selectedArrivedIds = new List<ulong>();
                                     if (logListView.SelectedIndices.Count > 0)
                                     {
                                         index = logListView.SelectedIndices[0];
+                                        foreach (int selectedIndex in logListView.SelectedIndices)
+                                        {
+                                            if (selectedIndex >= 0 && selectedIndex < LogManager.Instance._dataSource.Count)
+                                            {
+                                                selectedArrivedIds.Add(LogManager.Instance._dataSource[selectedIndex].Message.ArrivedId);
+                                            }
+                                        }
                                     }
                                     if (LogManager.Instance.manulSelectedArrivedId > 0)
                                     {
@@ -441,18 +450,24 @@ namespace Log2Window.Log
                                         try
                                         {
                                             LogManager.Instance.inSetSelectedIndicesByCode = true;
-                                            if (logListView.SelectedIndices.Count == 1 && logListView.SelectedIndices[0] == index)
+                                            logListView.SelectedIndices.Clear();
+                                            foreach (var arrivedId in selectedArrivedIds)
                                             {
-                                                //如果索引没变, 没必要再设置, 会触发index change事件.
-                                                // do nothing 
-                                            }
-                                            else
-                                            {
-                                                logListView.SelectedIndices.Clear();
-                                                if (LogManager.Instance._dataSource[index].Message.ArrivedId == LogManager.Instance.manulSelectedArrivedId)
+                                                for (int i = 0; i < LogManager.Instance._dataSource.Count; i++)
                                                 {
-                                                    logListView.SelectedIndices.Add(index);
+                                                    if (LogManager.Instance._dataSource[i].Message.ArrivedId == arrivedId)
+                                                    {
+                                                        logListView.SelectedIndices.Add(i);
+                                                        break;
+                                                    }
                                                 }
+                                            }
+                                            // 如果之前没有选中项，但 manulSelectedArrivedId 有效，选中对应行
+                                            if (logListView.SelectedIndices.Count == 0
+                                                && LogManager.Instance.manulSelectedArrivedId > 0
+                                                && LogManager.Instance._dataSource[index].Message.ArrivedId == LogManager.Instance.manulSelectedArrivedId)
+                                            {
+                                                logListView.SelectedIndices.Add(index);
                                             }
                                         }
                                         finally

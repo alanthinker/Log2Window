@@ -5,6 +5,7 @@ using Log2Window.Settings;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
@@ -106,24 +107,35 @@ namespace Log2Window
 
         public static string GenerateCsvString()
         {
+            lock (LogManager.Instance.dataLocker)
+            {
+                List<LogMessage> messages = new List<LogMessage>(LogManager.Instance._dataSource.Count);
+                foreach (var item in LogManager.Instance._dataSource)
+                {
+                    messages.Add(item.Message);
+                }
+                return GenerateCsvString(messages);
+            }
+        }
+
+        public static string GenerateCsvString(IEnumerable<LogMessage> messages)
+        {
             using (StringWriter stringWriter = new StringWriter())
             {
-                lock (LogManager.Instance.dataLocker)
+                var csvWriter = new CsvWriter(stringWriter);
+                csvWriter.Configuration.Encoding = Encoding.UTF8;
+
+                for (int i = 0; i < UserSettings.Instance.ColumnConfiguration.Length; i++)
                 {
-                    var csvWriter = new CsvWriter(stringWriter);
-                    csvWriter.Configuration.Encoding = Encoding.UTF8;
-
-                    for (int i = 0; i < UserSettings.Instance.ColumnConfiguration.Length; i++)
-                    {
-                        csvWriter.WriteField(UserSettings.Instance.ColumnConfiguration[i].Field.ToString());
-                    }
-                    csvWriter.NextRecord();
-
-                    foreach (var loggerItem in LogManager.Instance._dataSource)
-                    {
-                        WriteARow(csvWriter, loggerItem.Message);
-                    }
+                    csvWriter.WriteField(UserSettings.Instance.ColumnConfiguration[i].Field.ToString());
                 }
+                csvWriter.NextRecord();
+
+                foreach (var logMsg in messages)
+                {
+                    WriteARow(csvWriter, logMsg);
+                }
+
                 return stringWriter.ToString();
             }
         }
