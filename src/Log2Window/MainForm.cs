@@ -52,6 +52,7 @@ namespace Log2Window
         List<ToolStripButton> btnLogLevels = new List<ToolStripButton>();
 
 
+
         public MainForm()
         {
             Instance = this;
@@ -479,6 +480,19 @@ namespace Log2Window
 
         private const int WM_SIZE = 0x0005;
         private const int SIZE_MINIMIZED = 1;
+        private const int WM_DPICHANGED = 0x02E0;
+
+        // Physical screen PPI detection (for high-res displays at 100% scaling)
+        private const int GDI_HORZSIZE = 4;          // GetDeviceCaps: physical width in mm
+        private const int GDI_DESKTOPHORZRES = 110;  // GetDeviceCaps: physical pixels (unscaled)
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetDC(IntPtr hwnd);
+        [DllImport("user32.dll")]
+        private static extern int ReleaseDC(IntPtr hwnd, IntPtr hdc);
+        [DllImport("gdi32.dll")]
+        private static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
+
         internal static MainForm Instance;
 
         /// <summary>
@@ -488,12 +502,17 @@ namespace Log2Window
         /// <param name="msg"></param>
         protected override void WndProc(ref Message msg)
         {
-
-            if ((msg.Msg == WM_SIZE)
-                && ((int)msg.WParam == SIZE_MINIMIZED)
-                && (Minimized != null))
+            switch (msg.Msg)
             {
-                Minimized(this, EventArgs.Empty);
+                case WM_SIZE:
+                    if ((int)msg.WParam == SIZE_MINIMIZED && Minimized != null)
+                        Minimized(this, EventArgs.Empty);
+                    break;
+                case WM_DPICHANGED:
+                    // System DPI changed (e.g., window moved to a different monitor)
+                    int newDpiX = (int)(msg.WParam.ToInt64() & 0xFFFF);
+                    ScaleToolStripsForDpi(newDpiX);
+                    break;
             }
 
             base.WndProc(ref msg);
@@ -571,6 +590,7 @@ namespace Log2Window
         {
             DoubleBuffered = true;
             base.OnLoad(e);
+            ScaleToolStripsForDpi();
         }
 
         private void OnFloatyDocking(object sender, EventArgs e)
@@ -1286,6 +1306,155 @@ namespace Log2Window
             ctrl.Font = new Font(ctrl.Font.FontFamily, newSize);
         }
 
+        /// <summary>
+        /// Calculates the effective DPI scale factor by considering both:
+        /// 1. System DPI scaling (when Windows scaling is > 100%)
+        /// 2. Physical screen PPI via GetDpiForMonitor (Windows 8.1+)
+        /// 3. Physical screen PPI via GetDeviceCaps fallback
+        /// </summary>
+        private float GetEffectiveScaleFactor()
+        {
+            // First check: system DPI scaling (Windows display scaling > 100%)
+            using (var g = CreateGraphics())
+            {
+                if (g.DpiX > 96.5f)
+                    return g.DpiX / 96f;
+            }
+
+            // Second check: raw physical DPI from the monitor via GetDpiForMonitor (Windows 8.1+)
+            try
+            {
+                IntPtr hMonitor = MonitorFromWindow(Handle, 2); // MONITOR_DEFAULTTONEAREST
+                if (hMonitor != IntPtr.Zero)
+                {
+                    uint rawDpiX, rawDpiY;
+                    if (GetDpiForMonitor(hMonitor, 2, out rawDpiX, out rawDpiY) == 0) // MDT_RAW_DPI
+                    {
+                        float rawScale = rawDpiX / 96f;
+                        Utils.log.Debug(string.Format(
+                            "GetDpiForMonitor: rawDpiX={0}, rawScale={1:F2}", rawDpiX, rawScale));
+                        if (rawScale >= 1.05f)
+                            return rawScale;
+                    }
+                }
+            }
+            catch (EntryPointNotFoundException)
+            {
+                // GetDpiForMonitor not available (pre-Windows 8.1)
+            }
+            catch (Exception ex)
+            {
+                Utils.log.Debug("GetDpiForMonitor failed: " + ex.Message);
+            }
+
+            // Third check: fallback to GetDeviceCaps physical PPI
+            IntPtr hdc = GetDC(IntPtr.Zero);
+            if (hdc != IntPtr.Zero)
+            {
+                try
+                {
+                    int physicalPixelsX = GetDeviceCaps(hdc, GDI_DESKTOPHORZRES);
+                    int screenWidthMM = GetDeviceCaps(hdc, GDI_HORZSIZE);
+
+                    Utils.log.Debug(string.Format(
+                        "GetDeviceCaps: physicalPixelsX={0}, screenWidthMM={1}", 
+                        physicalPixelsX, screenWidthMM));
+
+                    if (screenWidthMM > 0 && physicalPixelsX > 0)
+                    {
+                        float actualPpi = physicalPixelsX / (screenWidthMM / 25.4f);
+                        float scale = actualPpi / 96f;
+                        Utils.log.Debug(string.Format(
+                            "GetDeviceCaps: actualPpi={0:F1}, scale={1:F2}", actualPpi, scale));
+
+                        if (scale >= 1.05f)
+                            return scale;
+                    }
+                }
+                finally
+                {
+                    ReleaseDC(IntPtr.Zero, hdc);
+                }
+            }
+
+            // Fourth fallback: heuristic based on screen resolution
+            // Some drivers report inaccurate physical dimensions, so use pixel width
+            // as a rough indicator of display density
+            if (this.IsHandleCreated)
+            {
+                var screen = Screen.FromHandle(Handle);
+                int width = screen.Bounds.Width;
+                Utils.log.Debug(string.Format(
+                    "Resolution heuristic: screenWidth={0}", width));
+                if (width >= 3840) // 4K or higher
+                    return 1.6f;
+                if (width >= 3200) // 3K (e.g. 3200x1800)
+                    return 1.4f;
+                if (width >= 2560) // 2K / WQHD
+                    return 1.2f;
+            }
+
+            return 1.0f;
+        }
+
+        // Monitor / DPI APIs for physical PPI detection (Windows 8.1+)
+        [DllImport("user32.dll")]
+        private static extern IntPtr MonitorFromWindow(IntPtr hwnd, int dwFlags);
+        [DllImport("shcore.dll")]
+        private static extern int GetDpiForMonitor(IntPtr hmonitor, int dpiType, out uint dpiX, out uint dpiY);
+
+        /// <summary>
+        /// Scales all ToolStrip image and item container sizes to match the current display density.
+        /// Called on startup and whenever DPI changes (window moves between monitors).
+        /// </summary>
+        private void ScaleToolStripsForDpi(int? systemDpiX = null)
+        {
+            if (mainToolStrip == null) return;
+
+            float scale;
+            if (systemDpiX.HasValue)
+            {
+                // System DPI change (window moved to a monitor with different scaling)
+                scale = systemDpiX.Value / 96f;
+            }
+            else
+            {
+                // Startup: detect effective DPI from both system scaling and physical PPI
+                scale = GetEffectiveScaleFactor();
+            }
+
+            int imgSize = Math.Max(24, (int)Math.Round(24 * scale));
+            Size imageScalingSize = new Size(imgSize, imgSize);
+
+            // Apply vector font icons for crisp rendering at any DPI.
+            // ToolStrip's built-in SizeToFit image scaling will downscale the generously-padded
+            // bitmap to ImageScalingSize, and each item's AutoSize (default true) will make
+            // room for it.
+            mainToolStrip.ImageScalingSize = imageScalingSize;
+            IconProvider.ApplyGlyphIcons(mainToolStrip, imgSize);
+
+            if (loggersToolStrip != null)
+            {
+                loggersToolStrip.ImageScalingSize = imageScalingSize;
+                IconProvider.ApplyGlyphIcons(loggersToolStrip, imgSize);
+            }
+            if (logDetailToolStrip != null)
+            {
+                logDetailToolStrip.ImageScalingSize = imageScalingSize;
+                IconProvider.ApplyGlyphIcons(logDetailToolStrip, imgSize);
+            }
+            if (toolStrip1 != null)
+            {
+                toolStrip1.ImageScalingSize = imageScalingSize;
+                IconProvider.ApplyGlyphIcons(toolStrip1, imgSize);
+            }
+
+            // Refresh layout
+            mainToolStrip.PerformLayout();
+            if (loggersToolStrip != null) loggersToolStrip.PerformLayout();
+            if (logDetailToolStrip != null) logDetailToolStrip.PerformLayout();
+            if (toolStrip1 != null) toolStrip1.PerformLayout();
+        }
 
         private void deleteLoggerTreeMenuItem_Click(object sender, EventArgs e)
         {

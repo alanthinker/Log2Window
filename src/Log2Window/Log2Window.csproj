@@ -205,6 +205,7 @@
     <Compile Include="UI\ToolStripControl.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="UI\IconProvider.cs" />
     <Compile Include="UI\TreeViewLoggerView.cs" />
     <Compile Include="UI\WindowRestorer.cs" />
   </ItemGroup>
@@ -250,6 +251,7 @@
     <None Include="res\unselect.png" />
     <None Include="res\backward16.png" />
     <None Include="res\forward16.png" />
+    <EmbeddedResource Include="res\fa-solid-900.ttf" />
     <Content Include="res\collapse_all.png" />
     <Content Include="res\eventLog.png" />
     <Content Include="res\Excel.ico" />
@@ -273,6 +275,7 @@
     <PackageReference Include="log4net">
       <Version>2.0.10</Version>
     </PackageReference>
+
     <PackageReference Include="RichTextBoxLinks">
       <Version>1.0.0</Version>
     </PackageReference>
