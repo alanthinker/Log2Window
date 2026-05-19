@@ -188,7 +188,7 @@ namespace Log2Window
             this.mainToolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
             this.mainToolStrip.Location = new System.Drawing.Point(0, 0);
             this.mainToolStrip.Name = "mainToolStrip";
-            this.mainToolStrip.Padding = new System.Windows.Forms.Padding(0, 0, 0, 5);
+            this.mainToolStrip.Padding = new System.Windows.Forms.Padding(5, 0, 0, 5);
             this.mainToolStrip.Size = new System.Drawing.Size(1363, 29);
             this.mainToolStrip.TabIndex = 2;
             this.mainToolStrip.Text = "mainToolStrip";

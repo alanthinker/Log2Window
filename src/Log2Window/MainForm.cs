@@ -1425,7 +1425,7 @@ namespace Log2Window
                 scale = GetEffectiveScaleFactor();
             }
 
-            int imgSize = Math.Max(19, (int)Math.Round(19 * scale));
+            int imgSize = Math.Max(20, (int)Math.Round(20 * scale));
             Size imageScalingSize = new Size(imgSize, imgSize);
 
             // Apply vector font icons for crisp rendering at any DPI.
@@ -1453,10 +1453,6 @@ namespace Log2Window
                 IconProvider.ApplyGlyphIcons(toolStrip1, imgSize);
                 NormalizeToolStripItemHeights(toolStrip1, imgSize);
             }
-
-            // Remove the Designer-specified bottom padding — with uniform item
-            // heights we no longer need the extra clearance.
-            mainToolStrip.Padding = new Padding(0);
 
             // Refresh layout
             mainToolStrip.PerformLayout();
