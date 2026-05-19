@@ -636,7 +636,7 @@ namespace Log2Window
             | System.Windows.Forms.AnchorStyles.Right)));
             this.loggerTreeView.CheckBoxes = true;
             this.loggerTreeView.Indent = 19;
-            this.loggerTreeView.Location = new System.Drawing.Point(0, 25);
+            this.loggerTreeView.Location = new System.Drawing.Point(0, 30);
             this.loggerTreeView.Name = "loggerTreeView";
             this.loggerTreeView.PathSeparator = ".";
             this.loggerTreeView.Size = new System.Drawing.Size(237, 522);
