@@ -25,7 +25,7 @@ namespace Log2Window.UI
             { "zoomInLogListBtn",            "\uF00E" },   // magnifying-glass-plus
             { "goToFirstLogBtn",             "\uF049" },   // backward (fast backward)
             { "pauseRefreshNewMessagesBtn",  "\uF04C" },   // pause
-            { "goToLastLogBtn",              "\uF04E" },   // forward (fast forward)
+            { "goToLastLogBtn",              "\uF050" },   // forward (fast forward)
             { "clearBtn",                    "\uF2ED" },   // trash-can
             { "toolStripLabel3",             "\uF1DE" },   // sliders (filter)
             { "lblSearch",                   "\uF002" },   // magnifying-glass
