@@ -22,9 +22,9 @@ namespace Log2Window
         {
             string temp = null;
             //Add all the Standard Fields to the ListViewItem
-            for (int i = 0; i < UserSettings.Instance.ColumnConfiguration.Length; i++)
+            for (int i = 0; i < UserSettings.Instance.ExportCsvHeaderColumns.Length; i++)
             {
-                switch (UserSettings.Instance.ColumnConfiguration[i].Field)
+                switch (UserSettings.Instance.ExportCsvHeaderColumns[i].Field)
                 {
                     case LogMessageField.SequenceNr:
                         temp = logMsg.SequenceNr.ToString();
@@ -86,9 +86,9 @@ namespace Log2Window
                     var csvWriter = new CsvWriter(textWriter);
                     csvWriter.Configuration.Encoding = Encoding.UTF8;
 
-                    for (int i = 0; i < UserSettings.Instance.ColumnConfiguration.Length; i++)
+                    for (int i = 0; i < UserSettings.Instance.ExportCsvHeaderColumns.Length; i++)
                     {
-                        csvWriter.WriteField(UserSettings.Instance.ColumnConfiguration[i].Field.ToString());
+                        csvWriter.WriteField(UserSettings.Instance.ExportCsvHeaderColumns[i].Field.ToString());
                     }
                     csvWriter.NextRecord();
 
@@ -125,9 +125,9 @@ namespace Log2Window
                 var csvWriter = new CsvWriter(stringWriter);
                 csvWriter.Configuration.Encoding = Encoding.UTF8;
 
-                for (int i = 0; i < UserSettings.Instance.ColumnConfiguration.Length; i++)
+                for (int i = 0; i < UserSettings.Instance.ExportCsvHeaderColumns.Length; i++)
                 {
-                    csvWriter.WriteField(UserSettings.Instance.ColumnConfiguration[i].Field.ToString());
+                    csvWriter.WriteField(UserSettings.Instance.ExportCsvHeaderColumns[i].Field.ToString());
                 }
                 csvWriter.NextRecord();
 

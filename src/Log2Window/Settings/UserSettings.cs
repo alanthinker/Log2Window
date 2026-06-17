@@ -44,14 +44,13 @@ namespace Log2Window.Settings
             new FieldType(LogMessageField.Message, "Message"),
         };
 
-        private static readonly FieldType[] DefaultCsvColumnHeaderConfiguration =
+        private static readonly FieldType[] DefaultExportCsvHeaderColumns =
         {
-            new FieldType(LogMessageField.SequenceNr, "sequence"),
+            new FieldType(LogMessageField.ArrivedId, "arrivedId"),
             new FieldType(LogMessageField.TimeStamp, "time"),
             new FieldType(LogMessageField.Level, "level"),
             new FieldType(LogMessageField.ThreadName, "thread"),
-            new FieldType(LogMessageField.CallSiteClass, "class"),
-            new FieldType(LogMessageField.CallSiteMethod, "method"),
+            new FieldType(LogMessageField.LoggerName, "LoggerName"),
             new FieldType(LogMessageField.Message, "message"),
             new FieldType(LogMessageField.Exception, "exception"),
             new FieldType(LogMessageField.SourceFileName, "file")
@@ -80,7 +79,7 @@ namespace Log2Window.Settings
         private FieldType[] _messageDetailConfiguration;
 
 
-        private FieldType[] _csvColumnHeaderFields;
+        private FieldType[] _exportCsvHeaderColumns;
         private SourceFileLocation[] _sourceLocationMapConfiguration;
         private int _messageCycleCountForEachLevel = 500_000;
         private string _timeStampFormatString = "yyyy-MM-dd HH:mm:ss.ffff";
@@ -280,15 +279,15 @@ namespace Log2Window.Settings
 
 
         [Category("Columns")]
-        [DisplayName("CSV File Header Column Settings")]
-        [Description("Configures which columns maps to which fields when auto detecting the CSV structure based on the header")]        
-        public FieldType[] CsvHeaderColumns
+        [DisplayName("Export CSV Header Columns")]
+        [Description("Configures which columns to use when exporting CSV data")]        
+        public FieldType[] ExportCsvHeaderColumns
         {
-            get { return _csvColumnHeaderFields ?? (CsvHeaderColumns = DefaultCsvColumnHeaderConfiguration); }
+            get { return _exportCsvHeaderColumns ?? (ExportCsvHeaderColumns = DefaultExportCsvHeaderColumns); }
             set
             {
-                _csvColumnHeaderFields = value;
-                UpdateCsvColumnHeader();
+                _exportCsvHeaderColumns = value;
+                UpdateExportCsvHeaderColumns();
             }
         }
 
@@ -319,7 +318,7 @@ namespace Log2Window.Settings
         [Category("Logging")]
         [Description("When greater than 0, the log messages are limited to that number. Like a queue First-In-First-Out.")]
         [DisplayName("Message Cycle Count For Each Level")]
-        [DefaultValue(500_000)] //100ÍòÌõÏûÏ¢, ´ó¸ÅÐèÒª500Mµ½1GµÄÄÚ´æ. 
+        [DefaultValue(500_000)] //100ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢, ï¿½ï¿½ï¿½ï¿½ï¿½Òª500Mï¿½ï¿½1Gï¿½ï¿½ï¿½Ú´ï¿½. 
         public int MessageCycleCountForEachLevel
         {
             get { return _messageCycleCountForEachLevel; }
@@ -544,7 +543,7 @@ namespace Log2Window.Settings
             get
             {
                 if (_csvHeaderFieldTypes == null)
-                    UpdateCsvColumnHeader();
+                    UpdateExportCsvHeaderColumns();
                 return _csvHeaderFieldTypes;
             }
             set { _csvHeaderFieldTypes = value; }
@@ -580,10 +579,10 @@ namespace Log2Window.Settings
             }
         }
 
-        private void UpdateCsvColumnHeader()
+        private void UpdateExportCsvHeaderColumns()
         {
             _csvHeaderFieldTypes = new Dictionary<string, FieldType>();
-            foreach (var column in CsvHeaderColumns)
+            foreach (var column in ExportCsvHeaderColumns)
             {
                 _csvHeaderFieldTypes.Add(column.Name, column);
             }
